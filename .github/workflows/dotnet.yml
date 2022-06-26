@@ -1,0 +1,44 @@
+name: .NET
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+      - name: Cache build
+        uses: actions/cache@v2
+        env:
+          dotnet-version: 6.0.x
+          cache-name: cache-build
+        with: 
+          path: ~/cache
+          key: ${{ runner.os }}-dotnet
+
+      - name: Restore Dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+  
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache build
+        uses: actions/cache@v2
+        env:
+          dotnet-version: 6.0.x
+          cache-name: cache-build
+        with:
+          path: ~/cache
+          key: ${{ runner.os }}-dotnet
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
