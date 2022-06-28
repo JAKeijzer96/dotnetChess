@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using Core.ChessBoard;
+﻿using Core.ChessBoard;
 using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
 using Xunit;
-using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace Core.Tests.ChessBoard;
 
 public class BoardTests
 {
-    private readonly ITestOutputHelper _testOutputHelper;
     private readonly Board _board;
 
-    public BoardTests(ITestOutputHelper testOutputHelper)
+    public BoardTests()
     {
-        _testOutputHelper = testOutputHelper;
         _board = new Board();
     }
 
@@ -30,7 +24,7 @@ public class BoardTests
         Assert.Equal(file, square.File);
         Assert.Equal(rank, square.Rank);
     }
-    
+
     [Theory]
     [InlineData(-1, 5)]
     [InlineData(7, 8)]
@@ -38,7 +32,7 @@ public class BoardTests
     {
         Assert.Throws<OutOfBoardException>(() => _board.GetSquare(file, rank));
     }
-    
+
     [Fact]
     public void Constructor_PutsWhiteKingOnE1()
     {
@@ -48,7 +42,7 @@ public class BoardTests
         Assert.NotNull(actualPiece);
         Assert.Equal(expectedPiece.Name, actualPiece!.Name);
     }
-    
+
     [Fact]
     public void Constructor_PutsBlackQueenOnD8()
     {
@@ -58,6 +52,4 @@ public class BoardTests
         Assert.NotNull(actualPiece);
         Assert.Equal(expectedPiece.Name, actualPiece!.Name);
     }
-    
-    
 }
