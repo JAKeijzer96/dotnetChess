@@ -88,6 +88,15 @@ public class Board
         _squares[7, 7] = new Square(7, 7, new Rook(Color.Black));
     }
 
+    /// <summary>
+    /// Method to get the position of the board in FEN notation. <br/>
+    /// Note that this only return the board position, and does not include the player to move,
+    /// castling rights, enpassant square, halfmove counter or fullmove counter.
+    /// </summary>
+    /// <example>
+    /// Return value when in the starting position:
+    /// <c>"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"</c>
+    /// </example>
     public string GetFenPosition()
     {
         var fen = "";
