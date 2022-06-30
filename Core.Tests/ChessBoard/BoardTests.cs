@@ -52,4 +52,12 @@ public class BoardTests
         Assert.NotNull(actualPiece);
         Assert.Equal(expectedPiece.Name, actualPiece!.Name);
     }
+    
+    [Fact]
+    public void GetFenPosition_WithStartingPosition_ReturnsCorrectFen()
+    {
+        var expectedFenPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+        var actualFenPosition = _board.GetFenPosition();
+        Assert.Equal(expectedFenPosition, actualFenPosition);
+    }
 }

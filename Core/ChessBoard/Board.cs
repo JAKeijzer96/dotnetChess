@@ -87,5 +87,40 @@ public class Board
         _squares[6, 7] = new Square(6, 7, new Knight(Color.Black));
         _squares[7, 7] = new Square(7, 7, new Rook(Color.Black));
     }
+
+    public string GetFenPosition()
+    {
+        var fen = "";
+        for (var rank = 7; rank >= 0; rank--)
+        {
+            var emptySquares = 0;
+            for (var file = 0; file < BoardSize; file++)
+            {
+                var square = _squares[file, rank];
+                if (square.Piece is null)
+                {
+                    emptySquares++;
+                }
+                else
+                {
+                    if (emptySquares > 0)
+                    {
+                        fen += emptySquares;
+                        emptySquares = 0;
+                    }
+                    fen += square.Piece.Name;
+                }
+            }
+            if (emptySquares > 0)
+            {
+                fen += emptySquares;
+            }
+            if (rank > 0)
+            {
+                fen += "/";
+            }
+        }
+        return fen;
+    }
     
 }
