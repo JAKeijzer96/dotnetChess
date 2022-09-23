@@ -9,7 +9,7 @@ public class FenParser
 {
     public static Game Parse(string fen)
     {
-        string[] splitFen = SplitFen(fen);
+        string[] splitFen = ValidateAndSplitFen(fen);
 
         Board board = ParseBoard(splitFen[0]);
         Color turn = ParseTurn(splitFen[1]);
@@ -22,11 +22,11 @@ public class FenParser
     }
 
 
-    private static string[] SplitFen(string fen)
+    private static string[] ValidateAndSplitFen(string fen)
     {
         if (fen == null)
         {
-            throw new ArgumentNullException();
+            throw new ArgumentNullException(nameof(fen));
         }
 
         string[] fenParts = fen.Split(' ');

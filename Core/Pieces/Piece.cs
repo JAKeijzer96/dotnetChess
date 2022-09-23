@@ -7,18 +7,18 @@ namespace Core.Pieces;
 public abstract class Piece
 {
     private readonly IMoveValidator _moveValidator;
-    private readonly Color _color;
+    public Color Color { get; }
     public char Name { get; protected init; }
     
     protected Piece(Color color, IMoveValidator moveValidator)
     {
-        _color = color;
+        Color = color;
         _moveValidator = moveValidator;
     }
 
     public bool HasSameColorAs(Piece piece)
     {
-        return _color.Equals(piece._color);
+        return Color.Equals(piece.Color);
     }
 
     public bool IsValidMove(Board board, Square from, Square to)
