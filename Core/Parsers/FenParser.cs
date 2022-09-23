@@ -40,7 +40,7 @@ public class FenParser
 
     private static Board ParseBoard(string boardFen)
     {
-        return BoardFactory.ParsePartialFenNotation(boardFen);
+        return new Board(boardFen);
     }
 
     private static Color ParseTurn(string turnFen)
