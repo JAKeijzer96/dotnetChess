@@ -10,6 +10,42 @@ namespace Core.Test.ChessBoard;
 [TestClass]
 public class BoardTest
 {
+    [TestMethod]
+    public void Board_WithStartingPosition_PutsWhiteKingOnE1()
+    {
+        var board = new Board();
+        var expectedPiece = new King(Color.White);
+
+        var actualPiece = board.GetSquare(4, 0).Piece;
+        
+        Assert.IsNotNull(actualPiece);
+        Assert.AreEqual(expectedPiece.Color, actualPiece.Color);
+        Assert.AreEqual(expectedPiece.Name, actualPiece.Name);
+    }
+    
+    [TestMethod]
+    public void Board_WithStartingPosition_PutsBlackQueenOnD8()
+    {
+        var board = new Board();
+        var expectedPiece = new Queen(Color.Black);
+        
+        var actualPiece = board.GetSquare(3, 7).Piece;
+        
+        Assert.IsNotNull(actualPiece);
+        Assert.AreEqual(expectedPiece.Color, actualPiece.Color);
+        Assert.AreEqual(expectedPiece.Name, actualPiece.Name);
+    }
+
+    [TestMethod]
+    public void ToString_OfBoardWithStartingPosition_ReturnsCorrectString()
+    {
+        var boardFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+
+        var board = new Board(boardFen);
+        
+        Assert.AreEqual(boardFen, board.ToString());
+    }
+
     [DataTestMethod]
     [DataRow(0, 0)]
     [DataRow(1, 7)]
@@ -38,28 +74,7 @@ public class BoardTest
         Assert.ThrowsException<OutOfBoardException>((Action) Act);
     }
     
-    [TestMethod]
-    public void Constructor_PutsWhiteKingOnE1()
-    {
-        var board = new Board();
-        var expectedPiece = new King(Color.White);
-        
-        var square = board.GetSquare(4, 0);
-        var actualPiece = square.Piece;
-        Assert.IsNotNull(actualPiece);
-        Assert.AreEqual(expectedPiece.Name, actualPiece!.Name);
-    }
     
-    [TestMethod]
-    public void Constructor_PutsBlackQueenOnD8()
-    {
-        var board = new Board();
-        var expectedPiece = new Queen(Color.Black);
-        var square = board.GetSquare(3, 7);
-        var actualPiece = square.Piece;
-        Assert.IsNotNull(actualPiece);
-        Assert.AreEqual(expectedPiece.Name, actualPiece!.Name);
-    }
     
     
 }

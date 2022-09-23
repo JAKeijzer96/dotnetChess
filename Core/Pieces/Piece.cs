@@ -26,4 +26,8 @@ public abstract class Piece
         return _moveValidator.IsValidMove(board, from, to);
     }
 
+    public override string ToString()
+    {
+        return Name.ToString();
+    }
 }

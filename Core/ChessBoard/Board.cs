@@ -1,3 +1,4 @@
+using System.Text;
 using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
@@ -18,39 +19,54 @@ public class Board
     public Board(string boardFen)
     {
         _squares = new Square[BoardSize, BoardSize];
-        SetupBoardWithFen(boardFen);
+        SetupBoardFromBoardFen(boardFen);
     }
 
-    private void SetupBoardWithFen(string boardFen)
+    private void SetupBoardFromBoardFen(string boardFen)
+    {
+        string[] fenRanks = ValidateAndSplitBoardFen(boardFen);
+        int rank = BoardSize - 1;
+        int file = 0;
+        for (var i = 0; i < BoardSize; i++)
+        {
+            var fenRank = fenRanks[i];
+            foreach (var fenChar in fenRank)
+            {
+                if (char.IsDigit(fenChar))
+                {
+                    int emptySquares = fenChar - '0';
+                    for (var j = 0; j < emptySquares; j++)
+                    {
+                        _squares[file, rank] = new Square(file, rank);
+                        file++;
+                    }
+                }
+                else
+                {
+                    _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePiece(fenChar));
+                    file++;
+                }
+            }
+
+            rank--;
+            file = 0;
+        }
+    }
+
+    private string[] ValidateAndSplitBoardFen(string boardFen)
     {
         if (boardFen == null)
         {
             throw new ArgumentNullException(nameof(boardFen));
         }
-        var fenRows = boardFen.Split('/');
-        if (fenRows.Length != BoardSize)
+
+        var fenRanks = boardFen.Split('/');
+        if (fenRanks.Length != 8)
         {
-            throw new InvalidFenException("Invalid number of ranks in FEN");
+            throw new InvalidFenException($"Invalid number of ranks in FEN: {boardFen}");
         }
 
-        // for (var row = 0; row < BoardSize; row++)
-        // {
-        //     var fenRow = fenRows[row];
-        //     var col = 0;
-        //     foreach (var fenChar in fenRow)
-        //     {
-        //         if (char.IsDigit(fenChar))
-        //         {
-        //             col += int.Parse(fenChar.ToString());
-        //         }
-        //         else
-        //         {
-        //             var piece = PieceFactory.CreatePiece(fenChar);
-        //             _squares[row, col] = new Square(piece);
-        //             col++;
-        //         }
-        //     }
-        // }
+        return fenRanks;
     }
 
     public Square GetSquare(int file, int rank)
@@ -68,8 +84,44 @@ public class Board
         return _squares[file, rank];
     }
 
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        for (var rank = BoardSize - 1; rank >= 0; rank--)
+        {
+            var emptySquares = 0;
+            for (var file = 0; file < BoardSize; file++)
+            {
+                if (_squares[file, rank].IsOccupied())
+                {
+                    if (emptySquares > 0)
+                    {
+                        sb.Append(emptySquares = 0);
+                    }
+
+                    sb.Append(_squares[file, rank].Piece);
+                }
+                else
+                {
+                    emptySquares++;
+                }
+            }
+
+            if (emptySquares > 0)
+            {
+                sb.Append(emptySquares);
+            }
+
+            sb.Append('/');
+        }
+
+        sb.Length--; // Remove last '/'
+        return sb.ToString();
+    }
+
     private void SetupBoardWithStartingPosition()
     {
+        // SetupBoardFromBoardFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
         SetupWhitePiecesStartingPosition();
         SetupWhitePawnsStartingPosition();
         SetupEmptySquaresStartingPosition();
