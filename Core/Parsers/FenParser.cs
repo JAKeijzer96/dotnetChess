@@ -1,29 +1,28 @@
 ﻿using Core.ChessBoard;
 using Core.ChessGame;
 using Core.Exceptions;
+using Core.Shared;
 
 namespace Core.Parsers;
 
 public class FenParser
 {
-    string fenTestic = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-    public FenGameState Parse(string fen)
+    public static Game Parse(string fen)
     {
         string[] splitFen = SplitFen(fen);
 
-        var board = ParseBoard(splitFen[0]);
-        var turn = ParseTurn(splitFen[1]);
-        var castling = ParseCastling(splitFen[2]);
-        var enPassant = ParseEnPassant(splitFen[3]);
-        var halfMoveCount = ParseHalfMoveCount(splitFen[4]);
-        var fullMoveCount = ParseFullMoveCount(splitFen[5]);
+        Board board = ParseBoard(splitFen[0]);
+        Color turn = ParseTurn(splitFen[1]);
+        string castling = ParseCastling(splitFen[2]);
+        Square? enPassant = ParseEnPassant(splitFen[3]);
+        int halfMoveCount = ParseHalfMoveCount(splitFen[4]);
+        int fullMoveCount = ParseFullMoveCount(splitFen[5]);
 
-        return new FenGameState(board, turn, castling, enPassant, halfMoveCount, fullMoveCount);
+        return new Game(board, turn, castling, enPassant, halfMoveCount, fullMoveCount);
     }
 
 
-    private string[] SplitFen(string fen)
+    private static string[] SplitFen(string fen)
     {
         if (fen == null)
         {
@@ -39,33 +38,38 @@ public class FenParser
         return fenParts;
     }
 
-    private Board ParseBoard(string boardPart)
+    private static Board ParseBoard(string boardFen)
     {
-        return BoardFactory.ParsePartialFenNotation(boardPart);
+        return BoardFactory.ParsePartialFenNotation(boardFen);
     }
 
-    private object ParseTurn(string s)
+    private static Color ParseTurn(string turnFen)
     {
-        throw new NotImplementedException();
+        return turnFen == "w" ? Color.White : Color.Black;
     }
 
-    private object ParseCastling(string s)
+    private static string ParseCastling(string castlingFen)
     {
-        throw new NotImplementedException();
+        return castlingFen;
     }
 
-    private object ParseEnPassant(string s)
+    private static Square? ParseEnPassant(string enPassantFen)
     {
-        throw new NotImplementedException();
+        if (enPassantFen == "-")
+        {
+            return null;
+        }
+
+        return null;
     }
 
-    private object ParseHalfMoveCount(string s)
+    private static int ParseHalfMoveCount(string halfMoveFen)
     {
-        throw new NotImplementedException();
+        return int.Parse(halfMoveFen);
     }
 
-    private object ParseFullMoveCount(string s)
+    private static int ParseFullMoveCount(string fullMoveFen)
     {
-        throw new NotImplementedException();
+        return int.Parse(fullMoveFen);
     }
 }

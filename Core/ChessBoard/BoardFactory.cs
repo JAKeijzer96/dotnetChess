@@ -2,7 +2,7 @@
 
 public static class BoardFactory
 {
-    public static Board ParsePartialFenNotation(string partialFen)
+    public static Board ParsePartialFenNotation(string boardFen)
     {
         
 
