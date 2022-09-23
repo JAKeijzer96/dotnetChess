@@ -10,7 +10,7 @@ public class QueenTest
     [DataTestMethod]
     [DataRow(Color.White, 'Q')]
     [DataRow(Color.Black, 'q')]
-    public void Constructor_SetsNameBasedOnColor(Color color, char expected)
+    public void Queen_WithColor_HasThatNameBasedOnThatColor(Color color, char expected)
     {
         var queen = new Queen(color);
         

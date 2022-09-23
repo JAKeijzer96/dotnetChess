@@ -8,7 +8,7 @@ public abstract class Piece
 {
     private readonly IMoveValidator _moveValidator;
     private readonly Color _color;
-    public char Name { get; set; }
+    public char Name { get; protected init; }
     
     protected Piece(Color color, IMoveValidator moveValidator)
     {
@@ -16,7 +16,7 @@ public abstract class Piece
         _moveValidator = moveValidator;
     }
 
-    public bool HasSameColor(Piece piece)
+    public bool HasSameColorAs(Piece piece)
     {
         return _color.Equals(piece._color);
     }

@@ -10,7 +10,7 @@ public class RookTest
     [DataTestMethod]
     [DataRow(Color.White, 'R')]
     [DataRow(Color.Black, 'r')]
-    public void Constructor_SetsNameBasedOnColor(Color color, char expected)
+    public void Rook_WithColor_HasThatNameBasedOnThatColor(Color color, char expected)
     {
         var rook = new Rook(color);
         

@@ -10,7 +10,7 @@ public class BishopTest
     [DataTestMethod]
     [DataRow(Color.White, 'B')]
     [DataRow(Color.Black, 'b')]
-    public void Constructor_SetsNameBasedOnColor(Color color, char expected)
+    public void Bishop_WithColor_HasThatNameBasedOnThatColor(Color color, char expected)
     {
         var bishop = new Bishop(color);
         

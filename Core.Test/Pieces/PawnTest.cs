@@ -10,7 +10,7 @@ public class PawnTest
     [DataTestMethod]
     [DataRow(Color.White, 'P')]
     [DataRow(Color.Black, 'p')]
-    public void Constructor_SetsNameBasedOnColor(Color color, char expected)
+    public void Pawn_WithColor_HasThatNameBasedOnThatColor(Color color, char expected)
     {
         var pawn = new Pawn(color);
         

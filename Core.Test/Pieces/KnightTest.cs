@@ -10,7 +10,7 @@ public class KnightTest
     [DataTestMethod]
     [DataRow(Color.White, 'N')]
     [DataRow(Color.Black, 'n')]
-    public void Constructor_SetsNameBasedOnColor(Color color, char expected)
+    public void Knight_WithColor_HasThatNameBasedOnThatColor(Color color, char expected)
     {
         var knight = new Knight(color);
         

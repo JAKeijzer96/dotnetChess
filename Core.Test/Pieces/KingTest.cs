@@ -10,7 +10,7 @@ public class KingTest
     [DataTestMethod]
     [DataRow(Color.White, 'K')]
     [DataRow(Color.Black, 'k')]
-    public void Constructor_SetsNameBasedOnColor(Color color, char expected)
+    public void King_WithColor_HasThatNameBasedOnThatColor(Color color, char expected)
     {
         var king = new King(color);
         
