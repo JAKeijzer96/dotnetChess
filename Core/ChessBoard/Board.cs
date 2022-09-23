@@ -14,17 +14,57 @@ public class Board
         _squares = new Square[BoardSize, BoardSize];
         SetupBoardWithStartingPosition();
     }
-    
+
+    public Board(string boardFen)
+    {
+        _squares = new Square[BoardSize, BoardSize];
+        SetupBoardWithFen(boardFen);
+    }
+
+    private void SetupBoardWithFen(string boardFen)
+    {
+        if (boardFen == null)
+        {
+            throw new ArgumentNullException(nameof(boardFen));
+        }
+        var fenRows = boardFen.Split('/');
+        if (fenRows.Length != BoardSize)
+        {
+            throw new InvalidFenException("Invalid number of ranks in FEN");
+        }
+
+        // for (var row = 0; row < BoardSize; row++)
+        // {
+        //     var fenRow = fenRows[row];
+        //     var col = 0;
+        //     foreach (var fenChar in fenRow)
+        //     {
+        //         if (char.IsDigit(fenChar))
+        //         {
+        //             col += int.Parse(fenChar.ToString());
+        //         }
+        //         else
+        //         {
+        //             var piece = PieceFactory.CreatePiece(fenChar);
+        //             _squares[row, col] = new Square(piece);
+        //             col++;
+        //         }
+        //     }
+        // }
+    }
+
     public Square GetSquare(int file, int rank)
     {
         if (file is < 0 or >= BoardSize)
         {
             throw new OutOfBoardException($"File {file} is out of board. Must be between 0 and {Board.BoardSize - 1}");
         }
+
         if (rank is < 0 or >= BoardSize)
         {
             throw new OutOfBoardException($"Rank {rank} is out of board. Must be between 0 and {Board.BoardSize - 1}");
         }
+
         return _squares[file, rank];
     }
 
@@ -56,7 +96,7 @@ public class Board
             _squares[file, 1] = new Square(file, 1, new Pawn(Color.White));
         }
     }
-    
+
     private void SetupEmptySquaresStartingPosition()
     {
         for (var file = 0; file < BoardSize; file++)
@@ -67,7 +107,7 @@ public class Board
             }
         }
     }
-    
+
     private void SetupBlackPawnsStartingPosition()
     {
         for (int file = 0; file < BoardSize; file++)
@@ -87,5 +127,4 @@ public class Board
         _squares[6, 7] = new Square(6, 7, new Knight(Color.Black));
         _squares[7, 7] = new Square(7, 7, new Rook(Color.Black));
     }
-    
 }
