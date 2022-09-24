@@ -33,4 +33,33 @@ public class Square
             throw new OutOfBoardException($"Rank {rank} is out of board. Must be between 0 and {Board.BoardSize - 1}");
         }
     }
+
+    public static bool operator ==(Square left, Square right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Square left, Square right)
+    {
+        return !(left == right);
+    }
+    
+    protected bool Equals(Square other)
+    {
+        return File == other.File && Rank == other.Rank && Piece == other.Piece;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((Square) obj);
+    }
+    
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(File, Rank, Piece);
+    }
+
 }
