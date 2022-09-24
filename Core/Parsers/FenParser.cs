@@ -1,11 +1,12 @@
-﻿using Core.ChessBoard;
+﻿using System.Text.RegularExpressions;
+using Core.ChessBoard;
 using Core.ChessGame;
 using Core.Exceptions;
 using Core.Shared;
 
 namespace Core.Parsers;
 
-public class FenParser
+public static class FenParser
 {
     public static Game Parse(string fen)
     {
@@ -43,16 +44,24 @@ public class FenParser
         return new Board(boardFen);
     }
 
-    private static Color ParseTurn(string turnFen)
+    private static Color ParseTurn(string turnFen) => turnFen switch
     {
-        return turnFen == "w" ? Color.White : Color.Black;
-    }
+        "w" => Color.White,
+        "b" => Color.Black,
+        _ => throw new InvalidFenException($"Invalid turn: {turnFen}")
+    };
 
     private static string ParseCastling(string castlingFen)
     {
-        return castlingFen;
+        if (Regex.Match(castlingFen, @"^(-|(K?Q?k?q?))$").Success)
+        {
+            return castlingFen;
+        }
+
+        throw new InvalidFenException($"Invalid castling string: {castlingFen}");
     }
 
+    // TODO: Proper implementation
     private static Square? ParseEnPassant(string enPassantFen)
     {
         if (enPassantFen == "-")
@@ -60,16 +69,33 @@ public class FenParser
             return null;
         }
 
-        return null;
+        if (Regex.Match(enPassantFen, @"^[a-h][36]$").Success)
+        {
+            return null;
+        }
+
+        throw new InvalidFenException($"Invalid en passant square: {enPassantFen}");
     }
 
     private static int ParseHalfMoveCount(string halfMoveFen)
     {
-        return int.Parse(halfMoveFen);
+        int halfMoveCount = int.Parse(halfMoveFen);
+        if (halfMoveCount < 0)
+        {
+            throw new InvalidFenException($"Invalid half move count: {halfMoveFen}");
+        }
+
+        return halfMoveCount;
     }
 
     private static int ParseFullMoveCount(string fullMoveFen)
     {
-        return int.Parse(fullMoveFen);
+        int fullMoveCount = int.Parse(fullMoveFen);
+        if (fullMoveCount < 1)
+        {
+            throw new InvalidFenException($"Invalid full move count: {fullMoveFen}");
+        }
+
+        return fullMoveCount;
     }
 }
