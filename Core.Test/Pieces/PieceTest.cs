@@ -38,21 +38,21 @@ public class PieceTest
     [TestMethod]
     public void EqualsOperator_ForEqualPieces_ReturnsTrue()
     {
-        Piece left = new King(Color.Black);
-        Piece right = new King(Color.Black);
+        Piece piece1 = new King(Color.Black);
+        Piece piece2 = new King(Color.Black);
         
-        var result = left == right;
+        var result = piece1 == piece2;
         
         Assert.AreEqual(true, result);
     }
     
     [TestMethod]
-    public void EqualsOperator_ForUnequalPiecesOfSameColor_ReturnsFalse()
+    public void EqualsOperator_ForDifferentPieceTypesOfSameColor_ReturnsFalse()
     {
-        Piece left = new King(Color.Black);
-        Piece right = new Bishop(Color.Black);
+        Piece piece1 = new King(Color.Black);
+        Piece piece2 = new Bishop(Color.Black);
         
-        var result = left == right;
+        var result = piece1 == piece2;
         
         Assert.AreEqual(false, result);
     }
@@ -60,13 +60,23 @@ public class PieceTest
     [TestMethod]
     public void EqualsOperator_ForSamePieceTypeOfDifferentColor_ReturnsFalse()
     {
-        Piece left = new Rook(Color.White);
-        Piece right = new Rook(Color.Black);
+        Piece piece1 = new Rook(Color.White);
+        Piece piece2 = new Rook(Color.Black);
         
-        var result = left == right;
+        var result = piece1 == piece2;
         
         Assert.AreEqual(false, result);
     }
     
+    [TestMethod]
+    public void EqualsOperator_ForNullPieces_ReturnsTrue()
+    {
+        Piece? piece1 = null;
+        Piece? piece2 = null;
+        
+        var result = piece1 == piece2;
+
+        Assert.AreEqual(true, result);
+    }
     
 }

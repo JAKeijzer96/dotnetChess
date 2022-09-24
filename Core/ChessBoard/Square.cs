@@ -8,7 +8,7 @@ public class Square
     public readonly int File;
     public readonly int Rank;
     public Piece? Piece { get; set; }
-    
+
     public Square(int file, int rank, Piece? piece = null)
     {
         VerifyFileAndRank(file, rank);
@@ -28,27 +28,33 @@ public class Square
         {
             throw new OutOfBoardException($"File {file} is out of board. Must be between 0 and {Board.BoardSize - 1}");
         }
+
         if (rank is < 0 or >= Board.BoardSize)
         {
             throw new OutOfBoardException($"Rank {rank} is out of board. Must be between 0 and {Board.BoardSize - 1}");
         }
     }
 
-    public static bool operator ==(Square left, Square right)
+    public static bool operator ==(Square? left, Square? right)
     {
+        if (left is null)
+        {
+            return right is null;
+        }
+
         return left.Equals(right);
     }
 
-    public static bool operator !=(Square left, Square right)
+    public static bool operator !=(Square? left, Square? right)
     {
         return !(left == right);
     }
-    
-    protected bool Equals(Square other)
+
+    protected bool Equals(Square? other)
     {
-        return File == other.File && Rank == other.Rank && Piece == other.Piece;
+        return other is not null && File == other.File && Rank == other.Rank && Piece == other.Piece;
     }
-    
+
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
@@ -56,10 +62,9 @@ public class Square
         if (obj.GetType() != GetType()) return false;
         return Equals((Square) obj);
     }
-    
+
     public override int GetHashCode()
     {
-        return base.GetHashCode();
+        return HashCode.Combine(File, Rank, Piece);
     }
-
 }
