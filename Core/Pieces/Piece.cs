@@ -20,14 +20,24 @@ public abstract class Piece
         return Name.ToString();
     }
 
-    public static bool operator ==(Piece left, Piece right)
+    public static bool operator ==(Piece? left, Piece? right)
     {
+        if (left is null)
+        {
+            return right is null;
+        }
+
         return left.Equals(right);
     }
 
-    public static bool operator !=(Piece x, Piece y)
+    public static bool operator !=(Piece? left, Piece? right)
     {
-        return !(x == y);
+        return !(left == right);
+    }
+
+    protected bool Equals(Piece? other)
+    {
+        return other is not null && Name == other.Name;
     }
 
     public override bool Equals(object? obj)
@@ -36,11 +46,6 @@ public abstract class Piece
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
         return Equals((Piece) obj);
-    }
-
-    protected bool Equals(Piece other)
-    {
-        return Name == other.Name;
     }
 
     public override int GetHashCode()
