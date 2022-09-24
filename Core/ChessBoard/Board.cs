@@ -1,7 +1,6 @@
 using System.Text;
 using Core.Exceptions;
 using Core.Pieces;
-using Core.Shared;
 
 namespace Core.ChessBoard;
 
@@ -71,17 +70,38 @@ public class Board
 
     public Square GetSquare(int file, int rank)
     {
+        VerifyFileAndRank(file, rank);
+        return _squares[file, rank];
+    }
+    
+    public Square GetSquare(string squareName)
+    {
+        if (squareName == null)
+        {
+            throw new ArgumentNullException(nameof(squareName));
+        }
+
+        if (squareName.Length != 2)
+        {
+            throw new ArgumentException($"Invalid square: {squareName}");
+        }
+
+        int file = squareName[0] - 'a';
+        int rank = squareName[1] - '1';
+        return GetSquare(file, rank);
+    }
+
+    private void VerifyFileAndRank(int file, int rank)
+    {
         if (file is < 0 or >= BoardSize)
         {
-            throw new OutOfBoardException($"File {file} is out of board. Must be between 0 and {Board.BoardSize - 1}");
+            throw new OutOfBoardException($"File {file} is out of board. Must be between 0 and {BoardSize - 1}");
         }
 
         if (rank is < 0 or >= BoardSize)
         {
-            throw new OutOfBoardException($"Rank {rank} is out of board. Must be between 0 and {Board.BoardSize - 1}");
+            throw new OutOfBoardException($"Rank {rank} is out of board. Must be between 0 and {BoardSize - 1}");
         }
-
-        return _squares[file, rank];
     }
 
     public override string ToString()
