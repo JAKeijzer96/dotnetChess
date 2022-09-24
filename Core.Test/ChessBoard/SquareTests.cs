@@ -1,4 +1,5 @@
-﻿using Core.ChessBoard;
+﻿using System;
+using Core.ChessBoard;
 using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
@@ -25,16 +26,36 @@ public class SquareTests
     
     [DataTestMethod]
     [DataRow(8, 0)]
-    [DataRow(0, 8)]
-    [DataRow(-1, 0)]
+    [DataRow(-1, 5)]
     [DataRow('e', 4)]
-    public void Constructor_WithInvalidInput_ThrowsException(int file, int rank)
+    public void Constructor_WithInvalidFile_ThrowsException(int file, int rank)
     {
-        Assert.ThrowsException<OutOfBoardException>(() => new Square(file, rank));
+        void Act()
+        {
+            var square = new Square(file, rank);
+        }
+        
+        var exception = Assert.ThrowsException<OutOfBoardException>((Action)Act);
+        Assert.AreEqual($"File {file} is out of board. Must be between 0 and 7", exception.Message);
+    }
+    
+    [DataTestMethod]
+    [DataRow(0, 8)]
+    [DataRow(7, -1)]
+    [DataRow(2, '4')]
+    public void Constructor_WithInvalidRank_ThrowsException(int file, int rank)
+    {
+        void Act()
+        {
+            var square = new Square(file, rank);
+        }
+        
+        var exception = Assert.ThrowsException<OutOfBoardException>((Action)Act);
+        Assert.AreEqual($"Rank {rank} is out of board. Must be between 0 and 7", exception.Message);
     }
     
     [TestMethod]
-    public void IsOccupied_WithEmptySquare_ReturnsFalse()
+    public void IsOccupied_OfEmptySquare_IsFalse()
     {
         var square = new Square(0, 0);
 
@@ -42,7 +63,7 @@ public class SquareTests
     }
     
     [TestMethod]
-    public void IsOccupied_WithOccupiedSquare_ReturnsTrue()
+    public void IsOccupied_OfOccupiedSquare_IsTrue()
     {
         var square = new Square(0, 0, new Bishop(Color.Black));
 

@@ -11,14 +11,7 @@ public class Square
     
     public Square(int file, int rank, Piece? piece = null)
     {
-        if (file is < 0 or >= Board.BoardSize)
-        {
-            throw new OutOfBoardException($"File {file} is out of board. Must be between 0 and {Board.BoardSize - 1}");
-        }
-        if (rank is < 0 or >= Board.BoardSize)
-        {
-            throw new OutOfBoardException($"Rank {rank} is out of board. Must be between 0 and {Board.BoardSize - 1}");
-        }
+        VerifyFileAndRank(file, rank);
         File = file;
         Rank = rank;
         Piece = piece;
@@ -28,5 +21,16 @@ public class Square
     {
         return Piece != null;
     }
-    
+
+    private static void VerifyFileAndRank(int file, int rank)
+    {
+        if (file is < 0 or >= Board.BoardSize)
+        {
+            throw new OutOfBoardException($"File {file} is out of board. Must be between 0 and {Board.BoardSize - 1}");
+        }
+        if (rank is < 0 or >= Board.BoardSize)
+        {
+            throw new OutOfBoardException($"Rank {rank} is out of board. Must be between 0 and {Board.BoardSize - 1}");
+        }
+    }
 }
