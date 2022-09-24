@@ -19,7 +19,7 @@ public class Square
 
     public bool IsOccupied()
     {
-        return Piece != null;
+        return Piece is not null;
     }
 
     private static void VerifyFileAndRank(int file, int rank)
@@ -48,18 +48,18 @@ public class Square
     {
         return File == other.File && Rank == other.Rank && Piece == other.Piece;
     }
-
+    
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
+        if (obj.GetType() != GetType()) return false;
         return Equals((Square) obj);
     }
     
     public override int GetHashCode()
     {
-        return HashCode.Combine(File, Rank, Piece);
+        return base.GetHashCode();
     }
 
 }
