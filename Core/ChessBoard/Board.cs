@@ -59,6 +59,11 @@ public class Board
             throw new ArgumentNullException(nameof(boardFen));
         }
 
+        if (boardFen.Split(' ').Length > 1)
+        {
+            throw new ArgumentException("Constructor only accepts board part of FEN string");
+        }
+
         var fenRanks = boardFen.Split('/');
         if (fenRanks.Length != 8)
         {

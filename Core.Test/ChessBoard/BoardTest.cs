@@ -11,6 +11,20 @@ namespace Core.Test.ChessBoard;
 public class BoardTest
 {
     [TestMethod]
+    public void Board_WithFullFen_ThrowsArgumentException()
+    {
+        var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+        void Act()
+        {
+            var board = new Board(fen);
+        }
+
+        var exception = Assert.ThrowsException<ArgumentException>((Action) Act);
+        Assert.AreEqual("Constructor only accepts board part of FEN string", exception.Message);
+    }
+    
+    [TestMethod]
     public void GetSquare_WithValidFileAndRank_ReturnsSquare()
     {
         var board = new Board();
