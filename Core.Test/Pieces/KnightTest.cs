@@ -10,12 +10,11 @@ public class KnightTest
     [DataTestMethod]
     [DataRow(Color.White, 'N')]
     [DataRow(Color.Black, 'n')]
-    public void Knight_WithColor_HasThatNameBasedOnThatColor(Color color, char expected)
+    public void Knight_WithColor_HasCorrectNameAndColor(Color color, char name)
     {
         var knight = new Knight(color);
         
-        var actual = knight.Name;
-        
-        Assert.AreEqual(expected, actual);
+        Assert.AreEqual(name, knight.Name);
+        Assert.AreEqual(color, knight.Color);
     }
 }

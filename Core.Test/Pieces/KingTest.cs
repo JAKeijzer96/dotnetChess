@@ -10,12 +10,11 @@ public class KingTest
     [DataTestMethod]
     [DataRow(Color.White, 'K')]
     [DataRow(Color.Black, 'k')]
-    public void King_WithColor_HasThatNameBasedOnThatColor(Color color, char expected)
+    public void King_WithColor_HasCorrectNameAndColor(Color color, char name)
     {
         var king = new King(color);
         
-        var actual = king.Name;
-        
-        Assert.AreEqual(expected, actual);
+        Assert.AreEqual(name, king.Name);
+        Assert.AreEqual(color, king.Color);
     }
 }

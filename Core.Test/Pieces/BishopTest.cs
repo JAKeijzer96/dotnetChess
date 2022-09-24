@@ -10,12 +10,11 @@ public class BishopTest
     [DataTestMethod]
     [DataRow(Color.White, 'B')]
     [DataRow(Color.Black, 'b')]
-    public void Bishop_WithColor_HasThatNameBasedOnThatColor(Color color, char expected)
+    public void Bishop_WithColor_HasCorrectNameAndColor(Color color, char name)
     {
         var bishop = new Bishop(color);
         
-        var actual = bishop.Name;
-        
-        Assert.AreEqual(expected, actual);
+        Assert.AreEqual(name, bishop.Name);
+        Assert.AreEqual(color, bishop.Color);
     }
 }
