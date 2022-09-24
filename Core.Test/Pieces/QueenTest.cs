@@ -10,12 +10,11 @@ public class QueenTest
     [DataTestMethod]
     [DataRow(Color.White, 'Q')]
     [DataRow(Color.Black, 'q')]
-    public void Queen_WithColor_HasThatNameBasedOnThatColor(Color color, char expected)
+    public void Queen_WithColor_HasCorrectNameAndColor(Color color, char name)
     {
         var queen = new Queen(color);
         
-        var actual = queen.Name;
-        
-        Assert.AreEqual(expected, actual);
+        Assert.AreEqual(name, queen.Name);
+        Assert.AreEqual(color, queen.Color);
     }
 }
