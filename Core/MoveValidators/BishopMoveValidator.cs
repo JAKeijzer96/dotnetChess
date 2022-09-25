@@ -2,9 +2,9 @@
 
 namespace Core.MoveValidators;
 
-public class BishopMoveValidator : IMoveValidator
+public class BishopMoveValidator : MoveValidator
 {
-    public bool IsValidMove(Board board, Square from, Square to)
+    public override bool IsValidMove(Board board, Square from, Square to)
     {
         if (!IsValidDestinationSquare(board, from, to)) return false;
 
@@ -22,15 +22,9 @@ public class BishopMoveValidator : IMoveValidator
         return true;
     }
 
-    private static bool IsValidDestinationSquare(Board? board, Square? from, Square? to)
+    protected override bool IsValidDestinationSquare(Board? board, Square? from, Square? to)
     {
-        if (board is null) throw new ArgumentNullException(nameof(board));
-        if (from is null) throw new ArgumentNullException(nameof(from));
-        if (to is null) throw new ArgumentNullException(nameof(to));
-
-        return from.Piece is not null &&
-               from != to &&
-               Math.Abs(from.File - to.File) == Math.Abs(from.Rank - to.Rank) &&
-               to.Piece?.Color != from.Piece.Color;
+        return base.IsValidDestinationSquare(board, from, to) &&
+               Math.Abs(from!.File - to!.File) == Math.Abs(from.Rank - to.Rank);
     }
 }

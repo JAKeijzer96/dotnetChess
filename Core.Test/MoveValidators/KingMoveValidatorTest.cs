@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Core.Test.MoveValidators;
 
 [TestClass]
-public class BishopMoveValidatorTest
+public class KingMoveValidatorTest
 {
     [DataTestMethod]
     [DataRow("e4", "b1")]
@@ -15,13 +15,13 @@ public class BishopMoveValidatorTest
     public void IsValidMove_ForDiagonalMove_ReturnsTrue(string from, string to)
     {
         var board = new Board("8/8/8/8/4B3/8/4P3/k3K3");
-        var validator = new BishopMoveValidator();
+        var validator = new KingMoveValidator();
         var fromSquare = board.GetSquare(from);
         var toSquare = board.GetSquare(to);
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
-        Assert.IsTrue(result);
+        Assert.AreEqual(false, result);
     }
 
     [DataTestMethod]
@@ -29,10 +29,10 @@ public class BishopMoveValidatorTest
     [DataRow("e4", "e1")]
     [DataRow("e4", "a4")]
     [DataRow("e4", "h4")]
-    public void IsValidMove_ForMoveThatIsNotDiagonal_ReturnsFalse(string from, string to)
+    public void IsValidMove_ForHorizontalMove_ReturnsTrue(string from, string to)
     {
         var board = new Board("8/8/8/8/4B3/8/4P3/k3K3");
-        var validator = new BishopMoveValidator();
+        var validator = new KingMoveValidator();
         var fromSquare = board.GetSquare(from);
         var toSquare = board.GetSquare(to);
 
@@ -41,26 +41,17 @@ public class BishopMoveValidatorTest
         Assert.AreEqual(false, result);
     }
 
-    [TestMethod]
-    public void IsValidMove_WhenMoveIsBlockedByPieceOfOppositeColor_ReturnsFalse()
+    [DataTestMethod]
+    [DataRow("e4", "e8")]
+    [DataRow("e4", "e1")]
+    [DataRow("e4", "a4")]
+    [DataRow("e4", "h4")]
+    public void IsValidMove_ForVertical_ReturnsTrue(string from, string to)
     {
-        var board = new Board("1N6/4P3/3b4/8/8/r5k1/8/5K2");
-        var validator = new BishopMoveValidator();
-        var fromSquare = board.GetSquare("d6");
-        var toSquare = board.GetSquare("f8");
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.AreEqual(false, result);
-    }
-
-    [TestMethod]
-    public void IsValidMove_WhenMoveIsBlockedByPieceOfSameColor_ReturnsFalse()
-    {
-        var board = new Board("1N6/4P3/3b4/8/8/r5k1/8/5K2");
-        var validator = new BishopMoveValidator();
-        var fromSquare = board.GetSquare("d6");
-        var toSquare = board.GetSquare("h2");
+        var board = new Board("8/8/8/8/4B3/8/4P3/k3K3");
+        var validator = new KingMoveValidator();
+        var fromSquare = board.GetSquare(from);
+        var toSquare = board.GetSquare(to);
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
