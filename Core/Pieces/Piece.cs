@@ -5,11 +5,11 @@ namespace Core.Pieces;
 
 public abstract class Piece
 {
-    private readonly IMoveValidator _moveValidator;
+    private readonly MoveValidator _moveValidator;
     public Color Color { get; }
     public char Name { get; protected init; }
 
-    protected Piece(Color color, IMoveValidator moveValidator)
+    protected Piece(Color color, MoveValidator moveValidator)
     {
         Color = color;
         _moveValidator = moveValidator;

@@ -2,9 +2,9 @@
 
 namespace Core.MoveValidators;
 
-public class KnightMoveValidator : IMoveValidator
+public class KnightMoveValidator : MoveValidator
 {
-    public bool IsValidMove(Board board, Square @from, Square to)
+    public override bool IsValidMove(Board board, Square @from, Square to)
     {
         throw new NotImplementedException();
     }

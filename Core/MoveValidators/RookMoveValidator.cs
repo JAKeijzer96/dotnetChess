@@ -2,9 +2,9 @@
 
 namespace Core.MoveValidators;
 
-public class RookMoveValidator : IMoveValidator
+public class RookMoveValidator : MoveValidator
 {
-    public bool IsValidMove(Board board, Square @from, Square to)
+    public override bool IsValidMove(Board board, Square @from, Square to)
     {
         throw new NotImplementedException();
     }
