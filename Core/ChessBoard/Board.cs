@@ -121,7 +121,8 @@ public class Board
                 {
                     if (emptySquares > 0)
                     {
-                        sb.Append(emptySquares = 0);
+                        sb.Append(emptySquares);
+                        emptySquares = 0;
                     }
 
                     sb.Append(_squares[file, rank].Piece);

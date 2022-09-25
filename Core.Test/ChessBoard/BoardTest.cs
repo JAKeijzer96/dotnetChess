@@ -144,4 +144,16 @@ public class BoardTest
 
         Assert.AreEqual(boardFen, board.ToString());
     }
+
+    [TestMethod]
+    public void ToString_OfBoardWithRanksWithEmptySquaresAndPieces_CorrectlyParsesFirstNumberOfEmptySquares()
+    {
+        // Related to bug where first number of empty squares was not parsed correctly
+        // new Board("8/2b5/8/2R5/8/8/k1K5/8").ToString() would return "8/0b5/8/0R5/8/8/k0K5/8"
+        var boardFen = "8/2b5/8/2R5/8/8/k1K5/8";
+
+        var board = new Board(boardFen);
+        
+        Assert.AreEqual(boardFen, board.ToString());
+    }
 }
