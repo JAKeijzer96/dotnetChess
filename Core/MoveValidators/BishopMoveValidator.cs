@@ -7,6 +7,7 @@ public class BishopMoveValidator : MoveValidator
     public override bool IsValidMove(Board board, Square from, Square to)
     {
         if (!IsValidDestinationSquare(board, from, to)) return false;
+        if (Math.Abs(from.File - to.File) != Math.Abs(from.Rank - to.Rank)) return false;
 
         int xDirection = from.File < to.File ? 1 : -1;
         int yDirection = from.Rank < to.Rank ? 1 : -1;
@@ -20,11 +21,5 @@ public class BishopMoveValidator : MoveValidator
         }
 
         return true;
-    }
-
-    protected override bool IsValidDestinationSquare(Board? board, Square? from, Square? to)
-    {
-        return base.IsValidDestinationSquare(board, from, to) &&
-               Math.Abs(from!.File - to!.File) == Math.Abs(from.Rank - to.Rank);
     }
 }

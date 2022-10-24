@@ -42,7 +42,7 @@ public class Board
                 }
                 else
                 {
-                    _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePiece(fenChar));
+                    AddPieceToBoard(file, rank, fenChar);
                     file++;
                 }
             }
@@ -50,6 +50,24 @@ public class Board
             rank--;
             file = 0;
         }
+    }
+
+    private void AddPieceToBoard(int file, int rank, char fenChar)
+    {
+        var list = new char[] {'p', 'P'};
+        if (list.Contains(fenChar))
+        {
+            if (fenChar == 'p')
+            {
+                var isFirstMove = rank == 6;
+                _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePieceWithFirstMove(fenChar, isFirstMove));
+            } else if (fenChar == 'P')
+            {
+                var isFirstMove = rank == 1;
+                _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePieceWithFirstMove(fenChar, isFirstMove));
+            }
+        }
+        _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePiece(fenChar));
     }
 
     private string[] ValidateAndSplitBoardFen(string boardFen)
@@ -75,7 +93,7 @@ public class Board
 
     public Square GetSquare(int file, int rank)
     {
-        VerifyFileAndRank(file, rank);
+        VerifyFileAndRankWithinBoard(file, rank);
         return _squares[file, rank];
     }
     
@@ -96,7 +114,7 @@ public class Board
         return GetSquare(file, rank);
     }
 
-    private void VerifyFileAndRank(int file, int rank)
+    private void VerifyFileAndRankWithinBoard(int file, int rank)
     {
         if (file is < 0 or >= BoardSize)
         {

@@ -7,6 +7,7 @@ public class RookMoveValidator : MoveValidator
     public override bool IsValidMove(Board board, Square from, Square to)
     {
         if (!IsValidDestinationSquare(board, from, to)) return false;
+        if (!(from.File == to.File || from.Rank == to.Rank)) return false;
         
         if (from.File == to.File)
         {
@@ -30,11 +31,5 @@ public class RookMoveValidator : MoveValidator
         }
         
         return false;
-    }
-
-    protected override bool IsValidDestinationSquare(Board? board, Square? from, Square? to)
-    {
-        return base.IsValidDestinationSquare(board, from, to) &&
-               (from!.File == to!.File || from.Rank == to.Rank);
     }
 }
