@@ -9,57 +9,6 @@ namespace Core.Test.MoveValidators;
 public class MoveValidatorTest
 {
     [TestMethod]
-    public void IsValidMove_WhenBoardIsNull_ThrowsArgumentNullException()
-    {
-        Board? board = null;
-        MoveValidator validator = new KingMoveValidator();
-        var fromSquare = new Square(0, 0);
-        var toSquare = new Square(1, 1);
-
-        void Act()
-        {
-            validator.IsValidMove(board!, fromSquare, toSquare);
-        }
-
-        var exception = Assert.ThrowsException<ArgumentNullException>((Action) Act);
-        Assert.AreEqual("Value cannot be null. (Parameter 'board')", exception.Message);
-    }
-
-    [TestMethod]
-    public void IsValidMove_WhenStartingSquareIsNull_ReturnsFalse()
-    {
-        var board = new Board();
-        MoveValidator validator = new KingMoveValidator();
-        Square? fromSquare = null;
-        var toSquare = new Square(1, 1);
-
-        void Act()
-        {
-            validator.IsValidMove(board, fromSquare!, toSquare);
-        }
-
-        var exception = Assert.ThrowsException<ArgumentNullException>((Action) Act);
-        Assert.AreEqual("Value cannot be null. (Parameter 'from')", exception.Message);
-    }
-
-    [TestMethod]
-    public void IsValidMove_WhenDestinationSquareIsNull_ReturnsFalse()
-    {
-        var board = new Board();
-        MoveValidator validator = new KingMoveValidator();
-        var fromSquare = new Square(0, 0);
-        Square? toSquare = null;
-
-        void Act()
-        {
-            validator.IsValidMove(board, fromSquare, toSquare!);
-        }
-
-        var exception = Assert.ThrowsException<ArgumentNullException>((Action) Act);
-        Assert.AreEqual("Value cannot be null. (Parameter 'to')", exception.Message);
-    }
-
-    [TestMethod]
     public void IsValidMove_WhenPieceIsNull_ReturnsFalse()
     {
         var board = new Board("8/8/8/8/4B3/8/4P3/k3K3");
