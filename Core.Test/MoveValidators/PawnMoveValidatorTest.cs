@@ -7,106 +7,12 @@ namespace Core.Test.MoveValidators;
 [TestClass]
 public class PawnMoveValidatorTest
 {
-    [TestMethod]
-    public void IsValidMove_OneForwardOnFirstMove_IsTrue()
-    {
-        // Arrange
-        // 8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k w - - 0 1
-        
-        var board = new Board("8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k");
-        var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("d2");
-        var toSquare = board.GetSquare("d3");
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.IsTrue(result);
-    }
-    
-    [TestMethod]
-    public void IsValidMove_TwoForwardOnFirstMove_IsTrue()
-    {
-        var board = new Board("8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k");
-        var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("d2");
-        var toSquare = board.GetSquare("d4");
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.IsTrue(result);
-    }
-    
-    [TestMethod]
-    public void IsValidMove_OneForwardWithBlockingPieceInFront_IsFalse()
-    {
-        var board = new Board("8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k");
-        var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("f2");
-        var toSquare = board.GetSquare("f3");
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.IsFalse(result);
-    }
-
-    [TestMethod]
-    public void IsValidMove_TwoForwardWithBlockingPieceOnDestinationSquare_IsFalse()
-    {
-        var board = new Board("8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k");
-        var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("e2");
-        var toSquare = board.GetSquare("e4");
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.IsFalse(result);
-    }
-    
-    [TestMethod]
-    public void IsValidMove_TwoForwardWithBlockingPieceBetweenFromAndTo_IsFalse()
-    {
-        var board = new Board("8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k");
-        var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("f2");
-        var toSquare = board.GetSquare("f4");
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.IsFalse(result);
-    }
-    
-    [TestMethod]
-    public void IsValidMove_TwoForwardWithoutItBeingFirstMove_IsFalse()
-    {
-        var board = new Board("8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k");
-        var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("g3");
-        var toSquare = board.GetSquare("g5");
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.IsFalse(result);
-    }
-    
-    [TestMethod]
-    public void IsValidMove_OneBackward_IsFalse()
-    {
-        var board = new Board("8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k");
-        var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("d2");
-        var toSquare = board.GetSquare("d1");
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.IsFalse(result);
-    }
-    
     [DataTestMethod]
-    [DataRow("d2", "c3")]
-    [DataRow("e2", "f3")]
-    public void IsValidMove_CapturingOtherColorPieceOneSquareDiagonally_IsTrue(string from, string to)
+    [DataRow("d2", "d3")]
+    [DataRow("d7", "d6")]
+    public void IsValidMove_OneForwardOnFirstMove_IsTrue(string from, string to)
     {
-        var board = new Board("8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k");
+        var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
         var fromSquare = board.GetSquare(from);
         var toSquare = board.GetSquare(to);
@@ -115,44 +21,156 @@ public class PawnMoveValidatorTest
 
         Assert.IsTrue(result);
     }
-    
-    [TestMethod]
-    public void IsValidMove_CapturingSameColorPieceOneSquareDiagonally_IsFalse()
+
+    [DataTestMethod]
+    [DataRow("d2", "d4")]
+    [DataRow("d7", "d5")]
+    public void IsValidMove_TwoForwardOnFirstMove_IsTrue(string from, string to)
     {
-        var board = new Board("8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k");
+        var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("f2");
-        var toSquare = board.GetSquare("g3");
+        var fromSquare = board.GetSquare(from);
+        var toSquare = board.GetSquare(to);
+
+        var result = validator.IsValidMove(board, fromSquare, toSquare);
+
+        Assert.IsTrue(result);
+    }
+
+    [DataTestMethod]
+    [DataRow("f2", "f3")]
+    [DataRow("f7", "f6")]
+    public void IsValidMove_OneForwardWithBlockingPieceInFront_IsFalse(string from, string to)
+    {
+        var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
+        var validator = new PawnMoveValidator();
+        var fromSquare = board.GetSquare(from);
+        var toSquare = board.GetSquare(to);
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
         Assert.IsFalse(result);
     }
-    
-    [TestMethod]
-    public void IsValidMove_CapturingOtherColorPieceMultipleSquaresDiagonally_IsFalse()
+
+    [DataTestMethod]
+    [DataRow("e2", "e4")]
+    [DataRow("e7", "e5")]
+    public void IsValidMove_TwoForwardWithBlockingPieceOnDestinationSquare_IsFalse(string from, string to)
     {
-        var board = new Board("8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k");
+        var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("f2");
-        var toSquare = board.GetSquare("c5");
+        var fromSquare = board.GetSquare(from);
+        var toSquare = board.GetSquare(to);
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
         Assert.IsFalse(result);
     }
-    
-    [TestMethod]
-    public void IsValidMove_MovingDiagonallyToEmptySquare_IsFalse()
+
+    [DataTestMethod]
+    [DataRow("f2", "f4")]
+    [DataRow("f7", "f5")]
+    public void IsValidMove_TwoForwardWithBlockingPieceBetweenFromAndTo_IsFalse(string from, string to)
     {
-        var board = new Board("8/8/8/2q5/4q3/2q2qP1/3PPP2/5K1k");
+        var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("e3");
-        var toSquare = board.GetSquare("d3");
+        var fromSquare = board.GetSquare(from);
+        var toSquare = board.GetSquare(to);
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
         Assert.IsFalse(result);
     }
-    
+
+    [DataTestMethod]
+    [DataRow("g3", "g5")]
+    [DataRow("g6", "g4")]
+    public void IsValidMove_TwoForwardWithoutItBeingFirstMove_IsFalse(string from, string to)
+    {
+        var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
+        var validator = new PawnMoveValidator();
+        var fromSquare = board.GetSquare("g3");
+        var toSquare = board.GetSquare("g5");
+
+        var result = validator.IsValidMove(board, fromSquare, toSquare);
+
+        Assert.IsFalse(result);
     }
+
+    [DataTestMethod]
+    [DataRow("d2", "d1")]
+    [DataRow("d7", "d8")]
+    public void IsValidMove_OneBackward_IsFalse(string from, string to)
+    {
+        var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
+        var validator = new PawnMoveValidator();
+        var fromSquare = board.GetSquare("d2");
+        var toSquare = board.GetSquare("d1");
+
+        var result = validator.IsValidMove(board, fromSquare, toSquare);
+
+        Assert.IsFalse(result);
+    }
+
+    [DataTestMethod]
+    [DataRow("d2", "c3")]
+    [DataRow("e2", "f3")]
+    [DataRow("d7", "c6")]
+    [DataRow("e7", "f6")]
+    public void IsValidMove_CapturingOtherColorPieceOneSquareDiagonally_IsTrue(string from, string to)
+    {
+        var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
+        var validator = new PawnMoveValidator();
+        var fromSquare = board.GetSquare(from);
+        var toSquare = board.GetSquare(to);
+
+        var result = validator.IsValidMove(board, fromSquare, toSquare);
+
+        Assert.IsTrue(result);
+    }
+
+    [DataTestMethod]
+    [DataRow("f2", "g3")]
+    [DataRow("f7", "g6")]
+    public void IsValidMove_CapturingSameColorPieceOneSquareDiagonally_IsFalse(string from, string to)
+    {
+        var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
+        var validator = new PawnMoveValidator();
+        var fromSquare = board.GetSquare(from);
+        var toSquare = board.GetSquare(to);
+
+        var result = validator.IsValidMove(board, fromSquare, toSquare);
+
+        Assert.IsFalse(result);
+    }
+
+    [DataTestMethod]
+    [DataRow("f2", "c5")]
+    [DataRow("f7", "c4")]
+    public void IsValidMove_CapturingOtherColorPieceMultipleSquaresDiagonally_IsFalse(string from, string to)
+    {
+        var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
+        var validator = new PawnMoveValidator();
+        var fromSquare = board.GetSquare(from);
+        var toSquare = board.GetSquare(to);
+
+        var result = validator.IsValidMove(board, fromSquare, toSquare);
+
+        Assert.IsFalse(result);
+    }
+
+    [DataTestMethod]
+    [DataRow("e2", "d3")]
+    [DataRow("e7", "d6")]
+    public void IsValidMove_MovingDiagonallyToEmptySquare_IsFalse(string from, string to)
+    {
+        var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
+        var validator = new PawnMoveValidator();
+        var fromSquare = board.GetSquare(from);
+        var toSquare = board.GetSquare(to);
+
+        var result = validator.IsValidMove(board, fromSquare, toSquare);
+
+        Assert.IsFalse(result);
+    }
+}
