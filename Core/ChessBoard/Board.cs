@@ -66,6 +66,8 @@ public class Board
                 var isFirstMove = rank == 1;
                 _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePieceWithFirstMove(fenChar, isFirstMove));
             }
+
+            return;
         }
         _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePiece(fenChar));
     }
