@@ -6,8 +6,6 @@ namespace Core.MoveValidators;
 
 public class PawnMoveValidator : MoveValidator
 {
-    
-    
     // check if a move from a square to a square is valid for a pawn
     // if the pawn is white, it can only move up the board
     // if the pawn is black, it can only move down the board
@@ -21,32 +19,30 @@ public class PawnMoveValidator : MoveValidator
         if (!IsValidDestinationSquare(board, from, to)) return false;
 
         var pawn = (Pawn) from.Piece!;
-        if (pawn.Color == Color.White)
+        var direction = pawn.Color == Color.White ? 1 : -1;
+        if (from.File == to.File)
         {
-            if (from.File == to.File)
+            if (from.Rank + direction == to.Rank)
             {
-                if (from.Rank + 1 == to.Rank)
-                {
-                    return !to.IsOccupied();
-                }
-
-                if (pawn.IsFirstMove && from.Rank + 2 == to.Rank)
-                {
-                    return !(board.GetSquare(from.File, from.Rank + 1).IsOccupied() || to.IsOccupied());
-                }
-
+                return !to.IsOccupied();
             }
 
-            if (Math.Abs(from.File - to.File) == 1)
+            if (pawn.IsFirstMove && from.Rank + 2 * direction == to.Rank)
             {
-                if (from.Rank + 1 == to.Rank)
-                {
-                    // Already checked that if there is a piece on the target square,
-                    // that it is of the opposite color
-                    return to.IsOccupied();
-                }
+                return !(board.GetSquare(from.File, from.Rank + direction).IsOccupied() || to.IsOccupied());
             }
         }
+
+        if (Math.Abs(from.File - to.File) == 1)
+        {
+            if (from.Rank + direction == to.Rank)
+            {
+                // Already checked that if there is a piece on the target square,
+                // that it is of the opposite color
+                return to.IsOccupied();
+            }
+        }
+
 
         return false;
     }
