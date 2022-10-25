@@ -8,7 +8,7 @@ public class RookMoveValidator : MoveValidator
     {
         if (!IsValidDestinationSquare(board, from, to)) return false;
         if (!(from.File == to.File || from.Rank == to.Rank)) return false;
-        
+
         if (from.File == to.File)
         {
             var yDirection = from.Rank < to.Rank ? 1 : -1;
@@ -19,6 +19,7 @@ public class RookMoveValidator : MoveValidator
 
             return true;
         }
+
         if (from.Rank == to.Rank)
         {
             var xDirection = from.File < to.File ? 1 : -1;
@@ -29,7 +30,7 @@ public class RookMoveValidator : MoveValidator
 
             return true;
         }
-        
+
         return false;
     }
 }
