@@ -1,4 +1,5 @@
-﻿using Core.MoveValidators;
+﻿using Core.ChessBoard;
+using Core.MoveValidators;
 using Core.Shared;
 
 namespace Core.Pieces;
@@ -13,6 +14,11 @@ public abstract class Piece
     {
         Color = color;
         _moveValidator = moveValidator;
+    }
+
+    public bool IsValidMove(Board board, Square from, Square to)
+    {
+        return _moveValidator.IsValidMove(board, from, to);
     }
 
     public override string ToString()

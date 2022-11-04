@@ -1,4 +1,5 @@
 ﻿using Core.ChessBoard;
+using Core.Pieces;
 using Core.Shared;
 
 namespace Core.ChessGame;
@@ -30,5 +31,29 @@ public class Game
         EnPassant = enPassant;
         HalfMoveCount = halfMoveCount;
         FullMoveCount = fullMoveCount;
+    }
+
+    public bool MakeMove(Square from, Square to)
+    {
+        var pieceToMove = from.Piece;
+        
+        if (pieceToMove is null || pieceToMove.Color != Turn)
+        {
+            return false;
+        }
+
+        if (!pieceToMove.IsValidMove(Board, from, to))
+        {
+            return false;
+        }
+        
+        to.Piece = pieceToMove;
+        from.Piece = null;
+        return true;
+    }
+
+    public bool MakeMove(string fromString, string toString)
+    {
+        return MakeMove(Board.GetSquare(fromString), Board.GetSquare(toString));
     }
 }
