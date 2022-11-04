@@ -8,18 +8,20 @@ namespace Core.Parsers;
 
 public static class FenParser
 {
+    private static Board _board = null!;
+    
     public static Game Parse(string fen)
     {
         string[] splitFen = ValidateAndSplitFen(fen);
 
-        Board board = ParseBoard(splitFen[0]);
+        ParseBoard(splitFen[0]);
         Color turn = ParseTurn(splitFen[1]);
         string castling = ParseCastling(splitFen[2]);
         Square? enPassant = ParseEnPassant(splitFen[3]);
         int halfMoveCount = ParseHalfMoveCount(splitFen[4]);
         int fullMoveCount = ParseFullMoveCount(splitFen[5]);
 
-        return new Game(board, turn, castling, enPassant, halfMoveCount, fullMoveCount);
+        return new Game(_board, turn, castling, enPassant, halfMoveCount, fullMoveCount);
     }
 
 
@@ -39,9 +41,9 @@ public static class FenParser
         return fenParts;
     }
 
-    private static Board ParseBoard(string boardFen)
+    private static void ParseBoard(string boardFen)
     {
-        return new Board(boardFen);
+        _board = new Board(boardFen);
     }
 
     private static Color ParseTurn(string turnFen) => turnFen switch
@@ -55,13 +57,13 @@ public static class FenParser
     {
         if (Regex.Match(castlingFen, @"^(-|(K?Q?k?q?))$").Success)
         {
+            // TODO: Implement
             return castlingFen;
         }
 
         throw new InvalidFenException($"Invalid castling string: {castlingFen}");
     }
 
-    // TODO: Proper implementation
     private static Square? ParseEnPassant(string enPassantFen)
     {
         if (enPassantFen == "-")
@@ -71,7 +73,7 @@ public static class FenParser
 
         if (Regex.Match(enPassantFen, @"^[a-h][36]$").Success)
         {
-            return null;
+            return _board.GetSquare(enPassantFen);
         }
 
         throw new InvalidFenException($"Invalid en passant square: {enPassantFen}");
