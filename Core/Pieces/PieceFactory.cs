@@ -19,11 +19,4 @@ public static class PieceFactory
         'p' => new Pawn(Color.Black),
         _ => throw new ArgumentException($"Invalid piece character: '{pieceChar}'")
     };
-
-    public static Piece CreatePieceWithFirstMove(char pieceChar, bool isFirstMove) => pieceChar switch
-    {
-        'P' => new Pawn(Color.White, isFirstMove),
-        'p' => new Pawn(Color.Black, isFirstMove),
-        _ => throw new ArgumentException($"Invalid piece character: '{pieceChar}'")
-    };
 }

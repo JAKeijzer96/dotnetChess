@@ -3,7 +3,7 @@ using Core.ChessGame;
 using Core.Shared;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Core.Test;
+namespace Core.Test.ChessGame;
 
 [TestClass]
 public class GameTest

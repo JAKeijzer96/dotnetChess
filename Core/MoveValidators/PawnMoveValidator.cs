@@ -19,7 +19,8 @@ public class PawnMoveValidator : MoveValidator
                 return !to.IsOccupied();
             }
 
-            if (from.Rank + 2 * direction == to.Rank && pawn.IsFirstMove)
+            var isFirstMove = pawn.Color == Color.White ? from.Rank == 1 : from.Rank == 6;
+            if (from.Rank + 2 * direction == to.Rank && isFirstMove)
             {
                 return !(board.GetSquare(from.File, from.Rank + direction).IsOccupied() || to.IsOccupied());
             }

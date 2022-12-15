@@ -17,12 +17,4 @@ public class PawnTest
         Assert.AreEqual(name, pawn.Name);
         Assert.AreEqual(color, pawn.Color);
     }
-
-    [TestMethod]
-    public void Pawn_WithFirstMoveSetToFalse_IsFalse()
-    {
-        var pawn = new Pawn(Color.White, false);
-        
-        Assert.IsFalse(pawn.IsFirstMove);
-    }
 }
