@@ -54,21 +54,6 @@ public class Board
 
     private void AddPieceToBoard(int file, int rank, char fenChar)
     {
-        var list = new char[] {'p', 'P'};
-        if (list.Contains(fenChar))
-        {
-            if (fenChar == 'p')
-            {
-                var isFirstMove = rank == 6;
-                _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePieceWithFirstMove(fenChar, isFirstMove));
-            } else if (fenChar == 'P')
-            {
-                var isFirstMove = rank == 1;
-                _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePieceWithFirstMove(fenChar, isFirstMove));
-            }
-
-            return;
-        }
         _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePiece(fenChar));
     }
 
