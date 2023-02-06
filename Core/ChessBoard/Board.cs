@@ -8,11 +8,10 @@ public class Board
 {
     private readonly Square[,] _squares;
     public const int BoardSize = 8;
+    private const string DefaultStartingPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
-    public Board()
+    public Board() : this(DefaultStartingPosition)
     {
-        _squares = new Square[BoardSize, BoardSize];
-        SetupBoardWithStartingPosition();
     }
 
     public Board(string boardFen)
@@ -57,27 +56,6 @@ public class Board
         _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePiece(fenChar));
     }
 
-    private string[] ValidateAndSplitBoardFen(string boardFen)
-    {
-        if (boardFen == null)
-        {
-            throw new ArgumentNullException(nameof(boardFen));
-        }
-
-        if (boardFen.Split(' ').Length > 1)
-        {
-            throw new ArgumentException("Constructor only accepts board part of FEN string");
-        }
-
-        var fenRanks = boardFen.Split('/');
-        if (fenRanks.Length != 8)
-        {
-            throw new InvalidFenException($"Invalid number of ranks in FEN: {boardFen}");
-        }
-
-        return fenRanks;
-    }
-
     public Square GetSquare(int file, int rank)
     {
         VerifyFileAndRankWithinBoard(file, rank);
@@ -101,17 +79,10 @@ public class Board
         return GetSquare(file, rank);
     }
 
-    private void VerifyFileAndRankWithinBoard(int file, int rank)
+    public void MovePiece(Square from, Square to)
     {
-        if (file is < 0 or >= BoardSize)
-        {
-            throw new OutOfBoardException($"File {file} is out of board. Must be between 0 and {BoardSize - 1}");
-        }
-
-        if (rank is < 0 or >= BoardSize)
-        {
-            throw new OutOfBoardException($"Rank {rank} is out of board. Must be between 0 and {BoardSize - 1}");
-        }
+        to.Piece = from.Piece;
+        from.Piece = null;
     }
 
     public override string ToString()
@@ -149,9 +120,41 @@ public class Board
         sb.Length--; // Remove last '/'
         return sb.ToString();
     }
-
-    private void SetupBoardWithStartingPosition()
+    
+    #region InternalParameterValidation
+    
+    private string[] ValidateAndSplitBoardFen(string boardFen)
     {
-        SetupBoardFromBoardFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        if (string.IsNullOrWhiteSpace(boardFen))
+        {
+            throw new ArgumentNullException(nameof(boardFen));
+        }
+
+        if (boardFen.Split(' ').Length > 1)
+        {
+            throw new ArgumentException("Constructor only accepts board part of FEN string");
+        }
+
+        var fenRanks = boardFen.Split('/');
+        if (fenRanks.Length != BoardSize)
+        {
+            throw new InvalidFenException($"Invalid number of ranks in FEN: {boardFen}");
+        }
+
+        return fenRanks;
     }
+    
+    private void VerifyFileAndRankWithinBoard(int file, int rank)
+    {
+        if (file is < 0 or >= BoardSize)
+        {
+            throw new OutOfBoardException($"File {file} is out of board. Must be between 0 and {BoardSize - 1}");
+        }
+
+        if (rank is < 0 or >= BoardSize)
+        {
+            throw new OutOfBoardException($"Rank {rank} is out of board. Must be between 0 and {BoardSize - 1}");
+        }
+    }
+    #endregion
 }

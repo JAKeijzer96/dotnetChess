@@ -136,6 +136,45 @@ public class BoardTest
     }
 
     [TestMethod]
+    public void MovePiece_MovesPieceToNewSquare()
+    {
+        // Arrange
+        var board = new Board();
+        
+        // Act
+        board.MovePiece(board.GetSquare("g1"), board.GetSquare("f3"));
+        
+        // Assert
+        Assert.AreEqual('N', board.GetSquare("f3").Piece.Name);
+    }
+    
+    [TestMethod]
+    public void MovePiece_RemovesPieceFromOldSquare()
+    {
+        // Arrange
+        var board = new Board();
+        
+        // Act
+        board.MovePiece(board.GetSquare("e2"), board.GetSquare("e4"));
+        
+        // Assert
+        Assert.IsNull(board.GetSquare("e2").Piece);
+    }
+    
+    [TestMethod]
+    public void MovePiece_ToSquareOccupiedByOpponent_CapturesPiece()
+    {
+        // Arrange
+        var board = new Board("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR");
+        
+        // Act
+        board.MovePiece(board.GetSquare("e4"), board.GetSquare("d5"));
+        
+        // Assert
+        Assert.AreEqual('P', board.GetSquare("d5").Piece!.Name);
+    }
+
+    [TestMethod]
     public void ToString_OfBoardWithStartingPosition_ReturnsCorrectString()
     {
         var boardFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";

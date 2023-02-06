@@ -7,11 +7,11 @@ namespace Core.ChessGame;
 public class Game
 {
     public Board Board { get; }
-    public Color Turn { get; }
+    public Color Turn { get; private set; }
     public string Castling { get; }
     public Square? EnPassant { get; }
-    public int HalfMoveCount { get; }
-    public int FullMoveCount { get; }
+    public int HalfMoveCount { get; private set; }
+    public int FullMoveCount { get; private set; }
 
     public Game()
     {
@@ -32,28 +32,57 @@ public class Game
         HalfMoveCount = halfMoveCount;
         FullMoveCount = fullMoveCount;
     }
-
-    public bool MakeMove(Square from, Square to)
+    
+    public bool MakeMove(string from, string to)
     {
-        var pieceToMove = from.Piece;
+        return MakeMove(Board.GetSquare(from), Board.GetSquare(to));
+    }
+
+    private bool MakeMove(Square from, Square to)
+    {
+        var piece = from.Piece;
+        var pieceToCapture = to.Piece;
         
-        if (pieceToMove is null || pieceToMove.Color != Turn)
+        if (piece is null || piece.Color != Turn)
         {
             return false;
         }
 
-        if (!pieceToMove.IsValidMove(Board, from, to))
+        if (!piece.IsValidMove(Board, from, to))
         {
             return false;
         }
         
-        to.Piece = pieceToMove;
-        from.Piece = null;
+        // Move is valid. Move pieces and update gamestate
+        Board.MovePiece(from, to);
+        UpdateHalfMoveCount(piece, pieceToCapture);
+        EndTurn();
+        
         return true;
     }
 
-    public bool MakeMove(string fromString, string toString)
+    private void EndTurn()
     {
-        return MakeMove(Board.GetSquare(fromString), Board.GetSquare(toString));
+        if (Turn == Color.Black)
+        {
+            Turn = Color.White;
+            FullMoveCount++;
+        }
+        else
+        {
+            Turn = Color.Black;
+        }
+    }
+    
+    private void UpdateHalfMoveCount(Piece movedPiece, Piece? capturedPiece)
+    {
+        if (movedPiece is Pawn || capturedPiece is not null)
+        {
+            HalfMoveCount = 0;
+        }
+        else
+        {
+            HalfMoveCount++;
+        }
     }
 }
