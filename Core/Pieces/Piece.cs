@@ -21,6 +21,16 @@ public abstract class Piece
         return _moveValidator.IsValidMove(board, from, to);
     }
 
+    public bool IsWhite()
+    {
+        return Color == Color.White;
+    }
+
+    public bool IsBlack()
+    {
+        return Color == Color.Black;
+    }
+
     public override string ToString()
     {
         return Name.ToString();

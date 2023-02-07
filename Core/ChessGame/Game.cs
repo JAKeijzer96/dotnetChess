@@ -9,7 +9,7 @@ public class Game
     public Board Board { get; }
     public Color Turn { get; private set; }
     public string Castling { get; }
-    public Square? EnPassant { get; }
+    public Square? EnPassant { get; private set; }
     public int HalfMoveCount { get; private set; }
     public int FullMoveCount { get; private set; }
 
@@ -56,6 +56,7 @@ public class Game
         // Move is valid. Move pieces and update gamestate
         Board.MovePiece(from, to);
         UpdateHalfMoveCount(piece, pieceToCapture);
+        UpdateEnPassantSquare(from, to);
         EndTurn();
         
         return true;
@@ -83,6 +84,24 @@ public class Game
         else
         {
             HalfMoveCount++;
+        }
+    }
+
+    private void UpdateEnPassantSquare(Square from, Square to)
+    {
+        var piece = from.Piece;
+        
+        if (piece is Pawn && piece.IsWhite() && from.Rank == 1 && to.Rank == 3)
+        {
+            EnPassant = Board.GetSquare(from.File, from.Rank + 1);
+        }
+        else if (piece is Pawn && piece.IsBlack() && from.Rank == 6 && to.Rank == 4)
+        {
+            EnPassant = Board.GetSquare(from.File, from.Rank - 1);
+        }
+        else
+        {
+            EnPassant = null;
         }
     }
 }
