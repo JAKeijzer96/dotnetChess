@@ -37,7 +37,7 @@ public class Game
     
     public bool MakeMove(string from, string to, [Optional] char promotionPieceChar)
     {
-        return MakeMove(Board.GetSquare(from), Board.GetSquare(to), promotionPieceChar);
+        return MakeMove(Board[from], Board[to], promotionPieceChar);
     }
 
     private bool MakeMove(Square from, Square to, [Optional] char promotionPieceChar)

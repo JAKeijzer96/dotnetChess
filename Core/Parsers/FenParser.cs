@@ -73,7 +73,7 @@ public static class FenParser
 
         if (Regex.Match(enPassantFen, @"^[a-h][36]$").Success)
         {
-            return _board.GetSquare(enPassantFen);
+            return _board[enPassantFen];
         }
 
         throw new InvalidFenException($"Invalid en passant square: {enPassantFen}");

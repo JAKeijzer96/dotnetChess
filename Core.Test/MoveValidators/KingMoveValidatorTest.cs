@@ -20,8 +20,8 @@ public class KingMoveValidatorTest
     {
         var board = new Board("8/8/PK3k2/8/8/8/8/8");
         var validator = new KingMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -38,8 +38,8 @@ public class KingMoveValidatorTest
     {
         var board = new Board("8/8/PK3k2/8/8/8/8/8");
         var validator = new KingMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 

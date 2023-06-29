@@ -16,8 +16,8 @@ public class BishopMoveValidatorTest
     {
         var board = new Board("8/8/8/8/4B3/8/4P3/k3K3");
         var validator = new BishopMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -33,8 +33,8 @@ public class BishopMoveValidatorTest
     {
         var board = new Board("8/8/8/8/4B3/8/4P3/k3K3");
         var validator = new BishopMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -48,8 +48,8 @@ public class BishopMoveValidatorTest
     {
         var board = new Board("1N6/4P3/3b4/8/8/r5k1/8/5K2");
         var validator = new BishopMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 

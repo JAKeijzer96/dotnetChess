@@ -16,8 +16,8 @@ public class RookMoveValidatorTest
     {
         var board = new Board("8/2b5/8/2R5/8/8/k1K5/8");
         var validator = new RookMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -33,8 +33,8 @@ public class RookMoveValidatorTest
     {
         var board = new Board("8/2b5/8/2R5/8/8/k1K5/8");
         var validator = new RookMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -48,8 +48,8 @@ public class RookMoveValidatorTest
     {
         var board = new Board("8/2b5/8/2R5/8/8/k1K5/8");
         var validator = new RookMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 

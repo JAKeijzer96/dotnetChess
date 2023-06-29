@@ -10,6 +10,8 @@ public class Board
     public const int BoardSize = 8;
     private const string DefaultStartingPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
+    public Square this[String squareName] => GetSquare(squareName);
+
     public Board() : this(DefaultStartingPosition)
     {
     }
