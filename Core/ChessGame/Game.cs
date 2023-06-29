@@ -41,27 +41,76 @@ public class Game
     private bool MakeMove(Square from, Square to)
     {
         var piece = from.Piece;
-        var pieceToCapture = to.Piece;
         
         if (piece is null || piece.Color != Turn)
         {
             return false;
         }
 
-        if (!piece.IsValidMove(Board, from, to))
+        var isEnPassantMove = IsEnPassantMove(from, to);
+        if (!(piece.IsValidMove(Board, from, to) || isEnPassantMove))
         {
             return false;
         }
         
         // Move is valid. Move pieces and update gamestate
-        Board.MovePiece(from, to);
-        UpdateHalfMoveCount(piece, pieceToCapture);
+        var pieceCaptured = to.Piece is not null || isEnPassantMove;
         UpdateEnPassantSquare(from, to);
+        Board.MovePiece(from, to);
+        UpdateHalfMoveCount(piece, pieceCaptured);
         EndTurn();
         
         return true;
     }
+    
+    private bool IsEnPassantMove(Square from, Square to)
+    {
+        if (EnPassant is null)
+        {
+            return false;
+        }
 
+        var piece = from.Piece!;
+
+        if (piece is not Pawn)
+        {
+            return false;
+        }
+
+        var direction = piece.IsWhite() ? 1 : -1;
+
+        return to.File == EnPassant.File && from.Rank + direction == EnPassant.Rank;
+    }
+
+    private void UpdateEnPassantSquare(Square from, Square to)
+    {
+        var piece = from.Piece;
+
+        // No need to explicitly check for exact rank as we already know it's a valid move,
+        // thus meaning that it has to be a first move from the pawns starting rank
+        if (piece is Pawn && Math.Abs(from.Rank - to.Rank) == 2)
+        {
+            var direction = piece.IsWhite() ? 1 : -1;
+            EnPassant = Board.GetSquare(from.File, from.Rank + direction);
+        }
+        else
+        {
+            EnPassant = null;
+        }
+    }
+
+    private void UpdateHalfMoveCount(Piece movedPiece, bool pieceCaptured)
+    {
+        if (movedPiece is Pawn || pieceCaptured)
+        {
+            HalfMoveCount = 0;
+        }
+        else
+        {
+            HalfMoveCount++;
+        }
+    }
+    
     private void EndTurn()
     {
         if (Turn == Color.Black)
@@ -72,36 +121,6 @@ public class Game
         else
         {
             Turn = Color.Black;
-        }
-    }
-    
-    private void UpdateHalfMoveCount(Piece movedPiece, Piece? capturedPiece)
-    {
-        if (movedPiece is Pawn || capturedPiece is not null)
-        {
-            HalfMoveCount = 0;
-        }
-        else
-        {
-            HalfMoveCount++;
-        }
-    }
-
-    private void UpdateEnPassantSquare(Square from, Square to)
-    {
-        var piece = from.Piece;
-        
-        if (piece is Pawn && piece.IsWhite() && from.Rank == 1 && to.Rank == 3)
-        {
-            EnPassant = Board.GetSquare(from.File, from.Rank + 1);
-        }
-        else if (piece is Pawn && piece.IsBlack() && from.Rank == 6 && to.Rank == 4)
-        {
-            EnPassant = Board.GetSquare(from.File, from.Rank - 1);
-        }
-        else
-        {
-            EnPassant = null;
         }
     }
 }
