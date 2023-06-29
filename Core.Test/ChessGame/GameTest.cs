@@ -155,7 +155,7 @@ public class GameTest
     {
         // Arrange
         var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
-        var enPassantSquare = board.GetSquare("e3");
+        var enPassantSquare = board["e3"];
         var sut = new Game(board, Color.Black, "KQkq", enPassantSquare, 0, 5);
         
         // Act
@@ -170,7 +170,7 @@ public class GameTest
     {
         // Arrange
         var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
-        var enPassantSquare = board.GetSquare("e3");
+        var enPassantSquare = board["e3"];
         var sut = new Game(board, Color.Black, "KQkq", enPassantSquare, 0, 5);
         
         // Act
@@ -185,14 +185,14 @@ public class GameTest
     {
         // Arrange
         var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
-        var enPassantSquare = board.GetSquare("e3");
+        var enPassantSquare = board["e3"];
         var sut = new Game(board, Color.Black, "KQkq", enPassantSquare, 0, 5);
         
         // Act
         sut.MakeMove("d4", "e3");
         
         // Assert
-        Assert.IsNull(sut.Board.GetSquare("e4").Piece);
+        Assert.IsNull(sut.Board["e4"].Piece);
     }
     
     [TestMethod]
@@ -200,7 +200,7 @@ public class GameTest
     {
         // Arrange
         var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
-        var enPassantSquare = board.GetSquare("e3");
+        var enPassantSquare = board["e3"];
         var sut = new Game(board, Color.Black, "KQkq", enPassantSquare, 0, 5);
         
         // Act
@@ -224,7 +224,7 @@ public class GameTest
         sut.MakeMove("a7", "a8", 'N');
 
         // Assert
-        var actual = sut.Board.GetSquare("a8").Piece!.Name;
+        var actual = sut.Board["a8"].Piece!.Name;
         Assert.AreEqual('N', actual);
     }
     
@@ -238,7 +238,7 @@ public class GameTest
         sut.MakeMove("g2", "g1", 'b');
 
         // Assert
-        var actual = sut.Board.GetSquare("g1").Piece!.Name;
+        var actual = sut.Board["g1"].Piece!.Name;
         Assert.AreEqual('b', actual);
     }
     

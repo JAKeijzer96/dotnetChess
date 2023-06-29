@@ -20,8 +20,8 @@ public class KnightMoveValidatorTest
     {
         var board = new Board("8/8/2q1p3/3N4/2B1P3/8/8/3k1K2");
         var validator = new KnightMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -37,8 +37,8 @@ public class KnightMoveValidatorTest
     {
         var board = new Board("8/8/8/3N4/8/8/8/3k1K2");
         var validator = new KnightMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 

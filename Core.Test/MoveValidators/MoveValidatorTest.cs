@@ -13,8 +13,8 @@ public class MoveValidatorTest
     {
         var board = new Board("8/8/8/8/4B3/8/4P3/k3K3");
         MoveValidator validator = new KingMoveValidator();
-        var fromSquare = board.GetSquare("d5");
-        var toSquare = board.GetSquare("c6");
+        var fromSquare = board["d5"];
+        var toSquare = board["c6"];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -26,8 +26,8 @@ public class MoveValidatorTest
     {
         var board = new Board("8/8/8/8/4B3/8/4P3/k3K3");
         MoveValidator validator = new KingMoveValidator();
-        var fromSquare = board.GetSquare("e1");
-        var toSquare = board.GetSquare("e1");
+        var fromSquare = board["e1"];
+        var toSquare = board["e1"];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -39,8 +39,8 @@ public class MoveValidatorTest
     {
         var board = new Board("1N6/4P3/3b4/8/8/r5k1/8/5K2");
         var validator = new BishopMoveValidator();
-        var fromSquare = board.GetSquare("d6");
-        var toSquare = board.GetSquare("b8");
+        var fromSquare = board["d6"];
+        var toSquare = board["b8"];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -52,8 +52,8 @@ public class MoveValidatorTest
     {
         var board = new Board("1N6/4P3/3b4/8/8/r5k1/8/5K2");
         MoveValidator validator = new BishopMoveValidator();
-        var fromSquare = board.GetSquare("d6");
-        var toSquare = board.GetSquare("a3");
+        var fromSquare = board["d6"];
+        var toSquare = board["a3"];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 

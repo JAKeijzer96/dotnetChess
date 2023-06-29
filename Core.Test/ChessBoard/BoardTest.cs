@@ -15,10 +15,7 @@ public class BoardTest
     {
         var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-        void Act()
-        {
-            var board = new Board(fen);
-        }
+        void Act() => _ = new Board(fen);
 
         var exception = Assert.ThrowsException<ArgumentException>((Action) Act);
         Assert.AreEqual("Constructor only accepts board part of FEN string", exception.Message);
@@ -115,7 +112,7 @@ public class BoardTest
         var board = new Board();
         var expectedPiece = new King(Color.White);
 
-        var actualPiece = board.GetSquare("e1").Piece;
+        var actualPiece = board["e1"].Piece;
 
         Assert.IsNotNull(actualPiece);
         Assert.AreEqual(expectedPiece.Color, actualPiece.Color);
@@ -128,7 +125,7 @@ public class BoardTest
         var board = new Board();
         var expectedPiece = new Queen(Color.Black);
 
-        var actualPiece = board.GetSquare("d8").Piece;
+        var actualPiece = board["d8"].Piece;
 
         Assert.IsNotNull(actualPiece);
         Assert.AreEqual(expectedPiece.Color, actualPiece.Color);
@@ -142,10 +139,10 @@ public class BoardTest
         var board = new Board();
         
         // Act
-        board.MovePiece(board.GetSquare("g1"), board.GetSquare("f3"));
+        board.MovePiece(board["g1"], board["f3"]);
         
         // Assert
-        Assert.AreEqual('N', board.GetSquare("f3").Piece.Name);
+        Assert.AreEqual('N', board["f3"].Piece!.Name);
     }
     
     [TestMethod]
@@ -155,10 +152,10 @@ public class BoardTest
         var board = new Board();
         
         // Act
-        board.MovePiece(board.GetSquare("e2"), board.GetSquare("e4"));
+        board.MovePiece(board["e2"], board["e4"]);
         
         // Assert
-        Assert.IsNull(board.GetSquare("e2").Piece);
+        Assert.IsNull(board["e2"].Piece);
     }
     
     [TestMethod]
@@ -168,10 +165,10 @@ public class BoardTest
         var board = new Board("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR");
         
         // Act
-        board.MovePiece(board.GetSquare("e4"), board.GetSquare("d5"));
+        board.MovePiece(board["e4"], board["d5"]);
         
         // Assert
-        Assert.AreEqual('P', board.GetSquare("d5").Piece!.Name);
+        Assert.AreEqual('P', board["d5"].Piece!.Name);
     }
 
     [TestMethod]

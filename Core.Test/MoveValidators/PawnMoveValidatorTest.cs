@@ -14,8 +14,8 @@ public class PawnMoveValidatorTest
     {
         var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -29,8 +29,8 @@ public class PawnMoveValidatorTest
     {
         var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -44,8 +44,8 @@ public class PawnMoveValidatorTest
     {
         var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -59,8 +59,8 @@ public class PawnMoveValidatorTest
     {
         var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -74,8 +74,8 @@ public class PawnMoveValidatorTest
     {
         var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -89,8 +89,8 @@ public class PawnMoveValidatorTest
     {
         var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("g3");
-        var toSquare = board.GetSquare("g5");
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -104,8 +104,8 @@ public class PawnMoveValidatorTest
     {
         var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare("d2");
-        var toSquare = board.GetSquare("d1");
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -121,8 +121,8 @@ public class PawnMoveValidatorTest
     {
         var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -136,8 +136,8 @@ public class PawnMoveValidatorTest
     {
         var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -151,8 +151,8 @@ public class PawnMoveValidatorTest
     {
         var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
@@ -166,8 +166,8 @@ public class PawnMoveValidatorTest
     {
         var board = new Board("8/3ppp2/2Q2Qp1/2q1Q3/2Q1q3/2q2qP1/3PPP2/5K1k");
         var validator = new PawnMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
+        var fromSquare = board[from];
+        var toSquare = board[to];
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
