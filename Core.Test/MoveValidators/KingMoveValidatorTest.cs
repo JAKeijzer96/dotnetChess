@@ -8,41 +8,15 @@ namespace Core.Test.MoveValidators;
 public class KingMoveValidatorTest
 {
     [DataTestMethod]
-    [DataRow("f6", "e5")]
-    [DataRow("f6", "e7")]
-    [DataRow("f6", "g7")]
-    [DataRow("f6", "g5")]
-    public void IsValidMove_ForOneSquareDiagonalMove_ReturnsTrue(string from, string to)
-    {
-        var board = new Board("8/8/PK3k2/8/8/8/8/8");
-        var validator = new KingMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.AreEqual(true, result);
-    }
-
-    [DataTestMethod]
-    [DataRow("f6", "e6")]
-    [DataRow("f6", "g6")]
-    public void IsValidMove_ForOneSquareHorizontalMove_ReturnsTrue(string from, string to)
-    {
-        var board = new Board("8/8/PK3k2/8/8/8/8/8");
-        var validator = new KingMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.AreEqual(true, result);
-    }
-
-    [DataTestMethod]
-    [DataRow("f6", "f7")]
-    [DataRow("f6", "f5")]
-    public void IsValidMove_ForOneSquareVertical_ReturnsTrue(string from, string to)
+    [DataRow("f6", "e6")] // Left
+    [DataRow("f6", "g6")] // Right
+    [DataRow("f6", "f7")] // Up
+    [DataRow("f6", "f5")] // Down
+    [DataRow("f6", "e5")] // Down left
+    [DataRow("f6", "e7")] // Up left
+    [DataRow("f6", "g7")] // Up right
+    [DataRow("f6", "g5")] // Down right
+    public void IsValidMove_ForOneSquareMove_ReturnsTrue(string from, string to)
     {
         var board = new Board("8/8/PK3k2/8/8/8/8/8");
         var validator = new KingMoveValidator();

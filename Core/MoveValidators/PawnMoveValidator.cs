@@ -1,6 +1,5 @@
 ﻿using Core.ChessBoard;
 using Core.Pieces;
-using Core.Shared;
 
 namespace Core.MoveValidators;
 
@@ -11,7 +10,7 @@ public class PawnMoveValidator : MoveValidator
         if (!IsValidDestinationSquare(board, from, to)) return false;
 
         var pawn = (Pawn) from.Piece!;
-        var direction = pawn.Color == Color.White ? 1 : -1;
+        var direction = pawn.IsWhite() ? 1 : -1;
         if (from.File == to.File)
         {
             if (from.Rank + direction == to.Rank)
@@ -19,7 +18,7 @@ public class PawnMoveValidator : MoveValidator
                 return !to.IsOccupied();
             }
 
-            var isFirstMove = pawn.Color == Color.White ? from.Rank == 1 : from.Rank == 6;
+            var isFirstMove = pawn.IsWhite() ? from.Rank == 1 : from.Rank == 6;
             if (from.Rank + 2 * direction == to.Rank && isFirstMove)
             {
                 return !(board.GetSquare(from.File, from.Rank + direction).IsOccupied() || to.IsOccupied());

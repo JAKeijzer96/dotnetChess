@@ -145,4 +145,68 @@ public class GameTest
         // Assert
         Assert.AreEqual(4, sut.HalfMoveCount);
     }
+
+    #region EnPassant
+
+    [TestMethod]
+    public void MakeMove_WhenMoveIsEnPassant_ReturnsTrue()
+    {
+        // Arrange
+        var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
+        var enPassantSquare = board.GetSquare("e3");
+        var sut = new Game(board, Color.Black, "KQkq", enPassantSquare, 0, 5);
+        
+        // Act
+        var result = sut.MakeMove("d4", "e3");
+        
+        // Assert
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void MakeMove_WhenMoveIsEnPassant_ResetsEnPassantSquare()
+    {
+        // Arrange
+        var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
+        var enPassantSquare = board.GetSquare("e3");
+        var sut = new Game(board, Color.Black, "KQkq", enPassantSquare, 0, 5);
+        
+        // Act
+        sut.MakeMove("d4", "e3");
+        
+        // Assert
+        Assert.IsNull(sut.EnPassant);
+    }
+    
+    [TestMethod]
+    public void MakeMove_WhenMoveIsEnPassant_RemovesCapturedPieceFromBoard()
+    {
+        // Arrange
+        var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
+        var enPassantSquare = board.GetSquare("e3");
+        var sut = new Game(board, Color.Black, "KQkq", enPassantSquare, 0, 5);
+        
+        // Act
+        sut.MakeMove("d4", "e3");
+        
+        // Assert
+        Assert.IsNull(sut.Board.GetSquare("e4").Piece);
+    }
+    
+    [TestMethod]
+    public void MakeMove_WhenMoveIsEnPassantWithNonPawn_ReturnsFalse()
+    {
+        // Arrange
+        var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
+        var enPassantSquare = board.GetSquare("e3");
+        var sut = new Game(board, Color.Black, "KQkq", enPassantSquare, 0, 5);
+        
+        // Act
+        var result = sut.MakeMove("f4", "e3");
+        
+        // Assert
+        Assert.IsFalse(result);
+    }
+
+    #endregion
 }
