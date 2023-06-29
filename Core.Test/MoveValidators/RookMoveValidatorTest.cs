@@ -8,9 +8,11 @@ namespace Core.Test.MoveValidators;
 public class RookMoveValidatorTest
 {
     [DataTestMethod]
-    [DataRow("c5", "a5")]
-    [DataRow("c5", "f5")]
-    public void IsValidMove_ForHorizontalMove_ReturnsTrue(string from, string to)
+    [DataRow("c5", "a5")] // Left
+    [DataRow("c5", "f5")] // Right
+    [DataRow("c5", "c6")] // Up
+    [DataRow("c5", "c3")] // Down
+    public void IsValidMove_ForOrthogonalMove_ReturnsTrue(string from, string to)
     {
         var board = new Board("8/2b5/8/2R5/8/8/k1K5/8");
         var validator = new RookMoveValidator();
@@ -22,21 +24,6 @@ public class RookMoveValidatorTest
         Assert.AreEqual(true, result);
     }
 
-    [DataTestMethod]
-    [DataRow("c5", "c6")]
-    [DataRow("c5", "c3")]
-    public void IsValidMove_ForVerticalMove_ReturnsTrue(string from, string to)
-    {
-        var board = new Board("8/2b5/8/2R5/8/8/k1K5/8");
-        var validator = new RookMoveValidator();
-        var fromSquare = board.GetSquare(from);
-        var toSquare = board.GetSquare(to);
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.AreEqual(true, result);
-    }
-    
     [DataTestMethod]
     [DataRow("c5", "a7")]
     [DataRow("c5", "b7")]
@@ -54,26 +41,15 @@ public class RookMoveValidatorTest
         Assert.AreEqual(false, result);
     }
 
-    [TestMethod]
-    public void IsValidMove_WhenMoveIsBlockedByPieceOfOppositeColor_ReturnsFalse()
+    [DataTestMethod]
+    [DataRow("c5", "c8")] // Blocked by opposite color
+    [DataRow("c5", "c1")] // Blocked by same color
+    public void IsValidMove_WhenMoveIsBlocked_ReturnsFalse(string from, string to)
     {
         var board = new Board("8/2b5/8/2R5/8/8/k1K5/8");
         var validator = new RookMoveValidator();
-        var fromSquare = board.GetSquare("c5");
-        var toSquare = board.GetSquare("c8");
-
-        var result = validator.IsValidMove(board, fromSquare, toSquare);
-
-        Assert.AreEqual(false, result);
-    }
-
-    [TestMethod]
-    public void IsValidMove_WhenMoveIsBlockedByPieceOfSameColor_ReturnsFalse()
-    {
-        var board = new Board("8/2b5/8/2R5/8/8/k1K5/8");
-        var validator = new RookMoveValidator();
-        var fromSquare = board.GetSquare("c5");
-        var toSquare = board.GetSquare("c1");
+        var fromSquare = board.GetSquare(from);
+        var toSquare = board.GetSquare(to);
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
