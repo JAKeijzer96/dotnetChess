@@ -1,4 +1,6 @@
-﻿using Core.ChessBoard;
+﻿using System.Runtime.InteropServices;
+using Core.ChessBoard;
+using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
 
@@ -33,12 +35,12 @@ public class Game
         FullMoveCount = fullMoveCount;
     }
     
-    public bool MakeMove(string from, string to)
+    public bool MakeMove(string from, string to, [Optional] char promotionPieceChar)
     {
-        return MakeMove(Board.GetSquare(from), Board.GetSquare(to));
+        return MakeMove(Board.GetSquare(from), Board.GetSquare(to), promotionPieceChar);
     }
 
-    private bool MakeMove(Square from, Square to)
+    private bool MakeMove(Square from, Square to, [Optional] char promotionPieceChar)
     {
         var piece = from.Piece;
         
@@ -57,6 +59,7 @@ public class Game
         var pieceCaptured = to.Piece is not null || isEnPassantMove;
         UpdateEnPassantSquare(from, to);
         Board.MovePiece(from, to);
+        CheckForPawnPromotion(piece, to, promotionPieceChar);
         if (isEnPassantMove)
         {
             Board.GetSquare(to.File, from.Rank).Piece = null; // Remove captured piece
@@ -99,6 +102,22 @@ public class Game
         {
             EnPassant = null;
         }
+    }
+
+    private void CheckForPawnPromotion(Piece piece, Square to, char promotionPieceChar)
+    {
+        if (piece is not Pawn || to.Rank is not (0 or 7)) return;
+        
+        var whitePromotionPieces = new[] {'Q', 'R', 'B', 'N'};
+        var blackPromotionPieces = new[] {'q', 'r', 'b', 'n'};
+
+        if ((piece.IsWhite() && !whitePromotionPieces.Contains(promotionPieceChar)) ||
+            (piece.IsBlack() && !blackPromotionPieces.Contains(promotionPieceChar)))
+        {
+            throw new InvalidPromotionException($"Invalid promotion character {promotionPieceChar} for color {Turn}");
+        }
+        
+        to.Piece = PieceFactory.CreatePiece(promotionPieceChar);
     }
 
     private void UpdateHalfMoveCount(Piece movedPiece, bool pieceCaptured)
