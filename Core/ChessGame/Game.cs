@@ -57,6 +57,10 @@ public class Game
         var pieceCaptured = to.Piece is not null || isEnPassantMove;
         UpdateEnPassantSquare(from, to);
         Board.MovePiece(from, to);
+        if (isEnPassantMove)
+        {
+            Board.GetSquare(to.File, from.Rank).Piece = null; // Remove captured piece
+        }
         UpdateHalfMoveCount(piece, pieceCaptured);
         EndTurn();
         
@@ -77,9 +81,7 @@ public class Game
             return false;
         }
 
-        var direction = piece.IsWhite() ? 1 : -1;
-
-        return to.File == EnPassant.File && from.Rank + direction == EnPassant.Rank;
+        return to.File == EnPassant.File && to.Rank == EnPassant.Rank;
     }
 
     private void UpdateEnPassantSquare(Square from, Square to)
