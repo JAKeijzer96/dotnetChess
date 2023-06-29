@@ -1,5 +1,7 @@
-﻿using Core.ChessBoard;
+﻿using System;
+using Core.ChessBoard;
 using Core.ChessGame;
+using Core.Exceptions;
 using Core.Parsers;
 using Core.Shared;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -208,5 +210,52 @@ public class GameTest
         Assert.IsFalse(result);
     }
 
+    #endregion
+
+    #region PawnPromotion
+
+    [TestMethod]
+    public void MakeMove_WhenWhitePawnMovesToEighthRank_IsPromotedToGivenPiece()
+    {
+        // Arrange
+        var sut = new Game(new Board("8/P7/8/8/8/8/K1k3p1/8"), Color.White, "-", null, 0, 1);
+
+        // Act
+        sut.MakeMove("a7", "a8", 'N');
+
+        // Assert
+        var actual = sut.Board.GetSquare("a8").Piece!.Name;
+        Assert.AreEqual('N', actual);
+    }
+    
+    [TestMethod]
+    public void MakeMove_WhenBlackPawnMovesToFirstRank_IsPromotedToGivenPiece()
+    {
+        // Arrange
+        var sut = new Game(new Board("8/P7/8/8/8/8/K1k3p1/8"), Color.Black, "-", null, 0, 1);
+
+        // Act
+        sut.MakeMove("g2", "g1", 'b');
+
+        // Assert
+        var actual = sut.Board.GetSquare("g1").Piece!.Name;
+        Assert.AreEqual('b', actual);
+    }
+    
+    [DataTestMethod]
+    [DataRow('\0')] // Default char value
+    [DataRow('B')] // Opposite color
+    public void MakeMove_WhenPawnMovesToLastRankWithInvalidPromotionPieceChar_ThrowsInvalidPromotionException(char promotionPieceChar)
+    {
+        // Arrange
+        var sut = new Game(new Board("8/P7/8/8/8/8/K1k3p1/8"), Color.Black, "-", null, 0, 1);
+
+        // Act
+        void Act() => sut.MakeMove("g2", "g1", promotionPieceChar);
+
+        // Assert
+        var exception = Assert.ThrowsException<InvalidPromotionException>((Action) Act);
+        Assert.AreEqual($"Invalid promotion character {promotionPieceChar} for color Black", exception.Message);
+    }
     #endregion
 }

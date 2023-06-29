@@ -1,5 +1,6 @@
 # dotnetChess
-dotnetChess is a chess game/engine written in C# using .NET Core 6.
+dotnetChess is a chess game/engine written in C# using .NET Core 6.  
+The core goal of this project is to write an engine that is comprehensible and easy to read. Computation speed is not or very rarely taken into account when writing code.  
 
 ## To do list / Backlog
 - [x] Setup project (June 2022)
@@ -7,9 +8,9 @@ dotnetChess is a chess game/engine written in C# using .NET Core 6.
   - [x] Parse and generate basic FEN (September 2022)
   - [x] Basic piece movement (October 2022)
   - [ ] More advanced movement
+    - [x] En passant (June 2023)
+    - [x] Pawn promotion (June 2023)
     - [ ] Castling
-    - [ ] En passant
-    - [ ] Pawn promotion
     - [ ] Check
     - [ ] Checkmate
   - [ ] Parse and generate full FEN
