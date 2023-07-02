@@ -50,7 +50,9 @@ public class Game
         }
 
         var isEnPassantMove = IsEnPassantMove(from, to);
-        if (!(piece.IsValidMove(Board, from, to) || isEnPassantMove))
+        var isCastlingMove = IsCastlingMove(from, to);
+        
+        if (!(piece.IsValidMove(Board, from, to) || isEnPassantMove || isCastlingMove))
         {
             return false;
         }
@@ -58,12 +60,31 @@ public class Game
         // Move is valid. Move pieces and update gamestate
         var pieceCaptured = to.Piece is not null || isEnPassantMove;
         UpdateEnPassantSquare(from, to);
-        Board.MovePiece(from, to);
-        CheckForPawnPromotion(piece, to, promotionPieceChar);
+        if (!isCastlingMove)
+        {
+            Board.MovePiece(from, to);
+        }
+        
+        if (isCastlingMove) // Move pieces when castling
+        {
+            var direction = from.File < to.File ? 1 : -1;
+            var rookFile = from.File < to.File ? 7 : 0;
+            
+            // Move king
+            var kingDestinationSquare = Board.GetSquare(from.File + 2 * direction, from.Rank);
+            Board.MovePiece(from: from, to: kingDestinationSquare);
+            // Move rook
+            var rookSquare = Board.GetSquare(rookFile, from.Rank); 
+            var rookDestinationSquare = Board.GetSquare(from.File + direction, from.Rank);
+            Board.MovePiece(from: rookSquare, to: rookDestinationSquare);
+            
+            // TODO: Update castling string
+        }
         if (isEnPassantMove)
         {
             Board.GetSquare(to.File, from.Rank).Piece = null; // Remove captured piece
         }
+        CheckForPawnPromotion(piece, to, promotionPieceChar);
         UpdateHalfMoveCount(piece, pieceCaptured);
         EndTurn();
         
@@ -87,12 +108,54 @@ public class Game
         return to.File == EnPassant.File && to.Rank == EnPassant.Rank;
     }
 
+    private bool IsCastlingMove(Square from, Square to)
+    {
+        if (from.Piece is not King)
+        {
+            return false;
+        }
+        
+        var king = from.Piece;
+
+        if ((king.IsWhite() && from.Rank == 0 && to.Rank == 0) || 
+            (king.IsBlack() && from.Rank == 7 && to.Rank == 7))
+        {
+            if (Math.Abs(from.File - to.File) >= 2)
+            {
+                // TODO: Check castling string 
+                var direction = from.File < to.File ? 1 : -1;
+                var currentFile = from.File;
+                var destinationFile = from.File + 2 * direction;
+                while (currentFile != destinationFile)
+                {
+                    currentFile += direction;
+                    if (Board.GetSquare(currentFile, from.Rank).IsOccupied())
+                    {
+                        throw new Exception();
+                    }
+                }
+
+                if (currentFile < from.File && Board.GetSquare(1, from.Rank).IsOccupied())
+                {
+                    // When castling queenside, need to check the b-file for obstructions because the rook needs to move through it
+                    throw new Exception();
+                }
+
+                
+            }
+        }
+
+        return true;
+
+    }
+
     private void UpdateEnPassantSquare(Square from, Square to)
     {
         var piece = from.Piece;
 
-        // No need to explicitly check for exact rank as we already know it's a valid move,
-        // thus meaning that it has to be a first move from the pawns starting rank
+        // We already know the move is valid, so to check if it's a pawns first move we only
+        // need to check the difference in rank between the start and end square, and can omit
+        // checking if the start rank is the second rank (for white) or seventh rank (for black)
         if (piece is Pawn && Math.Abs(from.Rank - to.Rank) == 2)
         {
             var direction = piece.IsWhite() ? 1 : -1;
