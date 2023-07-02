@@ -69,6 +69,16 @@ public class SquareTests
         Assert.IsTrue(square.IsOccupied());
     }
 
+    [DataTestMethod]
+    [DataRow(0, 0, "a1")]
+    [DataRow(3, 7, "d8")]
+    public void ToString_ReturnsExpectedValue(int file, int rank, string expected)
+    {
+        var square = new Square(file, rank);
+        
+        Assert.AreEqual(expected, square.ToString());
+    }
+
     [TestMethod]
     public void GetHashCode_OfEqualEmptySquares_AreEqual()
     {
