@@ -29,10 +29,7 @@ public class SquareTests
     [DataRow('e', 4)]
     public void Constructor_WithInvalidFile_ThrowsException(int file, int rank)
     {
-        void Act()
-        {
-            var square = new Square(file, rank);
-        }
+        void Act() => _ = new Square(file, rank);
 
         var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
         Assert.AreEqual($"File {file} is out of board. Must be between 0 and 7", exception.Message);
@@ -44,10 +41,7 @@ public class SquareTests
     [DataRow(2, '4')]
     public void Constructor_WithInvalidRank_ThrowsException(int file, int rank)
     {
-        void Act()
-        {
-            var square = new Square(file, rank);
-        }
+        void Act() => _ = new Square(file, rank);
 
         var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
         Assert.AreEqual($"Rank {rank} is out of board. Must be between 0 and 7", exception.Message);
@@ -67,6 +61,16 @@ public class SquareTests
         var square = new Square(0, 0, new Bishop(Color.Black));
 
         Assert.IsTrue(square.IsOccupied());
+    }
+
+    [DataTestMethod]
+    [DataRow(0, 0, "a1")]
+    [DataRow(3, 7, "d8")]
+    public void ToString_ReturnsExpectedValue(int file, int rank, string expected)
+    {
+        var square = new Square(file, rank);
+        
+        Assert.AreEqual(expected, square.ToString());
     }
 
     [TestMethod]

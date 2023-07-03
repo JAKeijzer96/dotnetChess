@@ -35,6 +35,13 @@ public class Square
         }
     }
 
+    public override string ToString()
+    {
+        var fileChar = (char) (File + 97);
+        var rankChar = (char) (Rank + 49);
+        return new string(new [] {fileChar, rankChar});
+    }
+
     public static bool operator ==(Square? left, Square? right)
     {
         if (left is null)

@@ -39,10 +39,7 @@ public class BoardTest
     {
         var board = new Board();
 
-        void Act()
-        {
-            board.GetSquare(file, rank);
-        }
+        void Act() => board.GetSquare(file, rank);
 
         var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
         Assert.AreEqual($"File {file} is out of board. Must be between 0 and 7", exception.Message);
@@ -55,10 +52,7 @@ public class BoardTest
     {
         var board = new Board();
 
-        void Act()
-        {
-            board.GetSquare(file, rank);
-        }
+        void Act() => board.GetSquare(file, rank);
 
         var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
         Assert.AreEqual($"Rank {rank} is out of board. Must be between 0 and 7", exception.Message);
@@ -83,10 +77,7 @@ public class BoardTest
     {
         var board = new Board();
 
-        void Act()
-        {
-            board.GetSquare(null!);
-        }
+        void Act() => board.GetSquare(null!);
 
         var exception = Assert.ThrowsException<ArgumentNullException>((Action) Act);
         Assert.AreEqual("Value cannot be null. (Parameter 'squareName')", exception.Message);
@@ -97,10 +88,7 @@ public class BoardTest
     {
         var board = new Board();
 
-        void Act()
-        {
-            board.GetSquare("e44");
-        }
+        void Act() => board.GetSquare("e44");
 
         var exception = Assert.ThrowsException<ArgumentException>((Action) Act);
         Assert.AreEqual("Invalid square: e44", exception.Message);
