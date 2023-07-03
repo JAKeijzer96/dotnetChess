@@ -2,7 +2,6 @@
 using Core.ChessBoard;
 using Core.ChessGame;
 using Core.Exceptions;
-using Core.Parsers;
 using Core.Pieces;
 using Core.Shared;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

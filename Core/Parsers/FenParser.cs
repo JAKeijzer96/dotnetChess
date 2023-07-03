@@ -24,7 +24,13 @@ public static class FenParser
         return new Game(_board, turn, castling, enPassant, halfMoveCount, fullMoveCount);
     }
 
-
+    public static string Serialize(Game game)
+    {
+        var turn = game.Turn == Color.White ? 'w' : 'b';
+        var enPassant = game.EnPassant is not null ? game.EnPassant.ToString() : "-";
+        return $"{game.Board} {turn} {game.Castling} {enPassant} {game.HalfMoveCount} {game.FullMoveCount}";
+    }
+    
     private static string[] ValidateAndSplitFen(string fen)
     {
         if (fen == null)
