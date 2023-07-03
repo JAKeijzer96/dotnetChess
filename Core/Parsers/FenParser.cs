@@ -57,7 +57,6 @@ public static class FenParser
     {
         if (Regex.Match(castlingFen, @"^(-|(K?Q?k?q?))$").Success)
         {
-            // TODO: Implement
             return castlingFen;
         }
 
@@ -81,7 +80,7 @@ public static class FenParser
 
     private static int ParseHalfMoveCount(string halfMoveFen)
     {
-        int halfMoveCount = int.Parse(halfMoveFen);
+        var halfMoveCount = int.Parse(halfMoveFen);
         if (halfMoveCount < 0)
         {
             throw new InvalidFenException($"Invalid half move count: {halfMoveFen}");
@@ -92,7 +91,7 @@ public static class FenParser
 
     private static int ParseFullMoveCount(string fullMoveFen)
     {
-        int fullMoveCount = int.Parse(fullMoveFen);
+        var fullMoveCount = int.Parse(fullMoveFen);
         if (fullMoveCount < 1)
         {
             throw new InvalidFenException($"Invalid full move count: {fullMoveFen}");

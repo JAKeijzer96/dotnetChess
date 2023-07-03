@@ -90,51 +90,49 @@ public class Game
         }
 
         var king = from.Piece;
+        var isWhiteKingMoveOnFirstRank = king.IsWhite() && from.Rank == 0 && to.Rank == 0;
+        var isBlackKingMoveOnEighthRank = king.IsBlack() && from.Rank == 7 && to.Rank == 7;
+        var isFileDifferenceGreaterThanTwo = Math.Abs(from.File - to.File) >= 2;
 
-        if ( ((king.IsWhite() && from.Rank == 0 && to.Rank == 0) || 
-              (king.IsBlack() && from.Rank == 7 && to.Rank == 7))
-            && Math.Abs(from.File - to.File) >= 2)
+        if (!(isFileDifferenceGreaterThanTwo && (isWhiteKingMoveOnFirstRank || isBlackKingMoveOnEighthRank)))
         {
-            if (Castling == "-")
-            {
-                throw new InvalidCastlingException($"Cannot castle from {from} to {to} because the " +
-                                                   $"king and/or rook have moved (Castling string: {Castling}).");
-            }
-            var direction = from.File < to.File ? 1 : -1;
-            if ((king.IsWhite() && direction ==  1 && !Castling.Contains('K')) ||
-                (king.IsWhite() && direction == -1 && !Castling.Contains('Q')) ||
-                (king.IsBlack() && direction ==  1 && !Castling.Contains('k')) ||
-                (king.IsBlack() && direction == -1 && !Castling.Contains('q')))
-            {
-                throw new InvalidCastlingException($"Cannot castle from {from} to {to} because the " +
-                                                   $"king and/or rook have moved (Castling string: {Castling}).");
-            }
-            var currentFile = from.File;
-            var destinationFile = from.File + 2 * direction;
-            while (currentFile != destinationFile)
-            {
-                currentFile += direction;
-                if (Board.GetSquare(currentFile, from.Rank).IsOccupied())
-                {
-                    // TODO: Remove magic numbers from exception message
-                    throw new InvalidCastlingException($"Cannot castle from {from} to {to} because there is a piece blocking on file {(char) (currentFile + 97)}");
-                }
-            }
-
-            if (currentFile < from.File && Board.GetSquare(1, from.Rank).IsOccupied())
-            {
-                // TODO: Remove magic numbers from exception message
-                
-                // When castling queenside, need to check the b-file for obstructions because the rook needs to move through it
-                throw new InvalidCastlingException($"Cannot castle from {from} to {to} because there is a piece blocking on file {(char) (1 + 97)}");
-            }
-
-            return true;
+            return false;
         }
-        // TODO: Refactor (invert if)
+        
+        var direction = from.File < to.File ? 1 : -1;
+        VerifyKingCanCastleInGivenDirection(from, to, king, direction);
+        
+        var currentFile = from.File;
+        var destinationFile = from.File + 2 * direction;
+        while (currentFile != destinationFile)
+        {
+            currentFile += direction;
+            if (Board.GetSquare(currentFile, from.Rank).IsOccupied())
+            {
+                throw new InvalidCastlingException(from, to, blockedFile: currentFile);
+            }
+        }
 
-        return false;
+        // When castling queenside, need to check the b-file for obstructions because the rook needs to move through it
+        if (currentFile < from.File && Board.GetSquare(1, from.Rank).IsOccupied())
+        {
+            throw new InvalidCastlingException(from, to, blockedFile: 1);
+        }
 
+        return true;
+    }
+
+    private void VerifyKingCanCastleInGivenDirection(Square from, Square to, Piece king, int direction)
+    {
+        if (Castling == "-" ||
+            (king.IsWhite() && direction ==  1 && !Castling.Contains('K')) ||
+            (king.IsWhite() && direction == -1 && !Castling.Contains('Q')) ||
+            (king.IsBlack() && direction ==  1 && !Castling.Contains('k')) ||
+            (king.IsBlack() && direction == -1 && !Castling.Contains('q')))
+        {
+            throw new InvalidCastlingException($"Cannot castle from {from} to {to} because the " +
+                                               $"king and/or rook have moved (Castling string: {Castling}).");
+        }
     }
 
     private void UpdateEnPassantSquare(Square from, Square to)
