@@ -125,7 +125,7 @@ public class Board
     
     #region InternalParameterValidation
     
-    private string[] ValidateAndSplitBoardFen(string boardFen)
+    private static string[] ValidateAndSplitBoardFen(string boardFen)
     {
         if (string.IsNullOrWhiteSpace(boardFen))
         {
@@ -146,7 +146,7 @@ public class Board
         return fenRanks;
     }
     
-    private void VerifyFileAndRankWithinBoard(int file, int rank)
+    private static void VerifyFileAndRankWithinBoard(int file, int rank)
     {
         if (file is < 0 or >= BoardSize)
         {

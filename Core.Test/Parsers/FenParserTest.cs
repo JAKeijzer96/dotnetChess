@@ -11,10 +11,7 @@ public class FenParserTest
     [TestMethod]
     public void Parse_Null_ThrowsArgumentNullException()
     {
-        void Act()
-        {
-            FenParser.Parse(null!);
-        }
+        void Act() => FenParser.Parse(null!);
 
         Assert.ThrowsException<ArgumentNullException>((Action) Act);
     }
@@ -26,10 +23,7 @@ public class FenParserTest
     [DataRow("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNRwKQkqc602")]
     public void Parse_FenWitInvalidAmountOfSpaces_ThrowsInvalidFenException(string fen)
     {
-        void Act()
-        {
-            FenParser.Parse(fen);
-        }
+        void Act() => FenParser.Parse(fen);
 
         var exception = Assert.ThrowsException<InvalidFenException>((Action) Act);
         Assert.AreEqual("FEN string must have 6 parts", exception.Message);
@@ -40,10 +34,7 @@ public class FenParserTest
     {
         var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR R KQkq - 0 1";
 
-        void Act()
-        {
-            FenParser.Parse(fen);
-        }
+        void Act() => FenParser.Parse(fen);
 
         var exception = Assert.ThrowsException<InvalidFenException>((Action) Act);
         Assert.AreEqual("Invalid turn: R", exception.Message);
@@ -67,10 +58,7 @@ public class FenParserTest
     [DataRow("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KqKK - 0 1", "KqKK")]
     public void Parse_FenWithInvalidCastling_ThrowsInvalidFenException(string fen, string castlingString)
     {
-        void Act()
-        {
-            FenParser.Parse(fen);
-        }
+        void Act() => FenParser.Parse(fen);
 
         var exception = Assert.ThrowsException<InvalidFenException>((Action) Act);
         Assert.AreEqual($"Invalid castling string: {castlingString}", exception.Message);
@@ -81,10 +69,7 @@ public class FenParserTest
     {
         var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e2 0 1";
 
-        void Act()
-        {
-            FenParser.Parse(fen);
-        }
+        void Act() => FenParser.Parse(fen);
 
         var exception = Assert.ThrowsException<InvalidFenException>((Action) Act);
         Assert.AreEqual("Invalid en passant square: e2", exception.Message);
@@ -105,10 +90,7 @@ public class FenParserTest
     {
         var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - -1 1";
 
-        void Act()
-        {
-            FenParser.Parse(fen);
-        }
+        void Act() => FenParser.Parse(fen);
 
         var exception = Assert.ThrowsException<InvalidFenException>((Action) Act);
         Assert.AreEqual("Invalid half move count: -1", exception.Message);
@@ -129,10 +111,7 @@ public class FenParserTest
     {
         var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
 
-        void Act()
-        {
-            FenParser.Parse(fen);
-        }
+        void Act() => FenParser.Parse(fen);
 
         var exception = Assert.ThrowsException<InvalidFenException>((Action) Act);
         Assert.AreEqual("Invalid full move count: 0", exception.Message);

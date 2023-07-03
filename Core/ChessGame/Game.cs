@@ -175,90 +175,10 @@ public class Game
             {
                 RemoveCapturedEnPassantPawn(from, to);
             }
-            
-            // TODO: Refactor and move to seperate method
-
-            if (Castling != "-")
-            {
-                if (piece is King)
-                {
-                    if (piece.IsWhite() && (Castling.Contains('K') || Castling.Contains('Q')))
-                    {
-                        Castling = Castling.Replace("K", "").Replace("Q", "");
-                    }
-                    else if (Castling.Contains('k') || Castling.Contains('q'))
-                    {
-                        Castling = Castling.Replace("k", "").Replace("q", "");
-                    }
-                    if (Castling == "")
-                    {
-                        Castling = "-";
-                    }
-                }
-                else if (piece is Rook)
-                {
-                    if (piece.IsWhite())
-                    {
-                        if (from.File == 0)
-                        {
-                            Castling = Castling.Replace("Q", "");
-                        }
-                        else if (from.File == 7)
-                        {
-                            Castling = Castling.Replace("K", "");
-                        }
-                    }
-                    else
-                    {
-                        if (from.File == 0)
-                        {
-                            Castling = Castling.Replace("q", "");
-                        }
-                        else if (from.File == 7)
-                        {
-                            Castling = Castling.Replace("k", "");
-                        }
-                    }
-
-                    if (Castling == "")
-                    {
-                        Castling = "-";
-                    }
-                }
-            }
+            UpdateCastlingAfterRegularMove(piece, from);
         }
     }
-
-    private void PerformCastlingMove(Square from, Square to)
-    {
-        var direction = from.File < to.File ? 1 : -1;
-        var rookFile = from.File < to.File ? 7 : 0;
-            
-        // Move king
-        var kingDestinationSquare = Board.GetSquare(from.File + 2 * direction, from.Rank);
-        Board.MovePiece(from: from, to: kingDestinationSquare);
-        // Move rook
-        var rookSquare = Board.GetSquare(rookFile, from.Rank); 
-        var rookDestinationSquare = Board.GetSquare(from.File + direction, from.Rank);
-        Board.MovePiece(from: rookSquare, to: rookDestinationSquare);
-        
-        // Update Castling property
-        // TODO: Move to seperate method
-        if (kingDestinationSquare.Piece!.IsWhite())
-        {
-            Castling = Castling.Replace("K", "").Replace("Q", "");
-        }
-        else
-        {
-            Castling = Castling.Replace("k", "").Replace("q", "");
-        }
-
-        if (Castling == "")
-        {
-            Castling = "-";
-        }
-    }
-
+    
     private bool IsPromotionMove(Piece piece, Square to, char promotionPieceChar)
     {
         if (piece is not Pawn || to.Rank is not (0 or 7))
@@ -278,6 +198,37 @@ public class Game
         return true;
     }
 
+    private void PerformCastlingMove(Square from, Square to)
+    {
+        var direction = from.File < to.File ? 1 : -1;
+        var rookFile = from.File < to.File ? 7 : 0;
+            
+        // Move king and rook
+        var kingDestinationSquare = Board.GetSquare(from.File + 2 * direction, from.Rank);
+        Board.MovePiece(from: from, to: kingDestinationSquare);
+        var rookSquare = Board.GetSquare(rookFile, from.Rank); 
+        var rookDestinationSquare = Board.GetSquare(from.File + direction, from.Rank);
+        Board.MovePiece(from: rookSquare, to: rookDestinationSquare);
+        
+        // Update Castling property
+        var isWhite = kingDestinationSquare.Piece!.IsWhite(); 
+        UpdateCastlingAfterCastlingMove(isWhite);
+    }
+
+    private void UpdateCastlingAfterCastlingMove(bool isWhite)
+    {
+        Castling = isWhite switch
+        {
+            true  => Castling.Replace("K", "").Replace("Q", ""),
+            false => Castling.Replace("k", "").Replace("q", "")
+        };
+
+        if (Castling == "")
+        {
+            Castling = "-";
+        }
+    }
+
     private static void PromotePawn(Square from, Square to, char promotionPieceChar)
     {
         from.Piece = null;
@@ -287,6 +238,43 @@ public class Game
     private void RemoveCapturedEnPassantPawn(Square from, Square to)
     {
         Board.GetSquare(to.File, from.Rank).Piece = null;
+    }
+
+    private void UpdateCastlingAfterRegularMove(Piece piece, Square from)
+    {
+        if (Castling == "-")
+        {
+            return;
+        }
+        
+        var pieceIsWhite = piece.IsWhite();
+        if (piece is King)
+        {
+            if (pieceIsWhite && (Castling.Contains('K') || Castling.Contains('Q')))
+            {
+                Castling = Castling.Replace("K", "").Replace("Q", "");
+            }
+            else if (Castling.Contains('k') || Castling.Contains('q'))
+            {
+                Castling = Castling.Replace("k", "").Replace("q", "");
+            }
+        }
+        else if (piece is Rook)
+        {
+            Castling = (pieceIsWhite, from.File) switch
+            {
+                (true, 0) => Castling.Replace("Q", ""),
+                (true, 7) => Castling.Replace("K", ""),
+                (false, 0) => Castling.Replace("q", ""),
+                (false, 7) => Castling.Replace("k", ""),
+                _ => Castling
+            };
+        }
+        
+        if (Castling == "")
+        {
+            Castling = "-";
+        }
     }
 
     private void UpdateHalfMoveCount(Piece movedPiece, bool pieceCaptured)

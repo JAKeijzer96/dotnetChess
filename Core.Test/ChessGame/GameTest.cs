@@ -314,9 +314,7 @@ public class GameTest
         var sut = new Game(board, (Color)turn, castling, null, 0, 1);
 
         // Act
-        void Act() {
-            sut.MakeMove(from, to);
-        }
+        void Act() => sut.MakeMove(from, to);
 
         // Assert
         var exception = Assert.ThrowsException<InvalidCastlingException>((Action) Act);
@@ -335,10 +333,7 @@ public class GameTest
         var sut = new Game(board, (Color)turn, "KQkq", null, 0, 1);
         
         // Act
-        void Act()
-        {
-            sut.MakeMove(from, to);
-        }
+        void Act() => sut.MakeMove(from, to);
 
         // Assert
         var exception = Assert.ThrowsException<InvalidCastlingException>((Action) Act);

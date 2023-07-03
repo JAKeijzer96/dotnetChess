@@ -29,10 +29,7 @@ public class SquareTests
     [DataRow('e', 4)]
     public void Constructor_WithInvalidFile_ThrowsException(int file, int rank)
     {
-        void Act()
-        {
-            var square = new Square(file, rank);
-        }
+        void Act() => _ = new Square(file, rank);
 
         var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
         Assert.AreEqual($"File {file} is out of board. Must be between 0 and 7", exception.Message);
@@ -44,10 +41,7 @@ public class SquareTests
     [DataRow(2, '4')]
     public void Constructor_WithInvalidRank_ThrowsException(int file, int rank)
     {
-        void Act()
-        {
-            var square = new Square(file, rank);
-        }
+        void Act() => _ = new Square(file, rank);
 
         var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
         Assert.AreEqual($"Rank {rank} is out of board. Must be between 0 and 7", exception.Message);

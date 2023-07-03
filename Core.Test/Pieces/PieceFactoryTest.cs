@@ -32,11 +32,8 @@ public class PieceFactoryTest
     [TestMethod]
     public void CreatePiece_WithIncorrectChar_ThrowsArgumentException()
     {
-        void Act()
-        {
-            PieceFactory.CreatePiece('V');
-        }
-        
+        void Act() => PieceFactory.CreatePiece('V');
+
         var exception = Assert.ThrowsException<ArgumentException>((Action)Act);
         Assert.AreEqual("Invalid piece character: 'V'", exception.Message);
     }
