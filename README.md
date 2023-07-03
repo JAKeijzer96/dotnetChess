@@ -7,13 +7,11 @@ The core goal of this project is to write an engine that is comprehensible and e
 - [ ] Implement chess rules in backend
   - [x] Parse and generate basic FEN (September 2022)
   - [x] Basic piece movement (October 2022)
-  - [ ] More advanced movement
+  - [x] More advanced movement (July 2023)
     - [x] En passant (June 2023)
     - [x] Pawn promotion (June 2023)
-    - [ ] Castling
-    - [ ] Check
-    - [ ] Checkmate
-  - [ ] Parse and generate full FEN
+    - [x] Castling (July 2023)
+  - [x] Parse and generate full FEN (July 2023)
   - [ ] Rules
     - [ ] Check
     - [ ] Checkmate
