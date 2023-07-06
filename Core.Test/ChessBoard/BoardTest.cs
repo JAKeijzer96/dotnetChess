@@ -1,6 +1,5 @@
 ﻿using System;
 using Core.ChessBoard;
-using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,36 +25,10 @@ public class BoardTest
     {
         var board = new Board();
 
-        var result = board.GetSquare(File.B, 7);
+        var result = board.GetSquare(File.B, Rank.Eighth);
 
         Assert.AreEqual(1, result.File);
         Assert.AreEqual(7, result.Rank);
-    }
-
-    [DataTestMethod]
-    [DataRow(-1, 5)]
-    [DataRow(8, 7)]
-    public void GetSquare_WithInvalidFile_ThrowsException(int file, int rank)
-    {
-        var board = new Board();
-
-        void Act() => board.GetSquare((File) file, rank);
-
-        var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
-        Assert.AreEqual($"File {file} is out of board (must be between 0 and 7).", exception.Message);
-    }
-
-    [DataTestMethod]
-    [DataRow(3, -2)]
-    [DataRow(4, 8)]
-    public void GetSquare_WithInvalidRank_ThrowsException(int file, int rank)
-    {
-        var board = new Board();
-
-        void Act() => board.GetSquare((File) file, rank);
-
-        var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
-        Assert.AreEqual($"Rank {rank} is out of board. Must be between 0 and 7", exception.Message);
     }
 
     [DataTestMethod]
@@ -123,39 +96,30 @@ public class BoardTest
     [TestMethod]
     public void MovePiece_MovesPieceToNewSquare()
     {
-        // Arrange
         var board = new Board();
         
-        // Act
         board.MovePiece(board["g1"], board["f3"]);
         
-        // Assert
         Assert.AreEqual('N', board["f3"].Piece!.Name);
     }
     
     [TestMethod]
     public void MovePiece_RemovesPieceFromOldSquare()
     {
-        // Arrange
         var board = new Board();
         
-        // Act
         board.MovePiece(board["e2"], board["e4"]);
         
-        // Assert
         Assert.IsNull(board["e2"].Piece);
     }
     
     [TestMethod]
     public void MovePiece_ToSquareOccupiedByOpponent_CapturesPiece()
     {
-        // Arrange
         var board = new Board("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR");
         
-        // Act
         board.MovePiece(board["e4"], board["d5"]);
         
-        // Assert
         Assert.AreEqual('P', board["d5"].Piece!.Name);
     }
 

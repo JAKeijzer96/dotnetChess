@@ -91,8 +91,8 @@ public class Game
         }
 
         var king = from.Piece;
-        var isWhiteKingMoveOnFirstRank = king.IsWhite() && from.Rank == 0 && to.Rank == 0;
-        var isBlackKingMoveOnEighthRank = king.IsBlack() && from.Rank == 7 && to.Rank == 7;
+        var isWhiteKingMoveOnFirstRank = king.IsWhite() && from.Rank == Rank.First && to.Rank == Rank.First;
+        var isBlackKingMoveOnEighthRank = king.IsBlack() && from.Rank == Rank.Eighth && to.Rank == Rank.Eighth;
         var isFileDifferenceGreaterThanTwo = from.File.DistanceTo(to.File) >= 2;
 
         if (!(isFileDifferenceGreaterThanTwo && (isWhiteKingMoveOnFirstRank || isBlackKingMoveOnEighthRank)))
@@ -143,7 +143,7 @@ public class Game
         // We already know the move is valid, so to check if it's a pawns first move we only
         // need to check the difference in rank between the start and end square, and can omit
         // checking if the start rank is the second rank (for white) or seventh rank (for black)
-        if (piece is Pawn && Math.Abs(from.Rank - to.Rank) == 2)
+        if (piece is Pawn && from.Rank.DistanceTo(to.Rank) == 2)
         {
             var direction = piece.IsWhite() ? 1 : -1;
             EnPassant = Board.GetSquare(from.File, from.Rank + direction);
@@ -180,7 +180,7 @@ public class Game
     
     private bool IsPromotionMove(Piece piece, Square to, char promotionPieceChar)
     {
-        if (piece is not Pawn || to.Rank is not (0 or 7))
+        if (piece is not Pawn || !(to.Rank == Rank.First || to.Rank == Rank.Eighth))
         {
             return false;
         }

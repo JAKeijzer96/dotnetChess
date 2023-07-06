@@ -1,5 +1,4 @@
-﻿using System;
-using Core.ChessBoard;
+﻿using Core.ChessBoard;
 using Core.MoveValidators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

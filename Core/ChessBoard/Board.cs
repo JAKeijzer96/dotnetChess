@@ -25,16 +25,19 @@ public class Board
     private void SetupBoardFromBoardFen(string boardFen)
     {
         string[] fenRanks = ValidateAndSplitBoardFen(boardFen);
-        int rank = BoardSize - 1;
+        var rank = Rank.Eighth;
         for (var i = 0; i < BoardSize; i++)
         {
             var fenRank = fenRanks[i];
             AddRankFromFen(rank, fenRank);
-            rank--;
+            if (rank > Rank.First)
+            {
+                rank--;
+            }
         }
     }
 
-    private void AddRankFromFen(int rank, string fenRank)
+    private void AddRankFromFen(Rank rank, string fenRank)
     {
         var file = File.A;
         foreach (var fenChar in fenRank)
@@ -62,14 +65,13 @@ public class Board
         }
     }
 
-    private void AddPieceToBoard(File file, int rank, char fenChar)
+    private void AddPieceToBoard(File file, Rank rank, char fenChar)
     {
         _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePiece(fenChar));
     }
 
-    public Square GetSquare(File file, int rank)
+    public Square GetSquare(File file, Rank rank)
     {
-        VerifyFileAndRankWithinBoard(file, rank);
         return _squares[file, rank];
     }
     
@@ -86,7 +88,7 @@ public class Board
         }
 
         var file = File.ParseChar(squareName[0]);
-        int rank = squareName[1] - '1';
+        var rank = Rank.ParseChar(squareName[1]);
         return GetSquare(file, rank);
     }
 
@@ -99,16 +101,22 @@ public class Board
     public override string ToString()
     {
         var stringBuilder = new StringBuilder();
-        for (var rank = BoardSize - 1; rank >= 0; rank--)
+        var rank = Rank.Eighth;
+        while (rank >= Rank.First)
         {
             stringBuilder.Append(RankToString(rank) + '/');
+            if (rank == Rank.First)
+            {
+                break;
+            }
+            rank--;
         }
 
         stringBuilder.Length--; // Remove last '/'
         return stringBuilder.ToString();
     }
 
-    private string RankToString(int rank)
+    private string RankToString(Rank rank)
     {
         var stringBuilder = new StringBuilder();
         var emptySquares = 0;
@@ -164,19 +172,5 @@ public class Board
         }
 
         return fenRanks;
-    }
-    
-    // TODO: Remove after refactoring rank
-    private static void VerifyFileAndRankWithinBoard(int file, int rank)
-    {
-        if (file is < 0 or >= BoardSize)
-        {
-            throw new OutOfBoardException($"File {file} is out of board. Must be between 0 and {BoardSize - 1}");
-        }
-    
-        if (rank is < 0 or >= BoardSize)
-        {
-            throw new OutOfBoardException($"Rank {rank} is out of board. Must be between 0 and {BoardSize - 1}");
-        }
     }
 }

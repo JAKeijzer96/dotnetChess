@@ -12,22 +12,23 @@ public class BishopMoveValidator : MoveValidator
 
         int fileDirection = from.File < to.File ? 1 : -1;
         int rankDirection = from.Rank < to.Rank ? 1 : -1;
-
-        // TODO: Refactor after refactoring rank
-        for (int file = from.File + fileDirection, rank = from.Rank + rankDirection;
+        
+        File file;
+        Rank rank;
+        for (file = from.File + fileDirection, rank = from.Rank + rankDirection;
              file != to.File;
              file += fileDirection, rank += rankDirection)
         {
-            if (board.GetSquare((File) file, rank).IsOccupied())
+            if (board.GetSquare(file, rank).IsOccupied())
                 return false;
         }
 
         return true;
     }
 
-    private bool IsDiagonal(Square from, Square to)
+    private static bool IsDiagonal(Square from, Square to)
     {
-        return from.File.DistanceTo(to.File) == Math.Abs(from.Rank - to.Rank);
+        return from.File.DistanceTo(to.File) == from.Rank.DistanceTo(to.Rank);
     }
 
 } 
