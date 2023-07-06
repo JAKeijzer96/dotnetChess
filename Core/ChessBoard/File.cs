@@ -88,7 +88,7 @@ public class File
             5 => "f",
             6 => "g",
             7 => "h",
-            _ => ""
+            _ => "" // Invalid case, best practices recommend not throwing an exception
         };
 
     private static File GetByValue(int value) =>

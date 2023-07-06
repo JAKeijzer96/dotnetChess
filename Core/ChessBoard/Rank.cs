@@ -88,7 +88,7 @@ public class Rank
             5 => "6",
             6 => "7",
             7 => "8",
-            _ => ""
+            _ => "" // Invalid case, best practices recommend not throwing an exception
         };
 
     private static Rank GetByValue(int value) =>
