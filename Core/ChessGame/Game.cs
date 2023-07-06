@@ -3,6 +3,7 @@ using Core.ChessBoard;
 using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
+using File = Core.ChessBoard.File;
 
 namespace Core.ChessGame;
 
@@ -92,7 +93,7 @@ public class Game
         var king = from.Piece;
         var isWhiteKingMoveOnFirstRank = king.IsWhite() && from.Rank == 0 && to.Rank == 0;
         var isBlackKingMoveOnEighthRank = king.IsBlack() && from.Rank == 7 && to.Rank == 7;
-        var isFileDifferenceGreaterThanTwo = Math.Abs(from.File - to.File) >= 2;
+        var isFileDifferenceGreaterThanTwo = from.File.DistanceTo(to.File) >= 2;
 
         if (!(isFileDifferenceGreaterThanTwo && (isWhiteKingMoveOnFirstRank || isBlackKingMoveOnEighthRank)))
         {
@@ -114,9 +115,9 @@ public class Game
         }
 
         // When castling queenside, need to check the b-file for obstructions because the rook needs to move through it
-        if (currentFile < from.File && Board.GetSquare(1, from.Rank).IsOccupied())
+        if (currentFile < from.File && Board.GetSquare(File.B, from.Rank).IsOccupied())
         {
-            throw new InvalidCastlingException(from, to, blockedFile: 1);
+            throw new InvalidCastlingException(from, to, blockedFile: File.B);
         }
 
         return true;
@@ -199,7 +200,7 @@ public class Game
     private void PerformCastlingMove(Square from, Square to)
     {
         var direction = from.File < to.File ? 1 : -1;
-        var rookFile = from.File < to.File ? 7 : 0;
+        var rookFile = from.File < to.File ? File.H : File.A;
             
         // Move king and rook
         var kingDestinationSquare = Board.GetSquare(from.File + 2 * direction, from.Rank);
@@ -259,12 +260,12 @@ public class Game
         }
         else if (piece is Rook)
         {
-            Castling = (pieceIsWhite, from.File) switch
+            Castling = pieceIsWhite switch
             {
-                (true, 0) => Castling.Replace("Q", ""),
-                (true, 7) => Castling.Replace("K", ""),
-                (false, 0) => Castling.Replace("q", ""),
-                (false, 7) => Castling.Replace("k", ""),
+                true when from.File == File.A => Castling.Replace("Q", ""),
+                true when from.File == File.H => Castling.Replace("K", ""),
+                false when from.File == File.A => Castling.Replace("q", ""),
+                false when from.File == File.H => Castling.Replace("k", ""),
                 _ => Castling
             };
         }

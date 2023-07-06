@@ -26,7 +26,7 @@ public class BoardTest
     {
         var board = new Board();
 
-        var result = board.GetSquare(1, 7);
+        var result = board.GetSquare(File.B, 7);
 
         Assert.AreEqual(1, result.File);
         Assert.AreEqual(7, result.Rank);
@@ -39,10 +39,10 @@ public class BoardTest
     {
         var board = new Board();
 
-        void Act() => board.GetSquare(file, rank);
+        void Act() => board.GetSquare((File) file, rank);
 
         var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
-        Assert.AreEqual($"File {file} is out of board. Must be between 0 and 7", exception.Message);
+        Assert.AreEqual($"File {file} is out of board (must be between 0 and 7).", exception.Message);
     }
 
     [DataTestMethod]
@@ -52,7 +52,7 @@ public class BoardTest
     {
         var board = new Board();
 
-        void Act() => board.GetSquare(file, rank);
+        void Act() => board.GetSquare((File) file, rank);
 
         var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
         Assert.AreEqual($"Rank {rank} is out of board. Must be between 0 and 7", exception.Message);

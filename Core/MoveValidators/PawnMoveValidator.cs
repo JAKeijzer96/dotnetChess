@@ -26,15 +26,12 @@ public class PawnMoveValidator : MoveValidator
 
             return false;
         }
-
-        if (Math.Abs(from.File - to.File) == 1)
+        
+        if (from.File.DistanceTo(to.File) == 1 && from.Rank + direction == to.Rank)
         {
-            if (from.Rank + direction == to.Rank)
-            {
-                // Already checked that if there is a piece on the target square,
-                // that it is of the opposite color
-                return to.IsOccupied();
-            }
+            // Already checked that if there is a piece on the target square,
+            // that it is of the opposite color
+            return to.IsOccupied();
         }
 
         return false;
