@@ -21,11 +21,11 @@ public class BoardTest
     }
     
     [TestMethod]
-    public void GetSquare_WithValidFileAndRank_ReturnsSquare()
+    public void Indexer_WithValidFileAndRank_ReturnsSquare()
     {
         var board = new Board();
 
-        var result = board.GetSquare(File.B, Rank.Eighth);
+        var result = board[File.B, Rank.Eighth];
 
         Assert.AreEqual(1, result.File);
         Assert.AreEqual(7, result.Rank);
@@ -35,33 +35,33 @@ public class BoardTest
     [DataRow("e4", 4, 3)]
     [DataRow("b7", 1, 6)]
     [DataRow("h8", 7, 7)]
-    public void GetSquare_WithValidSquareName_ReturnsThatSquare(string squareName, int file, int rank)
+    public void Indexer_WithValidSquareName_ReturnsThatSquare(string squareName, int file, int rank)
     {
         var board = new Board();
 
-        var square = board.GetSquare(squareName);
+        var square = board[squareName];
 
         Assert.AreEqual(file, square.File);
         Assert.AreEqual(rank, square.Rank);
     }
 
     [TestMethod]
-    public void GetSquare_Null_ThrowsArgumentNullException()
+    public void Indexer_Null_ThrowsArgumentNullException()
     {
         var board = new Board();
 
-        void Act() => board.GetSquare(null!);
+        void Act() => _ = board[null!];
 
         var exception = Assert.ThrowsException<ArgumentNullException>((Action) Act);
         Assert.AreEqual("Value cannot be null. (Parameter 'squareName')", exception.Message);
     }
     
     [TestMethod]
-    public void GetSquare_StringWithLength3_ThrowsArgumentException()
+    public void Indexer_StringWithLength3_ThrowsArgumentException()
     {
         var board = new Board();
 
-        void Act() => board.GetSquare("e44");
+        void Act() => _ = board["e44"];
 
         var exception = Assert.ThrowsException<ArgumentException>((Action) Act);
         Assert.AreEqual("Invalid square: e44", exception.Message);

@@ -19,7 +19,7 @@ public class BishopMoveValidator : MoveValidator
              file != to.File;
              file += fileDirection, rank += rankDirection)
         {
-            if (board.GetSquare(file, rank).IsOccupied())
+            if (board[file, rank].IsOccupied())
                 return false;
         }
 

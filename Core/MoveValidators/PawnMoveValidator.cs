@@ -21,7 +21,7 @@ public class PawnMoveValidator : MoveValidator
             var isFirstMove = pawn.IsWhite() ? from.Rank == 1 : from.Rank == 6;
             if (from.Rank + 2 * direction == to.Rank && isFirstMove)
             {
-                return !(board.GetSquare(from.File, from.Rank + direction).IsOccupied() || to.IsOccupied());
+                return !(board[from.File, from.Rank + direction].IsOccupied() || to.IsOccupied());
             }
 
             return false;

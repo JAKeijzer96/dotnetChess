@@ -108,14 +108,14 @@ public class Game
         while (currentFile != destinationFile)
         {
             currentFile += direction;
-            if (Board.GetSquare(currentFile, from.Rank).IsOccupied())
+            if (Board[currentFile, from.Rank].IsOccupied())
             {
                 throw new InvalidCastlingException(from, to, blockedFile: currentFile);
             }
         }
 
         // When castling queenside, need to check the b-file for obstructions because the rook needs to move through it
-        if (currentFile < from.File && Board.GetSquare(File.B, from.Rank).IsOccupied())
+        if (currentFile < from.File && Board[File.B, from.Rank].IsOccupied())
         {
             throw new InvalidCastlingException(from, to, blockedFile: File.B);
         }
@@ -146,7 +146,7 @@ public class Game
         if (piece is Pawn && from.Rank.DistanceTo(to.Rank) == 2)
         {
             var direction = piece.IsWhite() ? 1 : -1;
-            EnPassant = Board.GetSquare(from.File, from.Rank + direction);
+            EnPassant = Board[from.File, from.Rank + direction];
         }
         else
         {
@@ -203,10 +203,10 @@ public class Game
         var rookFile = from.File < to.File ? File.H : File.A;
             
         // Move king and rook
-        var kingDestinationSquare = Board.GetSquare(from.File + 2 * direction, from.Rank);
+        var kingDestinationSquare = Board[from.File + 2 * direction, from.Rank];
         Board.MovePiece(from: from, to: kingDestinationSquare);
-        var rookSquare = Board.GetSquare(rookFile, from.Rank); 
-        var rookDestinationSquare = Board.GetSquare(from.File + direction, from.Rank);
+        var rookSquare = Board[rookFile, from.Rank]; 
+        var rookDestinationSquare = Board[from.File + direction, from.Rank];
         Board.MovePiece(from: rookSquare, to: rookDestinationSquare);
         
         // Update Castling property
@@ -236,7 +236,7 @@ public class Game
 
     private void RemoveCapturedEnPassantPawn(Square from, Square to)
     {
-        Board.GetSquare(to.File, from.Rank).Piece = null;
+        Board[to.File, from.Rank].Piece = null;
     }
 
     private void UpdateCastlingAfterRegularMove(Piece piece, Square from)

@@ -7,10 +7,12 @@ namespace Core.ChessBoard;
 public class Board
 {
     private readonly Square[,] _squares;
-    public const int BoardSize = 8;
+    private const int BoardSize = 8;
     private const string DefaultStartingPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
     public Square this[string squareName] => GetSquare(squareName);
+
+    public Square this[File file, Rank rank] => GetSquare(file, rank);
 
     public Board() : this(DefaultStartingPosition)
     {
@@ -70,12 +72,12 @@ public class Board
         _squares[file, rank] = new Square(file, rank, PieceFactory.CreatePiece(fenChar));
     }
 
-    public Square GetSquare(File file, Rank rank)
+    private Square GetSquare(File file, Rank rank)
     {
         return _squares[file, rank];
     }
     
-    public Square GetSquare(string squareName)
+    private Square GetSquare(string squareName)
     {
         if (squareName == null)
         {
