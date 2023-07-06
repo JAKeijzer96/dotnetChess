@@ -3,6 +3,7 @@ using Core.ChessBoard;
 using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
+using File = Core.ChessBoard.File;
 
 namespace Core.ChessGame;
 
@@ -90,9 +91,9 @@ public class Game
         }
 
         var king = from.Piece;
-        var isWhiteKingMoveOnFirstRank = king.IsWhite() && from.Rank == 0 && to.Rank == 0;
-        var isBlackKingMoveOnEighthRank = king.IsBlack() && from.Rank == 7 && to.Rank == 7;
-        var isFileDifferenceGreaterThanTwo = Math.Abs(from.File - to.File) >= 2;
+        var isWhiteKingMoveOnFirstRank = king.IsWhite() && from.Rank == Rank.First && to.Rank == Rank.First;
+        var isBlackKingMoveOnEighthRank = king.IsBlack() && from.Rank == Rank.Eighth && to.Rank == Rank.Eighth;
+        var isFileDifferenceGreaterThanTwo = from.File.DistanceTo(to.File) >= 2;
 
         if (!(isFileDifferenceGreaterThanTwo && (isWhiteKingMoveOnFirstRank || isBlackKingMoveOnEighthRank)))
         {
@@ -107,16 +108,16 @@ public class Game
         while (currentFile != destinationFile)
         {
             currentFile += direction;
-            if (Board.GetSquare(currentFile, from.Rank).IsOccupied())
+            if (Board[currentFile, from.Rank].IsOccupied())
             {
                 throw new InvalidCastlingException(from, to, blockedFile: currentFile);
             }
         }
 
         // When castling queenside, need to check the b-file for obstructions because the rook needs to move through it
-        if (currentFile < from.File && Board.GetSquare(1, from.Rank).IsOccupied())
+        if (currentFile < from.File && Board[File.B, from.Rank].IsOccupied())
         {
-            throw new InvalidCastlingException(from, to, blockedFile: 1);
+            throw new InvalidCastlingException(from, to, blockedFile: File.B);
         }
 
         return true;
@@ -142,10 +143,10 @@ public class Game
         // We already know the move is valid, so to check if it's a pawns first move we only
         // need to check the difference in rank between the start and end square, and can omit
         // checking if the start rank is the second rank (for white) or seventh rank (for black)
-        if (piece is Pawn && Math.Abs(from.Rank - to.Rank) == 2)
+        if (piece is Pawn && from.Rank.DistanceTo(to.Rank) == 2)
         {
             var direction = piece.IsWhite() ? 1 : -1;
-            EnPassant = Board.GetSquare(from.File, from.Rank + direction);
+            EnPassant = Board[from.File, from.Rank + direction];
         }
         else
         {
@@ -179,7 +180,7 @@ public class Game
     
     private bool IsPromotionMove(Piece piece, Square to, char promotionPieceChar)
     {
-        if (piece is not Pawn || to.Rank is not (0 or 7))
+        if (piece is not Pawn || !(to.Rank == Rank.First || to.Rank == Rank.Eighth))
         {
             return false;
         }
@@ -199,13 +200,13 @@ public class Game
     private void PerformCastlingMove(Square from, Square to)
     {
         var direction = from.File < to.File ? 1 : -1;
-        var rookFile = from.File < to.File ? 7 : 0;
+        var rookFile = from.File < to.File ? File.H : File.A;
             
         // Move king and rook
-        var kingDestinationSquare = Board.GetSquare(from.File + 2 * direction, from.Rank);
+        var kingDestinationSquare = Board[from.File + 2 * direction, from.Rank];
         Board.MovePiece(from: from, to: kingDestinationSquare);
-        var rookSquare = Board.GetSquare(rookFile, from.Rank); 
-        var rookDestinationSquare = Board.GetSquare(from.File + direction, from.Rank);
+        var rookSquare = Board[rookFile, from.Rank]; 
+        var rookDestinationSquare = Board[from.File + direction, from.Rank];
         Board.MovePiece(from: rookSquare, to: rookDestinationSquare);
         
         // Update Castling property
@@ -235,7 +236,7 @@ public class Game
 
     private void RemoveCapturedEnPassantPawn(Square from, Square to)
     {
-        Board.GetSquare(to.File, from.Rank).Piece = null;
+        Board[to.File, from.Rank].Piece = null;
     }
 
     private void UpdateCastlingAfterRegularMove(Piece piece, Square from)
@@ -259,12 +260,12 @@ public class Game
         }
         else if (piece is Rook)
         {
-            Castling = (pieceIsWhite, from.File) switch
+            Castling = pieceIsWhite switch
             {
-                (true, 0) => Castling.Replace("Q", ""),
-                (true, 7) => Castling.Replace("K", ""),
-                (false, 0) => Castling.Replace("q", ""),
-                (false, 7) => Castling.Replace("k", ""),
+                true when from.File == File.A => Castling.Replace("Q", ""),
+                true when from.File == File.H => Castling.Replace("K", ""),
+                false when from.File == File.A => Castling.Replace("q", ""),
+                false when from.File == File.H => Castling.Replace("k", ""),
                 _ => Castling
             };
         }

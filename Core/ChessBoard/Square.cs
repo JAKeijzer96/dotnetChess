@@ -5,13 +5,12 @@ namespace Core.ChessBoard;
 
 public class Square
 {
-    public readonly int File;
-    public readonly int Rank;
+    public readonly File File;
+    public readonly Rank Rank;
     public Piece? Piece { get; set; }
 
-    public Square(int file, int rank, Piece? piece = null)
+    public Square(File file, Rank rank, Piece? piece = null)
     {
-        VerifyFileAndRank(file, rank);
         File = file;
         Rank = rank;
         Piece = piece;
@@ -22,24 +21,11 @@ public class Square
         return Piece is not null;
     }
 
-    private static void VerifyFileAndRank(int file, int rank)
-    {
-        if (file is < 0 or >= Board.BoardSize)
-        {
-            throw new OutOfBoardException($"File {file} is out of board. Must be between 0 and {Board.BoardSize - 1}");
-        }
-
-        if (rank is < 0 or >= Board.BoardSize)
-        {
-            throw new OutOfBoardException($"Rank {rank} is out of board. Must be between 0 and {Board.BoardSize - 1}");
-        }
-    }
-
     public override string ToString()
     {
-        var fileChar = (char) (File + 97);
-        var rankChar = (char) (Rank + 49);
-        return new string(new [] {fileChar, rankChar});
+        var file = File.ToString();
+        var rank = Rank.ToString();
+        return file + rank;
     }
 
     public static bool operator ==(Square? left, Square? right)

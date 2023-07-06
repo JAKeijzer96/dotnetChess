@@ -1,4 +1,5 @@
 ﻿using Core.ChessBoard;
+using File = Core.ChessBoard.File;
 
 namespace Core.MoveValidators;
 
@@ -7,19 +8,27 @@ public class BishopMoveValidator : MoveValidator
     public override bool IsValidMove(Board board, Square from, Square to)
     {
         if (!IsValidDestinationSquare(board, from, to)) return false;
-        if (Math.Abs(from.File - to.File) != Math.Abs(from.Rank - to.Rank)) return false;
+        if (!IsDiagonal(from, to)) return false;
 
-        int xDirection = from.File < to.File ? 1 : -1;
-        int yDirection = from.Rank < to.Rank ? 1 : -1;
-
-        for (int file = from.File + xDirection, rank = from.Rank + yDirection;
+        int fileDirection = from.File < to.File ? 1 : -1;
+        int rankDirection = from.Rank < to.Rank ? 1 : -1;
+        
+        File file;
+        Rank rank;
+        for (file = from.File + fileDirection, rank = from.Rank + rankDirection;
              file != to.File;
-             file += xDirection, rank += yDirection)
+             file += fileDirection, rank += rankDirection)
         {
-            if (board.GetSquare(file, rank).IsOccupied())
+            if (board[file, rank].IsOccupied())
                 return false;
         }
 
         return true;
     }
-}
+
+    private static bool IsDiagonal(Square from, Square to)
+    {
+        return from.File.DistanceTo(to.File) == from.Rank.DistanceTo(to.Rank);
+    }
+
+} 

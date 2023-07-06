@@ -1,6 +1,5 @@
 ﻿using System;
 using Core.ChessBoard;
-using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,73 +21,47 @@ public class BoardTest
     }
     
     [TestMethod]
-    public void GetSquare_WithValidFileAndRank_ReturnsSquare()
+    public void Indexer_WithValidFileAndRank_ReturnsSquare()
     {
         var board = new Board();
 
-        var result = board.GetSquare(1, 7);
+        var result = board[File.B, Rank.Eighth];
 
         Assert.AreEqual(1, result.File);
         Assert.AreEqual(7, result.Rank);
     }
 
     [DataTestMethod]
-    [DataRow(-1, 5)]
-    [DataRow(8, 7)]
-    public void GetSquare_WithInvalidFile_ThrowsException(int file, int rank)
-    {
-        var board = new Board();
-
-        void Act() => board.GetSquare(file, rank);
-
-        var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
-        Assert.AreEqual($"File {file} is out of board. Must be between 0 and 7", exception.Message);
-    }
-
-    [DataTestMethod]
-    [DataRow(3, -2)]
-    [DataRow(4, 8)]
-    public void GetSquare_WithInvalidRank_ThrowsException(int file, int rank)
-    {
-        var board = new Board();
-
-        void Act() => board.GetSquare(file, rank);
-
-        var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
-        Assert.AreEqual($"Rank {rank} is out of board. Must be between 0 and 7", exception.Message);
-    }
-
-    [DataTestMethod]
     [DataRow("e4", 4, 3)]
     [DataRow("b7", 1, 6)]
     [DataRow("h8", 7, 7)]
-    public void GetSquare_WithValidSquareName_ReturnsThatSquare(string squareName, int file, int rank)
+    public void Indexer_WithValidSquareName_ReturnsThatSquare(string squareName, int file, int rank)
     {
         var board = new Board();
 
-        var square = board.GetSquare(squareName);
+        var square = board[squareName];
 
         Assert.AreEqual(file, square.File);
         Assert.AreEqual(rank, square.Rank);
     }
 
     [TestMethod]
-    public void GetSquare_Null_ThrowsArgumentNullException()
+    public void Indexer_Null_ThrowsArgumentNullException()
     {
         var board = new Board();
 
-        void Act() => board.GetSquare(null!);
+        void Act() => _ = board[null!];
 
         var exception = Assert.ThrowsException<ArgumentNullException>((Action) Act);
         Assert.AreEqual("Value cannot be null. (Parameter 'squareName')", exception.Message);
     }
     
     [TestMethod]
-    public void GetSquare_StringWithLength3_ThrowsArgumentException()
+    public void Indexer_StringWithLength3_ThrowsArgumentException()
     {
         var board = new Board();
 
-        void Act() => board.GetSquare("e44");
+        void Act() => _ = board["e44"];
 
         var exception = Assert.ThrowsException<ArgumentException>((Action) Act);
         Assert.AreEqual("Invalid square: e44", exception.Message);
@@ -123,39 +96,30 @@ public class BoardTest
     [TestMethod]
     public void MovePiece_MovesPieceToNewSquare()
     {
-        // Arrange
         var board = new Board();
         
-        // Act
         board.MovePiece(board["g1"], board["f3"]);
         
-        // Assert
         Assert.AreEqual('N', board["f3"].Piece!.Name);
     }
     
     [TestMethod]
     public void MovePiece_RemovesPieceFromOldSquare()
     {
-        // Arrange
         var board = new Board();
         
-        // Act
         board.MovePiece(board["e2"], board["e4"]);
         
-        // Assert
         Assert.IsNull(board["e2"].Piece);
     }
     
     [TestMethod]
     public void MovePiece_ToSquareOccupiedByOpponent_CapturesPiece()
     {
-        // Arrange
         var board = new Board("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR");
         
-        // Act
         board.MovePiece(board["e4"], board["d5"]);
         
-        // Assert
         Assert.AreEqual('P', board["d5"].Piece!.Name);
     }
 

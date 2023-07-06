@@ -8,29 +8,36 @@ public class RookMoveValidator : MoveValidator
     {
         if (!IsValidDestinationSquare(board, from, to)) return false;
         if (!(from.File == to.File || from.Rank == to.Rank)) return false;
+        
+        return (from.File == to.File && IsValidVerticalMove(from, to, board)) ||
+               (from.Rank == to.Rank && IsValidHorizontalMove(from, to, board));
+    }
 
-        if (from.File == to.File)
+    private static bool IsValidVerticalMove(Square from, Square to, Board board)
+    {
+        var rankDirection = from.Rank < to.Rank ? 1 : -1;
+        for (var rank = from.Rank + rankDirection; rank != to.Rank; rank += rankDirection)
         {
-            var yDirection = from.Rank < to.Rank ? 1 : -1;
-            for (var rank = from.Rank + yDirection; rank != to.Rank; rank += yDirection)
+            if (board[from.File, rank].IsOccupied())
             {
-                if (board.GetSquare(from.File, rank).IsOccupied()) return false;
+                return false;
             }
-
-            return true;
         }
 
-        if (from.Rank == to.Rank)
-        {
-            var xDirection = from.File < to.File ? 1 : -1;
-            for (var file = from.File + xDirection; file != to.File; file += xDirection)
-            {
-                if (board.GetSquare(file, from.Rank).IsOccupied()) return false;
-            }
+        return true;
+    }
 
-            return true;
+    private static bool IsValidHorizontalMove(Square from, Square to, Board board)
+    {
+        var fileDirection = from.File < to.File ? 1 : -1;
+        for (var file = from.File + fileDirection; file != to.File; file += fileDirection)
+        {
+            if (board[file, from.Rank].IsOccupied())
+            {
+                return false;
+            }
         }
 
-        return false;
+        return true;
     }
 }
