@@ -100,7 +100,7 @@ public class Game
             return false;
         }
         
-        var direction = from.File < to.File ? 1 : -1;
+        var direction = from.File < to.File ? Direction.Right : Direction.Left;
         VerifyKingCanCastleInGivenDirection(from, to, king, direction);
         
         var currentFile = from.File;
@@ -126,10 +126,10 @@ public class Game
     private void VerifyKingCanCastleInGivenDirection(Square from, Square to, Piece king, int direction)
     {
         if (Castling == "-" ||
-            (king.IsWhite() && direction ==  1 && !Castling.Contains('K')) ||
-            (king.IsWhite() && direction == -1 && !Castling.Contains('Q')) ||
-            (king.IsBlack() && direction ==  1 && !Castling.Contains('k')) ||
-            (king.IsBlack() && direction == -1 && !Castling.Contains('q')))
+            (king.IsWhite() && direction == Direction.Right && !Castling.Contains('K')) ||
+            (king.IsWhite() && direction == Direction.Left && !Castling.Contains('Q')) ||
+            (king.IsBlack() && direction == Direction.Right && !Castling.Contains('k')) ||
+            (king.IsBlack() && direction == Direction.Left && !Castling.Contains('q')))
         {
             throw new InvalidCastlingException($"Cannot castle from {from} to {to} because the " +
                                                $"king and/or rook have moved (Castling string: {Castling}).");
@@ -145,7 +145,7 @@ public class Game
         // checking if the start rank is the second rank (for white) or seventh rank (for black)
         if (piece is Pawn && from.Rank.DistanceTo(to.Rank) == 2)
         {
-            var direction = piece.IsWhite() ? 1 : -1;
+            var direction = piece.IsWhite() ? Direction.Up : Direction.Down;
             EnPassant = Board[from.File, from.Rank + direction];
         }
         else
@@ -199,7 +199,7 @@ public class Game
 
     private void PerformCastlingMove(Square from, Square to)
     {
-        var direction = from.File < to.File ? 1 : -1;
+        var direction = from.File < to.File ? Direction.Right : Direction.Left;
         var rookFile = from.File < to.File ? File.H : File.A;
             
         // Move king and rook
