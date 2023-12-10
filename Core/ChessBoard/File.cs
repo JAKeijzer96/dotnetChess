@@ -15,7 +15,7 @@ public class File
 
     private int Value { get; }
 
-    private File()
+    private File() // Hide empty constructor
     {
     }
 

@@ -51,7 +51,7 @@ public class FenParserTest
     {
         var result = FenParser.Parse(fen);
 
-        Assert.AreEqual(castlingString, result.Castling);
+        Assert.AreEqual(castlingString, result.Castling.ToString());
     }
 
     [DataTestMethod]

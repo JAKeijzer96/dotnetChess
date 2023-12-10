@@ -11,7 +11,7 @@ public class Game
 {
     public Board Board { get; }
     public Color Turn { get; private set; }
-    public string Castling { get; private set; }
+    public CastlingAvailability Castling { get; }
     public Square? EnPassant { get; private set; }
     public int HalfMoveCount { get; private set; }
     public int FullMoveCount { get; private set; }
@@ -20,7 +20,7 @@ public class Game
     {
         Board = new Board();
         Turn = Color.White;
-        Castling = "KQkq";
+        Castling = new CastlingAvailability("KQkq");
         EnPassant = null;
         HalfMoveCount = 0;
         FullMoveCount = 1;
@@ -30,7 +30,7 @@ public class Game
     {
         Board = board;
         Turn = turn;
-        Castling = castling;
+        Castling = new CastlingAvailability(castling);
         EnPassant = enPassant;
         HalfMoveCount = halfMoveCount;
         FullMoveCount = fullMoveCount;
@@ -125,11 +125,11 @@ public class Game
 
     private void VerifyKingCanCastleInGivenDirection(Square from, Square to, Piece king, int direction)
     {
-        if (Castling == "-" ||
-            (king.IsWhite() && direction == Direction.Right && !Castling.Contains('K')) ||
-            (king.IsWhite() && direction == Direction.Left && !Castling.Contains('Q')) ||
-            (king.IsBlack() && direction == Direction.Right && !Castling.Contains('k')) ||
-            (king.IsBlack() && direction == Direction.Left && !Castling.Contains('q')))
+        if (Castling.CanNeitherSideCastle() ||
+            (king.IsWhite() && direction == Direction.Right && !Castling.CanWhiteCastleKingside()) ||
+            (king.IsWhite() && direction == Direction.Left && !Castling.CanWhiteCastleQueenside()) ||
+            (king.IsBlack() && direction == Direction.Right && !Castling.CanBlackCastleKingside()) ||
+            (king.IsBlack() && direction == Direction.Left && !Castling.CanBlackCastleQueenside()))
         {
             throw new InvalidCastlingException($"Cannot castle from {from} to {to} because the " +
                                                $"king and/or rook have moved (Castling string: {Castling}).");
@@ -174,7 +174,7 @@ public class Game
             {
                 RemoveCapturedEnPassantPawn(from, to);
             }
-            UpdateCastlingAfterRegularMove(piece, from);
+            Castling.UpdateAfterRegularMove(piece, from);
         }
     }
     
@@ -210,22 +210,8 @@ public class Game
         Board.MovePiece(from: rookSquare, to: rookDestinationSquare);
         
         // Update Castling property
-        var isWhite = kingDestinationSquare.Piece!.IsWhite(); 
-        UpdateCastlingAfterCastlingMove(isWhite);
-    }
-
-    private void UpdateCastlingAfterCastlingMove(bool isWhite)
-    {
-        Castling = isWhite switch
-        {
-            true  => Castling.Replace("K", "").Replace("Q", ""),
-            false => Castling.Replace("k", "").Replace("q", "")
-        };
-
-        if (Castling == "")
-        {
-            Castling = "-";
-        }
+        var isWhite = kingDestinationSquare.Piece!.IsWhite();
+        Castling.UpdateAfterCastlingMove(isWhite);
     }
 
     private static void PromotePawn(Square from, Square to, char promotionPieceChar)
@@ -239,42 +225,7 @@ public class Game
         Board[to.File, from.Rank].Piece = null;
     }
 
-    private void UpdateCastlingAfterRegularMove(Piece piece, Square from)
-    {
-        if (Castling == "-")
-        {
-            return;
-        }
-        
-        var pieceIsWhite = piece.IsWhite();
-        if (piece is King)
-        {
-            if (pieceIsWhite && (Castling.Contains('K') || Castling.Contains('Q')))
-            {
-                Castling = Castling.Replace("K", "").Replace("Q", "");
-            }
-            else if (Castling.Contains('k') || Castling.Contains('q'))
-            {
-                Castling = Castling.Replace("k", "").Replace("q", "");
-            }
-        }
-        else if (piece is Rook)
-        {
-            Castling = pieceIsWhite switch
-            {
-                true when from.File == File.A => Castling.Replace("Q", ""),
-                true when from.File == File.H => Castling.Replace("K", ""),
-                false when from.File == File.A => Castling.Replace("q", ""),
-                false when from.File == File.H => Castling.Replace("k", ""),
-                _ => Castling
-            };
-        }
-        
-        if (Castling == "")
-        {
-            Castling = "-";
-        }
-    }
+    
 
     private void UpdateHalfMoveCount(Piece movedPiece, bool pieceCaptured)
     {

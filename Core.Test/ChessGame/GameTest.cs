@@ -234,14 +234,14 @@ public class GameTest
     [DataRow(0, "KQkq", "e1", "g1", "kq")]
     [DataRow(1, "Kkq", "e8", "a8", "K")]
     [DataRow(0, "KQ", "e1", "b1", "-")]
-    public void MakeMove_Castling_UpdatesCastlingProperty(int turn, string castling, string from, string to, string expectedCastlingValue)
+    public void MakeMove_CastlingMove_UpdatesCastlingProperty(int turn, string castling, string from, string to, string expectedCastlingValue)
     {
         var board = new Board("r3k2r/8/8/8/8/8/8/R3K2R");
         var sut = new Game(board, (Color)turn, castling, null, 0, 1);
 
         sut.MakeMove(from, to);
 
-        Assert.AreEqual(expectedCastlingValue, sut.Castling);
+        Assert.AreEqual(expectedCastlingValue, sut.Castling.ToString());
     }
 
     [DataTestMethod]
@@ -283,14 +283,14 @@ public class GameTest
     [DataRow(1, "Qkq", "e8", "d8", "Q")] // Move black king
     [DataRow(1, "q", "a8", "d8", "-")] // Move black a-file rook
     [DataRow(1, "Kk", "h8", "h2", "K")] // Move black h-file rook
-    public void TestMethod(int turn, string castling, string from, string to, string expectedCastlingValue)
+    public void MakeMove_MovingUnmovedRookOrKing_UpdatesCastlingAvailability(int turn, string castling, string from, string to, string expectedCastlingValue)
     {
         var board = new Board("r3kbnr/ppppppp1/8/8/8/8/1PPP1PPP/RNBQKB1R");
         var sut = new Game(board, (Color) turn, castling, null, 0, 1);
 
         sut.MakeMove(from, to);
 
-        Assert.AreEqual(expectedCastlingValue, sut.Castling);
+        Assert.AreEqual(expectedCastlingValue, sut.Castling.ToString());
     }
 
     #endregion
