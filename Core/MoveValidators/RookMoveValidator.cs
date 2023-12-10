@@ -15,7 +15,7 @@ public class RookMoveValidator : MoveValidator
 
     private static bool IsValidVerticalMove(Square from, Square to, Board board)
     {
-        var rankDirection = from.Rank < to.Rank ? 1 : -1;
+        var rankDirection = from.Rank < to.Rank ? Direction.Up : Direction.Down;
         for (var rank = from.Rank + rankDirection; rank != to.Rank; rank += rankDirection)
         {
             if (board[from.File, rank].IsOccupied())
@@ -29,7 +29,7 @@ public class RookMoveValidator : MoveValidator
 
     private static bool IsValidHorizontalMove(Square from, Square to, Board board)
     {
-        var fileDirection = from.File < to.File ? 1 : -1;
+        var fileDirection = from.File < to.File ? Direction.Right : Direction.Left;
         for (var file = from.File + fileDirection; file != to.File; file += fileDirection)
         {
             if (board[file, from.Rank].IsOccupied())

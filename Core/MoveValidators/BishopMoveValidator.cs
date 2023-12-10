@@ -10,8 +10,8 @@ public class BishopMoveValidator : MoveValidator
         if (!IsValidDestinationSquare(board, from, to)) return false;
         if (!IsDiagonal(from, to)) return false;
 
-        int fileDirection = from.File < to.File ? 1 : -1;
-        int rankDirection = from.Rank < to.Rank ? 1 : -1;
+        int fileDirection = from.File < to.File ? Direction.Right : Direction.Left;
+        int rankDirection = from.Rank < to.Rank ? Direction.Up : Direction.Down;
         
         File file;
         Rank rank;

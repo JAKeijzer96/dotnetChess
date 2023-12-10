@@ -10,7 +10,7 @@ public class PawnMoveValidator : MoveValidator
         if (!IsValidDestinationSquare(board, from, to)) return false;
 
         var pawn = (Pawn) from.Piece!;
-        var direction = pawn.IsWhite() ? 1 : -1;
+        var direction = pawn.IsWhite() ? Direction.Up : Direction.Down;
         if (from.File == to.File)
         {
             if (from.Rank + direction == to.Rank)
