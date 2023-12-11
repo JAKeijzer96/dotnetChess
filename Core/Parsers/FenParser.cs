@@ -16,7 +16,7 @@ public static class FenParser
 
         ParseBoard(splitFen[0]);
         Color turn = ParseTurn(splitFen[1]);
-        string castling = ParseCastling(splitFen[2]);
+        CastlingAvailability castling = ParseCastling(splitFen[2]);
         Square? enPassant = ParseEnPassant(splitFen[3]);
         int halfMoveCount = ParseHalfMoveCount(splitFen[4]);
         int fullMoveCount = ParseFullMoveCount(splitFen[5]);
@@ -28,7 +28,7 @@ public static class FenParser
     {
         var turn = game.Turn == Color.White ? 'w' : 'b';
         var enPassant = game.EnPassant is not null ? game.EnPassant.ToString() : "-";
-        return $"{game.Board} {turn} {game.Castling} {enPassant} {game.HalfMoveCount} {game.FullMoveCount}";
+        return $"{game.Board} {turn} {game.CastlingAvailability} {enPassant} {game.HalfMoveCount} {game.FullMoveCount}";
     }
     
     private static string[] ValidateAndSplitFen(string fen)
@@ -59,14 +59,9 @@ public static class FenParser
         _ => throw new InvalidFenException($"Invalid turn: {turnFen}")
     };
 
-    private static string ParseCastling(string castlingFen)
+    private static CastlingAvailability ParseCastling(string castlingFen)
     {
-        if (Regex.Match(castlingFen, @"^(-|(K?Q?k?q?))$").Success)
-        {
-            return castlingFen;
-        }
-
-        throw new InvalidFenException($"Invalid castling string: {castlingFen}");
+        return new CastlingAvailability(castlingFen);
     }
 
     private static Square? ParseEnPassant(string enPassantFen)

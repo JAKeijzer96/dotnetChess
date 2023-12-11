@@ -11,7 +11,7 @@ public class Game
 {
     public Board Board { get; }
     public Color Turn { get; private set; }
-    public CastlingAvailability Castling { get; }
+    public CastlingAvailability CastlingAvailability { get; }
     public Square? EnPassant { get; private set; }
     public int HalfMoveCount { get; private set; }
     public int FullMoveCount { get; private set; }
@@ -20,17 +20,17 @@ public class Game
     {
         Board = new Board();
         Turn = Color.White;
-        Castling = new CastlingAvailability("KQkq");
+        CastlingAvailability = new CastlingAvailability("KQkq");
         EnPassant = null;
         HalfMoveCount = 0;
         FullMoveCount = 1;
     }
 
-    public Game(Board board, Color turn, string castling, Square? enPassant, int halfMoveCount, int fullMoveCount)
+    public Game(Board board, Color turn, CastlingAvailability castlingAvailability, Square? enPassant, int halfMoveCount, int fullMoveCount)
     {
         Board = board;
         Turn = turn;
-        Castling = new CastlingAvailability(castling);
+        CastlingAvailability = castlingAvailability;
         EnPassant = enPassant;
         HalfMoveCount = halfMoveCount;
         FullMoveCount = fullMoveCount;
@@ -114,7 +114,7 @@ public class Game
             }
         }
 
-        // When castling queenside, need to check the b-file for obstructions because the rook needs to move through it
+        // When castlingAvailability queenside, need to check the b-file for obstructions because the rook needs to move through it
         if (currentFile < from.File && Board[File.B, from.Rank].IsOccupied())
         {
             throw new InvalidCastlingException(from, to, blockedFile: File.B);
@@ -125,14 +125,14 @@ public class Game
 
     private void VerifyKingCanCastleInGivenDirection(Square from, Square to, Piece king, int direction)
     {
-        if (Castling.CanNeitherSideCastle() ||
-            (king.IsWhite() && direction == Direction.Right && !Castling.CanWhiteCastleKingside()) ||
-            (king.IsWhite() && direction == Direction.Left && !Castling.CanWhiteCastleQueenside()) ||
-            (king.IsBlack() && direction == Direction.Right && !Castling.CanBlackCastleKingside()) ||
-            (king.IsBlack() && direction == Direction.Left && !Castling.CanBlackCastleQueenside()))
+        if (CastlingAvailability.CanNeitherSideCastle() ||
+            (king.IsWhite() && direction == Direction.Right && !CastlingAvailability.CanWhiteCastleKingside()) ||
+            (king.IsWhite() && direction == Direction.Left && !CastlingAvailability.CanWhiteCastleQueenside()) ||
+            (king.IsBlack() && direction == Direction.Right && !CastlingAvailability.CanBlackCastleKingside()) ||
+            (king.IsBlack() && direction == Direction.Left && !CastlingAvailability.CanBlackCastleQueenside()))
         {
             throw new InvalidCastlingException($"Cannot castle from {from} to {to} because the " +
-                                               $"king and/or rook have moved (Castling string: {Castling}).");
+                                               $"king and/or rook have moved (CastlingAvailability: {CastlingAvailability}).");
         }
     }
 
@@ -174,7 +174,7 @@ public class Game
             {
                 RemoveCapturedEnPassantPawn(from, to);
             }
-            Castling.UpdateAfterRegularMove(piece, from);
+            CastlingAvailability.UpdateAfterRegularMove(piece, from);
         }
     }
     
@@ -209,9 +209,9 @@ public class Game
         var rookDestinationSquare = Board[from.File + direction, from.Rank];
         Board.MovePiece(from: rookSquare, to: rookDestinationSquare);
         
-        // Update Castling property
+        // Update CastlingAvailability property
         var isWhite = kingDestinationSquare.Piece!.IsWhite();
-        Castling.UpdateAfterCastlingMove(isWhite);
+        CastlingAvailability.UpdateAfterCastlingMove(isWhite);
     }
 
     private static void PromotePawn(Square from, Square to, char promotionPieceChar)

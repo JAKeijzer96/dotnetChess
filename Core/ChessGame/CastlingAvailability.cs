@@ -7,32 +7,32 @@ namespace Core.ChessGame;
 
 public class CastlingAvailability
 {
-    private string _castling;
+    private string _castlingAvailability;
 
     public CastlingAvailability(string castlingAvailability)
     {
         ValidateCastlingAvailability(castlingAvailability);
 
-        _castling = castlingAvailability;
+        _castlingAvailability = castlingAvailability;
     }
 
-    public bool CanNeitherSideCastle() => _castling == "-";
-    public bool CanWhiteCastleKingside() => _castling.Contains('K');
-    public bool CanWhiteCastleQueenside() => _castling.Contains("Q");
-    public bool CanBlackCastleKingside() => _castling.Contains('k');
-    public bool CanBlackCastleQueenside() => _castling.Contains('q');
+    public bool CanNeitherSideCastle() => _castlingAvailability == "-";
+    public bool CanWhiteCastleKingside() => _castlingAvailability.Contains('K');
+    public bool CanWhiteCastleQueenside() => _castlingAvailability.Contains('Q');
+    public bool CanBlackCastleKingside() => _castlingAvailability.Contains('k');
+    public bool CanBlackCastleQueenside() => _castlingAvailability.Contains('q');
 
     public void UpdateAfterCastlingMove(bool isWhite)
     {
-        _castling = isWhite switch
+        _castlingAvailability = isWhite switch
         {
-            true => _castling.Replace("K", "").Replace("Q", ""),
-            false => _castling.Replace("k", "").Replace("q", "")
+            true => _castlingAvailability.Replace("K", "").Replace("Q", ""),
+            false => _castlingAvailability.Replace("k", "").Replace("q", "")
         };
 
-        if (_castling == "")
+        if (_castlingAvailability == "")
         {
-            _castling = "-";
+            _castlingAvailability = "-";
         }
     }
 
@@ -48,34 +48,34 @@ public class CastlingAvailability
         {
             if (pieceIsWhite && CanWhiteCastle())
             {
-                _castling = _castling.Replace("K", "").Replace("Q", "");
+                _castlingAvailability = _castlingAvailability.Replace("K", "").Replace("Q", "");
             }
             else if (CanBlackCastle())
             {
-                _castling = _castling.Replace("k", "").Replace("q", "");
+                _castlingAvailability = _castlingAvailability.Replace("k", "").Replace("q", "");
             }
         }
         else if (piece is Rook)
         {
-            _castling = pieceIsWhite switch
+            _castlingAvailability = pieceIsWhite switch
             {
-                true when from.File == File.A => _castling.Replace("Q", ""),
-                true when from.File == File.H => _castling.Replace("K", ""),
-                false when from.File == File.A => _castling.Replace("q", ""),
-                false when from.File == File.H => _castling.Replace("k", ""),
-                _ => _castling
+                true when from.File == File.A => _castlingAvailability.Replace("Q", ""),
+                true when from.File == File.H => _castlingAvailability.Replace("K", ""),
+                false when from.File == File.A => _castlingAvailability.Replace("q", ""),
+                false when from.File == File.H => _castlingAvailability.Replace("k", ""),
+                _ => _castlingAvailability
             };
         }
 
-        if (_castling == "")
+        if (_castlingAvailability == "")
         {
-            _castling = "-";
+            _castlingAvailability = "-";
         }
     }
 
     public override string ToString()
     {
-        return _castling;
+        return _castlingAvailability;
     }
 
     private bool CanWhiteCastle() => CanWhiteCastleKingside() || CanWhiteCastleQueenside();
@@ -83,7 +83,7 @@ public class CastlingAvailability
 
     private static void ValidateCastlingAvailability(string castling)
     {
-        if (!(string.IsNullOrEmpty(castling) || Regex.Match(castling, @"^(-|(K?Q?k?q?))$").Success))
+        if (string.IsNullOrEmpty(castling) || !Regex.Match(castling, @"^(-|(K?Q?k?q?))$").Success)
         {
             throw new FormatException("Invalid castling format: " + castling);
         }
