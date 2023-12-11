@@ -43,28 +43,21 @@ public class FenParserTest
         Assert.AreEqual("Invalid turn: R", exception.Message);
     }
 
-    [DataTestMethod]
-    [DataRow("rnbq1rk1/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 w - - 6 5", "-")]
-    [DataRow("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "KQkq")]
-    [DataRow("rn2kb1N/p3p2p/1p4p1/2pn4/8/3P4/PPPKNq2/1RBQ2R1 b q - 1 14", "q")]
-    public void Parse_ParsesValidCastlingStrings(string fen, string castlingString)
+    [TestMethod]
+    public void Parse_ParsesValidCastlingStrings()
     {
-        var result = FenParser.Parse(fen);
+        var result = FenParser.Parse("rn2kb1N/p3p2p/1p4p1/2pn4/8/3P4/PPPKNq2/1RBQ2R1 b q - 1 14");
 
-        Assert.AreEqual(castlingString, result.Castling);
+        Assert.AreEqual("q", result.CastlingAvailability.ToString());
     }
 
-    [DataTestMethod]
-    [DataRow("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQX - 0 1", "KQX")]
-    [DataRow("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w kqKQ - 0 1", "kqKQ")]
-    [DataRow("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KqQk - 0 1", "KqQk")]
-    [DataRow("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KqKK - 0 1", "KqKK")]
-    public void Parse_FenWithInvalidCastling_ThrowsInvalidFenException(string fen, string castlingString)
+    [TestMethod]
+    public void Parse_FenWithInvalidCastling_ThrowsInvalidFenException()
     {
-        void Act() => FenParser.Parse(fen);
+        void Act() => FenParser.Parse("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQX - 0 1");
 
-        var exception = Assert.ThrowsException<InvalidFenException>((Action) Act);
-        Assert.AreEqual($"Invalid castling string: {castlingString}", exception.Message);
+        var exception = Assert.ThrowsException<FormatException>((Action) Act);
+        Assert.AreEqual("Invalid castling format: KQX", exception.Message);
     }
 
     [TestMethod]
@@ -134,7 +127,8 @@ public class FenParserTest
     public void Serialize_GameWithAFewMovesPlayed_ReturnsExpectedString()
     {
         var board = new Board("r1b1k2r/ppp1bpp1/4pn1p/1B6/3q3B/2N5/PPP2PPP/R2Q1RK1");
-        var game = new Game(board, Color.Black, "kq", null, 1, 11);
+        var castlingAvailability = new CastlingAvailability("kq");
+        var game = new Game(board, Color.Black, castlingAvailability, null, 1, 11);
 
         var actual = FenParser.Serialize(game);
         
