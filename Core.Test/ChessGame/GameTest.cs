@@ -265,7 +265,7 @@ public class GameTest
     [Arguments(0, "kq", "e1", "g1")]
     [Arguments(1, "k", "e8", "a8")]
     [Arguments(0, "-", "e1", "b1")]
-    public async Task MakeMove_CastlingAfterKingOrRookHasMoved_ThrowsInvalidCastlingException
+    public async Task MakeMove_CastlingAfterKingOrRookHasMoved_ThrowsInvalidCastlingMoveException
         (int turn, string castling, string from, string to)
     {
         var board = new Board("r3k2r/8/8/8/8/8/8/R3K2R");
@@ -274,7 +274,7 @@ public class GameTest
 
         void Act() => sut.MakeMove(from, to);
 
-        var exception = await Assert.That(Act).Throws<InvalidCastlingException>();
+        var exception = await Assert.That(Act).Throws<InvalidCastlingMoveException>();
         await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because the king and/or rook have moved (CastlingAvailability: {castling}).");
     }
 
@@ -283,7 +283,7 @@ public class GameTest
     [Arguments(0, "e1", "c1", "c")]
     [Arguments(1, "e8", "g8", "g")]
     [Arguments(1, "e8", "a8", "b")]
-    public async Task MakeMove_CastlingWhenBlocked_ThrowsInvalidCastlingException(int turn, string from, string to, string blockedFile)
+    public async Task MakeMove_CastlingWhenBlocked_ThrowsInvalidCastlingMoveException(int turn, string from, string to, string blockedFile)
     {
         var board = new Board("rB2k1nr/8/8/8/8/8/8/R1N1KB1R");
         var castlingAvailability = new CastlingAvailability("KQkq");
@@ -291,7 +291,7 @@ public class GameTest
         
         void Act() => sut.MakeMove(from, to);
 
-        var exception = await Assert.That(Act).Throws<InvalidCastlingException>();
+        var exception = await Assert.That(Act).Throws<InvalidCastlingMoveException>();
         await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because there is a piece blocking on file {blockedFile}");
     }
 
