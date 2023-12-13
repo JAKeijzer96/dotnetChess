@@ -275,7 +275,7 @@ public class GameTest
 
         void Act() => sut.MakeMove(from, to);
 
-        var exception = Assert.ThrowsException<InvalidCastlingException>((Action) Act);
+        var exception = Assert.ThrowsException<InvalidCastlingMoveException>((Action) Act);
         Assert.AreEqual($"Cannot castle from {from} to {to} because the king and/or rook have moved (CastlingAvailability: {castling}).", exception.Message);
     }
 
@@ -292,7 +292,7 @@ public class GameTest
         
         void Act() => sut.MakeMove(from, to);
 
-        var exception = Assert.ThrowsException<InvalidCastlingException>((Action) Act);
+        var exception = Assert.ThrowsException<InvalidCastlingMoveException>((Action) Act);
         Assert.AreEqual($"Cannot castle from {from} to {to} because there is a piece blocking on file {blockedFile}", exception.Message);
     }
 

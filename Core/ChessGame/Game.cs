@@ -110,14 +110,14 @@ public class Game
             currentFile += direction;
             if (Board[currentFile, from.Rank].IsOccupied())
             {
-                throw new InvalidCastlingException(from, to, blockedFile: currentFile);
+                throw new InvalidCastlingMoveException(from, to, blockedFile: currentFile);
             }
         }
 
         // When castlingAvailability queenside, need to check the b-file for obstructions because the rook needs to move through it
         if (currentFile < from.File && Board[File.B, from.Rank].IsOccupied())
         {
-            throw new InvalidCastlingException(from, to, blockedFile: File.B);
+            throw new InvalidCastlingMoveException(from, to, blockedFile: File.B);
         }
 
         return true;
@@ -131,7 +131,7 @@ public class Game
             (king.IsBlack() && direction == Direction.Right && !CastlingAvailability.CanBlackCastleKingside()) ||
             (king.IsBlack() && direction == Direction.Left && !CastlingAvailability.CanBlackCastleQueenside()))
         {
-            throw new InvalidCastlingException($"Cannot castle from {from} to {to} because the " +
+            throw new InvalidCastlingMoveException($"Cannot castle from {from} to {to} because the " +
                                                $"king and/or rook have moved (CastlingAvailability: {CastlingAvailability}).");
         }
     }
