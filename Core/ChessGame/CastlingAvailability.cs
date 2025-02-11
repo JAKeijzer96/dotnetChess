@@ -1,6 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using Core.ChessBoard;
+using Core.Exceptions;
 using Core.Pieces;
+using Core.Shared;
 using File = Core.ChessBoard.File;
 
 namespace Core.ChessGame;
@@ -22,12 +24,13 @@ public class CastlingAvailability
     public bool CanBlackCastleKingside() => _castlingAvailability.Contains('k');
     public bool CanBlackCastleQueenside() => _castlingAvailability.Contains('q');
 
-    public void UpdateAfterCastlingMove(bool isWhite)
+    public void UpdateAfterCastlingMove(Color color)
     {
-        _castlingAvailability = isWhite switch
+        _castlingAvailability = color switch
         {
-            true => _castlingAvailability.Replace("K", "").Replace("Q", ""),
-            false => _castlingAvailability.Replace("k", "").Replace("q", "")
+            Color.White => _castlingAvailability.Replace("K", "").Replace("Q", ""),
+            Color.Black => _castlingAvailability.Replace("k", "").Replace("q", ""),
+            _ => throw new InvalidColorException("Invalid color: " + color.ToString())
         };
 
         if (_castlingAvailability == "")
