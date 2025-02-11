@@ -1,6 +1,6 @@
-# dotnetChess
-dotnetChess is a chess game/engine written in C# using .NET Core 6.  
-The core goal of this project is to write an engine that is comprehensible and easy to read. Computation speed is not or very rarely taken into account when writing code.  
+# .NET Chess
+_.NET Chess_ is a chess game/engine written in C# using .NET Core 6.  
+The core goal of this project is to write an engine that is comprehensible and easy to read. Performance will always be secondary to readability.
 
 ## To do list / Backlog
 - [x] Setup project (June 2022)
