@@ -1,40 +1,39 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Core.Pieces;
 using Core.Shared;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Test.Pieces;
 
-[TestClass]
 public class PieceFactoryTest
 {
-    [DataTestMethod]
-    [DataRow('K', typeof(King), Color.White)]
-    [DataRow('Q', typeof(Queen), Color.White)]
-    [DataRow('R', typeof(Rook), Color.White)]
-    [DataRow('B', typeof(Bishop), Color.White)]
-    [DataRow('N', typeof(Knight), Color.White)]
-    [DataRow('P', typeof(Pawn), Color.White)]
-    [DataRow('k', typeof(King), Color.Black)]
-    [DataRow('q', typeof(Queen), Color.Black)]
-    [DataRow('r', typeof(Rook), Color.Black)]
-    [DataRow('b', typeof(Bishop), Color.Black)]
-    [DataRow('n', typeof(Knight), Color.Black)]
-    [DataRow('p', typeof(Pawn), Color.Black)]
-    public void CreatePiece_CreatesPieceWithCorrectTypeAndColor(char pieceChar, Type expectedType, Color expectedColor)
+    [Test]
+    [Arguments('K', typeof(King), Color.White)]
+    [Arguments('Q', typeof(Queen), Color.White)]
+    [Arguments('R', typeof(Rook), Color.White)]
+    [Arguments('B', typeof(Bishop), Color.White)]
+    [Arguments('N', typeof(Knight), Color.White)]
+    [Arguments('P', typeof(Pawn), Color.White)]
+    [Arguments('k', typeof(King), Color.Black)]
+    [Arguments('q', typeof(Queen), Color.Black)]
+    [Arguments('r', typeof(Rook), Color.Black)]
+    [Arguments('b', typeof(Bishop), Color.Black)]
+    [Arguments('n', typeof(Knight), Color.Black)]
+    [Arguments('p', typeof(Pawn), Color.Black)]
+    public async Task CreatePiece_CreatesPieceWithCorrectTypeAndColor(char pieceChar, Type expectedType, Color expectedColor)
     {
         var result = PieceFactory.CreatePiece(pieceChar);
-        
-        Assert.IsInstanceOfType(result, expectedType);
-        Assert.AreEqual(expectedColor, result.Color);
+
+        await Assert.That(result).IsOfType(expectedType);
+        await Assert.That(result.Color).IsEqualTo(expectedColor);
     }
     
-    [TestMethod]
-    public void CreatePiece_WithIncorrectChar_ThrowsArgumentException()
+    [Test]
+    public async Task CreatePiece_WithIncorrectChar_ThrowsArgumentException()
     {
         void Act() => PieceFactory.CreatePiece('V');
 
-        var exception = Assert.ThrowsException<ArgumentException>((Action)Act);
-        Assert.AreEqual("Invalid piece character: 'V'", exception.Message);
+        var exception = await Assert.That(Act).Throws<ArgumentException>();
+        await Assert.That(exception!.Message).IsEqualTo("Invalid piece character: 'V'");
     }
 }
