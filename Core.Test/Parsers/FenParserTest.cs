@@ -51,7 +51,7 @@ public class FenParserTest
     [Test]
     public async Task Parse_FenWithInvalidCastling_ThrowsInvalidFenException()
     {
-        var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQX - 0 1"
+        var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQX - 0 1";
 
         void Act() => FenParser.Parse(fen);
 
