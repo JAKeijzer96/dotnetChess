@@ -17,7 +17,7 @@ public class FileTest
     [Test]
     public async Task ParseChar_WithInvalidChar_ThrowsOutOfBoardException()
     {
-        void Act() => File.ParseChar('1');
+        void Act() => File.ParseChar('i');
 
         var exception = await Assert.That(Act).Throws<OutOfBoardException>();
         await Assert.That(exception!.Message).IsEqualTo("File 8 is out of board (must be between 0 and 7).");
