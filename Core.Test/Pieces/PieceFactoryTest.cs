@@ -31,8 +31,9 @@ public class PieceFactoryTest
     [Test]
     public async Task CreatePiece_WithIncorrectChar_ThrowsArgumentException()
     {
-        var exception = await Assert.That(() => PieceFactory.CreatePiece('V'))
-            .Throws<ArgumentException>();
-        await Assert.That(exception.Message).IsEqualTo("Invalid piece character: 'V'");
+        void Act() => PieceFactory.CreatePiece('V');
+
+        var exception = await Assert.That(Act).Throws<ArgumentException>();
+        await Assert.That(exception!.Message).IsEqualTo("Invalid piece character: 'V'");
     }
 }

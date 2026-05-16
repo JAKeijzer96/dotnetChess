@@ -221,9 +221,8 @@ public class GameTest
 
         void Act() => sut.MakeMove("g2", "g1", promotionPieceChar);
 
-        var exception = await Assert.That(Act)
-            .Throws<InvalidPromotionException>();
-        await Assert.That(exception.Message).IsEqualTo($"Invalid promotion character {promotionPieceChar} for color Black");
+        var exception = await Assert.That(Act).Throws<InvalidPromotionException>();
+        await Assert.That(exception!.Message).IsEqualTo($"Invalid promotion character {promotionPieceChar} for color Black");
     }
     
     #endregion
@@ -275,9 +274,8 @@ public class GameTest
 
         void Act() => sut.MakeMove(from, to);
 
-        var exception = await Assert.That(Act)
-            .Throws<InvalidCastlingException>();
-        await Assert.That(exception.Message).IsEqualTo($"Cannot castle from {from} to {to} because the king and/or rook have moved (CastlingAvailability: {castling}).");
+        var exception = await Assert.That(Act).Throws<InvalidCastlingException>();
+        await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because the king and/or rook have moved (CastlingAvailability: {castling}).");
     }
 
     [Test]
@@ -293,9 +291,8 @@ public class GameTest
         
         void Act() => sut.MakeMove(from, to);
 
-        var exception = await Assert.That(Act)
-            .Throws<InvalidCastlingException>();
-        await Assert.That(exception.Message).IsEqualTo($"Cannot castle from {from} to {to} because there is a piece blocking on file {blockedFile}");
+        var exception = await Assert.That(Act).Throws<InvalidCastlingException>();
+        await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because there is a piece blocking on file {blockedFile}");
     }
 
     #endregion

@@ -13,8 +13,9 @@ public class FenParserTest
     [Test]
     public async Task Parse_Null_ThrowsArgumentNullException()
     {
-        await Assert.That(() => FenParser.Parse(null!))
-            .Throws<ArgumentNullException>();
+        void Act() => FenParser.Parse(null!);
+
+        await Assert.That(Act).Throws<ArgumentNullException>();
     }
 
     [Test]
@@ -24,9 +25,10 @@ public class FenParserTest
     [Arguments("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNRwKQkqc602")]
     public async Task Parse_FenWitInvalidAmountOfSpaces_ThrowsInvalidFenException(string fen)
     {
-        var exception = await Assert.That(() => FenParser.Parse(fen))
-            .Throws<InvalidFenException>();
-        await Assert.That(exception.Message).IsEqualTo("FEN string must have 6 parts");
+        void Act() => FenParser.Parse(fen);
+
+        var exception = await Assert.That(Act).Throws<InvalidFenException>();
+        await Assert.That(exception!.Message).IsEqualTo("FEN string must have 6 parts");
     }
 
     [Test]
@@ -34,9 +36,8 @@ public class FenParserTest
     {
         var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR R KQkq - 0 1";
 
-        var exception = await Assert.That(() => FenParser.Parse(fen))
-            .Throws<InvalidFenException>();
-        await Assert.That(exception.Message).IsEqualTo("Invalid turn: R");
+        var exception = await Assert.That(() => FenParser.Parse(fen)).Throws<InvalidFenException>();
+        await Assert.That(exception!.Message).IsEqualTo("Invalid turn: R");
     }
 
     [Test]
@@ -50,9 +51,12 @@ public class FenParserTest
     [Test]
     public async Task Parse_FenWithInvalidCastling_ThrowsInvalidFenException()
     {
-        var exception = await Assert.That(() => FenParser.Parse("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQX - 0 1"))
-            .Throws<FormatException>();
-        await Assert.That(exception.Message).IsEqualTo("Invalid castling format: KQX");
+        var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQX - 0 1"
+
+        void Act() => FenParser.Parse(fen);
+
+        var exception = await Assert.That(Act).Throws<FormatException>();
+        await Assert.That(exception!.Message).IsEqualTo("Invalid castling format: KQX");
     }
 
     [Test]
@@ -60,9 +64,10 @@ public class FenParserTest
     {
         var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e2 0 1";
 
-        var exception = await Assert.That(() => FenParser.Parse(fen))
-            .Throws<InvalidFenException>();
-        await Assert.That(exception.Message).IsEqualTo("Invalid en passant square: e2");
+        void Act() => FenParser.Parse(fen);
+
+        var exception = await Assert.That(Act).Throws<InvalidFenException>();
+        await Assert.That(exception!.Message).IsEqualTo("Invalid en passant square: e2");
     }
 
     [Test]
@@ -80,9 +85,10 @@ public class FenParserTest
     {
         var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - -1 1";
 
-        var exception = await Assert.That(() => FenParser.Parse(fen))
-            .Throws<InvalidFenException>();
-        await Assert.That(exception.Message).IsEqualTo("Invalid half move count: -1");
+        void Act() => FenParser.Parse(fen);
+
+        var exception = await Assert.That(Act).Throws<InvalidFenException>();
+        await Assert.That(exception!.Message).IsEqualTo("Invalid half move count: -1");
     }
 
     [Test]
@@ -100,9 +106,10 @@ public class FenParserTest
     {
         var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
 
-        var exception = await Assert.That(() => FenParser.Parse(fen))
-            .Throws<InvalidFenException>();
-        await Assert.That(exception.Message).IsEqualTo("Invalid full move count: 0");
+        void Act() => FenParser.Parse(fen);
+
+        var exception = await Assert.That(Act).Throws<InvalidFenException>();
+        await Assert.That(exception!.Message).IsEqualTo("Invalid full move count: 0");
     }
 
     [Test]

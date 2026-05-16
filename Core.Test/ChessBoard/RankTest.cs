@@ -19,9 +19,8 @@ public class RankTest
     {
         void Act() => Rank.ParseChar('0');
 
-        var exception = await Assert.That(Act)
-            .Throws<OutOfBoardException>();
-        await Assert.That(exception.Message).IsEqualTo("Rank -1 is out of board (must be between 0 and 7).");
+        var exception = await Assert.That(Act).Throws<OutOfBoardException>();
+        await Assert.That(exception!.Message).IsEqualTo("Rank -1 is out of board (must be between 0 and 7).");
     }
 
     [Test]
@@ -47,9 +46,8 @@ public class RankTest
             #pragma warning restore S1854
         }
 
-        var exception = await Assert.That(Act)
-            .Throws<OutOfBoardException>();
-        await Assert.That(exception.Message).IsEqualTo("Rank 8 is out of board (must be between 0 and 7).");
+        var exception = await Assert.That(Act).Throws<OutOfBoardException>();
+        await Assert.That(exception!.Message).IsEqualTo("Rank 8 is out of board (must be between 0 and 7).");
     }
 
     [Test]
@@ -63,8 +61,7 @@ public class RankTest
             #pragma warning restore S1854
         }
 
-        var exception = await Assert.That(Act)
-            .Throws<OutOfBoardException>();
-        await Assert.That(exception.Message).IsEqualTo("Rank -1 is out of board (must be between 0 and 7).");
+        var exception = await Assert.That(Act).Throws<OutOfBoardException>();
+        await Assert.That(exception!.Message).IsEqualTo("Rank -1 is out of board (must be between 0 and 7).");
     }
 }

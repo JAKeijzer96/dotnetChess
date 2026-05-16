@@ -15,9 +15,8 @@ public class BoardTest
 
         void Act() => _ = new Board(fen);
 
-        var exception = await Assert.That(Act)
-            .Throws<ArgumentException>();
-        await Assert.That(exception.Message).IsEqualTo("Constructor only accepts board part of FEN string");
+        var exception = await Assert.That(Act).Throws<ArgumentException>();
+        await Assert.That(exception!.Message).IsEqualTo("Constructor only accepts board part of FEN string");
     }
     
     [Test]
@@ -27,8 +26,8 @@ public class BoardTest
 
         var result = board[File.B, Rank.Eighth];
 
-        await Assert.That((int)result.File).IsEqualTo(1);
-        await Assert.That((int)result.Rank).IsEqualTo(7);
+        await Assert.That(result.File).IsEqualTo(1);
+        await Assert.That(result.Rank).IsEqualTo(7);
     }
 
     [Test]
@@ -41,8 +40,8 @@ public class BoardTest
 
         var square = board[squareName];
 
-        await Assert.That((int)square.File).IsEqualTo(file);
-        await Assert.That((int)square.Rank).IsEqualTo(rank);
+        await Assert.That(square.File).IsEqualTo(file);
+        await Assert.That(square.Rank).IsEqualTo(rank);
     }
 
     [Test]
@@ -52,9 +51,8 @@ public class BoardTest
 
         void Act() => _ = board[null!];
 
-        var exception = await Assert.That(Act)
-            .Throws<ArgumentNullException>();
-        await Assert.That(exception.Message).IsEqualTo("Value cannot be null. (Parameter 'squareName')");
+        var exception = await Assert.That(Act).Throws<ArgumentNullException>();
+        await Assert.That(exception!.Message).IsEqualTo("Value cannot be null. (Parameter 'squareName')");
     }
     
     [Test]
@@ -64,9 +62,8 @@ public class BoardTest
 
         void Act() => _ = board["e44"];
 
-        var exception = await Assert.That(Act)
-            .Throws<ArgumentException>();
-        await Assert.That(exception.Message).IsEqualTo("Invalid square: e44");
+        var exception = await Assert.That(Act).Throws<ArgumentException>();
+        await Assert.That(exception!.Message).IsEqualTo("Invalid square: e44");
     }
 
     [Test]

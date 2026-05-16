@@ -26,9 +26,10 @@ public class CastlingAvailabilityTest
     [Arguments(null)]
     public async Task CastlingAvailability_WithInvalidCastlingString_ThrowsFormatException(string castlingString)
     {
-        var exception = await Assert.That(() => new CastlingAvailability(castlingString))
-            .Throws<FormatException>();
-        await Assert.That(exception.Message).IsEqualTo($"Invalid castling format: {castlingString}");
+        void Act() => _ = new CastlingAvailability(castlingString);
+
+        var exception = await Assert.That(Act).Throws<FormatException>();
+        await Assert.That(exception!.Message).IsEqualTo($"Invalid castling format: {castlingString}");
     }
 
     [Test]
