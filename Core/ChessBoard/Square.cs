@@ -1,4 +1,3 @@
-using Core.Exceptions;
 using Core.Pieces;
 
 namespace Core.ChessBoard;

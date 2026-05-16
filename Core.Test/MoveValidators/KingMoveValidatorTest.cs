@@ -1,22 +1,21 @@
-﻿using Core.ChessBoard;
+﻿using System.Threading.Tasks;
+using Core.ChessBoard;
 using Core.MoveValidators;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Test.MoveValidators;
 
-[TestClass]
 public class KingMoveValidatorTest
 {
-    [DataTestMethod]
-    [DataRow("f6", "e6")] // Left
-    [DataRow("f6", "g6")] // Right
-    [DataRow("f6", "f7")] // Up
-    [DataRow("f6", "f5")] // Down
-    [DataRow("f6", "e5")] // Down left
-    [DataRow("f6", "e7")] // Up left
-    [DataRow("f6", "g7")] // Up right
-    [DataRow("f6", "g5")] // Down right
-    public void IsValidMove_ForOneSquareMove_ReturnsTrue(string from, string to)
+    [Test]
+    [Arguments("f6", "e6")] // Left
+    [Arguments("f6", "g6")] // Right
+    [Arguments("f6", "f7")] // Up
+    [Arguments("f6", "f5")] // Down
+    [Arguments("f6", "e5")] // Down left
+    [Arguments("f6", "e7")] // Up left
+    [Arguments("f6", "g7")] // Up right
+    [Arguments("f6", "g5")] // Down right
+    public async Task IsValidMove_ForOneSquareMove_ReturnsTrue(string from, string to)
     {
         var board = new Board("8/8/PK3k2/8/8/8/8/8");
         var validator = new KingMoveValidator();
@@ -25,16 +24,16 @@ public class KingMoveValidatorTest
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
-        Assert.AreEqual(true, result);
+        await Assert.That(result).IsTrue();
     }
 
-    [DataTestMethod]
-    [DataRow("f6", "d4")]
-    [DataRow("f6", "d7")]
-    [DataRow("f6", "f8")]
-    [DataRow("f6", "h5")]
-    [DataRow("f6", "h4")]
-    public void IsValidMove_ForMultipleSquaresAtOnce_ReturnsFalse(string from, string to)
+    [Test]
+    [Arguments("f6", "d4")]
+    [Arguments("f6", "d7")]
+    [Arguments("f6", "f8")]
+    [Arguments("f6", "h5")]
+    [Arguments("f6", "h4")]
+    public async Task IsValidMove_ForMultipleSquaresAtOnce_ReturnsFalse(string from, string to)
     {
         var board = new Board("8/8/PK3k2/8/8/8/8/8");
         var validator = new KingMoveValidator();
@@ -43,6 +42,6 @@ public class KingMoveValidatorTest
 
         var result = validator.IsValidMove(board, fromSquare, toSquare);
 
-        Assert.AreEqual(false, result);
+        await Assert.That(result).IsFalse();
     }
 }

@@ -1,74 +1,72 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.ChessGame;
 using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Test.ChessGame;
 
-[TestClass]
 public class GameTest
 {
-    [DataTestMethod]
-    [DataRow(Color.White, "e7", "e5")]
-    [DataRow(Color.Black, "e2", "e4")]
-    public void MakeMove_MovingOpponentsPiece_ReturnsFalse(Color turn, string from, string to)
+    [Test]
+    [Arguments(Color.White, "e7", "e5")]
+    [Arguments(Color.Black, "e2", "e4")]
+    public async Task MakeMove_MovingOpponentsPiece_ReturnsFalse(Color turn, string from, string to)
     {
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(new Board(), turn, castlingAvailability, null, 0, 1);
 
         var result = sut.MakeMove(from, to);
 
-        Assert.IsFalse(result);
+        await Assert.That(result).IsFalse();
     }
     
-    [TestMethod]
-    public void MakeMove_WhenPieceIsNull_ReturnsFalse()
+    [Test]
+    public async Task MakeMove_WhenPieceIsNull_ReturnsFalse()
     {
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(new Board(), Color.White, castlingAvailability, null, 0, 1);
 
         var result = sut.MakeMove("a4", "a5");
 
-        Assert.IsFalse(result);
+        await Assert.That(result).IsFalse();
     }
     
-    [TestMethod]
-    public void MakeMove_WithInvalidMove_ReturnsFalse()
+    [Test]
+    public async Task MakeMove_WithInvalidMove_ReturnsFalse()
     {
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(new Board(), Color.White, castlingAvailability, null, 0, 1);
 
         var result = sut.MakeMove("e2", "b4");
 
-        Assert.IsFalse(result);
+        await Assert.That(result).IsFalse();
     }
     
-    [TestMethod]
-    public void MakeMove_WithValidMove_ReturnsTrue()
+    [Test]
+    public async Task MakeMove_WithValidMove_ReturnsTrue()
     {
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(new Board(), Color.White, castlingAvailability, null, 0, 1);
 
         var result = sut.MakeMove("e2", "e4");
 
-        Assert.IsTrue(result);
+        await Assert.That(result).IsTrue();
     }
 
-    [TestMethod]
-    public void EndTurn_AfterWhiteMoves_TurnIsBlack()
+    [Test]
+    public async Task EndTurn_AfterWhiteMoves_TurnIsBlack()
     {
         var sut = new Game();
 
         sut.MakeMove("e2", "e4");
 
-        Assert.AreEqual(Color.Black, sut.Turn);
+        await Assert.That(sut.Turn).IsEqualTo(Color.Black);
     }
     
-    [TestMethod]
-    public void EndTurn_AfterBlackMoves_TurnIsWhite()
+    [Test]
+    public async Task EndTurn_AfterBlackMoves_TurnIsWhite()
     {
         var board = new Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR");
         var castlingAvailability = new CastlingAvailability("KQkq");
@@ -76,11 +74,11 @@ public class GameTest
 
         sut.MakeMove("e7", "e5");
 
-        Assert.AreEqual(Color.White, sut.Turn);
+        await Assert.That(sut.Turn).IsEqualTo(Color.White);
     }
     
-    [TestMethod]
-    public void EndTurn_AfterBlackMoves_FullMoveCountIncreases()
+    [Test]
+    public async Task EndTurn_AfterBlackMoves_FullMoveCountIncreases()
     {
         var board = new Board("r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R");
         var castlingAvailability = new CastlingAvailability("KQkq");
@@ -88,11 +86,11 @@ public class GameTest
 
         sut.MakeMove("f6", "e4");
 
-        Assert.AreEqual(5, sut.FullMoveCount);
+        await Assert.That(sut.FullMoveCount).IsEqualTo(5);
     }
 
-    [TestMethod]
-    public void UpdateHalfMoveCount_AfterPawnMove_ResetsHalfMoveCount()
+    [Test]
+    public async Task UpdateHalfMoveCount_AfterPawnMove_ResetsHalfMoveCount()
     {
         var board = new Board("rnbqkbnr/ppp1pppp/8/8/8/2N2N2/PPPP1PPP/R1BQKB1R");
         var castlingAvailability = new CastlingAvailability("KQkq");
@@ -100,11 +98,11 @@ public class GameTest
 
         sut.MakeMove("e7", "e6");
 
-        Assert.AreEqual(0, sut.HalfMoveCount);
+        await Assert.That(sut.HalfMoveCount).IsEqualTo(0);
     }
     
-    [TestMethod]
-    public void UpdateHalfMoveCount_AfterCapture_ResetsHalfMoveCount()
+    [Test]
+    public async Task UpdateHalfMoveCount_AfterCapture_ResetsHalfMoveCount()
     {
         var board = new Board("r1bqkbnr/ppp2ppp/2n1p3/1B6/8/2N2N2/PPPP1PPP/R1BQK2R");
         var castlingAvailability = new CastlingAvailability("KQkq");
@@ -112,11 +110,11 @@ public class GameTest
 
         sut.MakeMove("b5", "c6");
 
-        Assert.AreEqual(0, sut.HalfMoveCount);
+        await Assert.That(sut.HalfMoveCount).IsEqualTo(0);
     }
     
-    [TestMethod]
-    public void UpdateHalfMoveCount_AfterPieceMoveWithoutCapture_IncrementsHalfMoveCount()
+    [Test]
+    public async Task UpdateHalfMoveCount_AfterPieceMoveWithoutCapture_IncrementsHalfMoveCount()
     {
         var board = new Board("r1bqkbnr/ppp2ppp/2n1p3/1B6/8/2N2N2/PPPP1PPP/R1BQ1RK1");
         var castlingAvailability = new CastlingAvailability("kq");
@@ -124,13 +122,13 @@ public class GameTest
 
         sut.MakeMove("g8", "f6");
 
-        Assert.AreEqual(4, sut.HalfMoveCount);
+        await Assert.That(sut.HalfMoveCount).IsEqualTo(4);
     }
 
     #region EnPassant
 
-    [TestMethod]
-    public void MakeMove_WhenMoveIsEnPassant_ReturnsTrue()
+    [Test]
+    public async Task MakeMove_WhenMoveIsEnPassant_ReturnsTrue()
     {
         var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
         var castlingAvailability = new CastlingAvailability("KQkq");
@@ -138,12 +136,12 @@ public class GameTest
         var sut = new Game(board, Color.Black, castlingAvailability, enPassantSquare, 0, 5);
         
         var result = sut.MakeMove("d4", "e3");
-        
-        Assert.IsTrue(result);
+
+        await Assert.That(result).IsTrue();
     }
 
-    [TestMethod]
-    public void MakeMove_WhenMoveIsEnPassant_ResetsEnPassantSquare()
+    [Test]
+    public async Task MakeMove_WhenMoveIsEnPassant_ResetsEnPassantSquare()
     {
         var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
         var castlingAvailability = new CastlingAvailability("KQkq");
@@ -151,12 +149,12 @@ public class GameTest
         var sut = new Game(board, Color.Black, castlingAvailability, enPassantSquare, 0, 5);
         
         sut.MakeMove("d4", "e3");
-        
-        Assert.IsNull(sut.EnPassant);
+
+        await Assert.That(sut.EnPassant).IsNull();
     }
-    
-    [TestMethod]
-    public void MakeMove_WhenMoveIsEnPassant_RemovesCapturedPieceFromBoard()
+
+    [Test]
+    public async Task MakeMove_WhenMoveIsEnPassant_RemovesCapturedPieceFromBoard()
     {
         var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
         var castlingAvailability = new CastlingAvailability("KQkq");
@@ -164,12 +162,12 @@ public class GameTest
         var sut = new Game(board, Color.Black, castlingAvailability, enPassantSquare, 0, 5);
         
         sut.MakeMove("d4", "e3");
-        
-        Assert.IsNull(sut.Board["e4"].Piece);
+
+        await Assert.That(sut.Board["e4"].Piece).IsNull();
     }
     
-    [TestMethod]
-    public void MakeMove_WhenMoveIsEnPassantWithNonPawn_ReturnsFalse()
+    [Test]
+    public async Task MakeMove_WhenMoveIsEnPassantWithNonPawn_ReturnsFalse()
     {
         var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
         var castlingAvailability = new CastlingAvailability("KQkq");
@@ -177,16 +175,16 @@ public class GameTest
         var sut = new Game(board, Color.Black,  castlingAvailability, enPassantSquare, 0, 5);
         
         var result = sut.MakeMove("f4", "e3");
-        
-        Assert.IsFalse(result);
+
+        await Assert.That(result).IsFalse();
     }
 
     #endregion
 
     #region PawnPromotion
 
-    [TestMethod]
-    public void MakeMove_WhenWhitePawnMovesToEighthRank_IsPromotedToGivenPiece()
+    [Test]
+    public async Task MakeMove_WhenWhitePawnMovesToEighthRank_IsPromotedToGivenPiece()
     {
         var board = new Board("8/P7/8/8/8/8/K1k3p1/8");
         var castlingAvailability = new CastlingAvailability("-");
@@ -195,11 +193,12 @@ public class GameTest
         sut.MakeMove("a7", "a8", 'N');
 
         var actual = sut.Board["a8"].Piece!.Name;
-        Assert.AreEqual('N', actual);
+        
+        await Assert.That(actual).IsEqualTo('N');
     }
     
-    [TestMethod]
-    public void MakeMove_WhenBlackPawnMovesToFirstRank_IsPromotedToGivenPiece()
+    [Test]
+    public async Task MakeMove_WhenBlackPawnMovesToFirstRank_IsPromotedToGivenPiece()
     {
         var board = new Board("8/P7/8/8/8/8/K1k3p1/8");
         var castlingAvailability = new CastlingAvailability("-");
@@ -208,13 +207,13 @@ public class GameTest
         sut.MakeMove("g2", "g1", 'b');
 
         var actual = sut.Board["g1"].Piece!.Name;
-        Assert.AreEqual('b', actual);
+        await Assert.That(actual).IsEqualTo('b');
     }
     
-    [DataTestMethod]
-    [DataRow('\0')] // Default char value
-    [DataRow('B')] // Opposite color
-    public void MakeMove_WhenPawnMovesToLastRankWithInvalidPromotionPieceChar_ThrowsInvalidPromotionException(char promotionPieceChar)
+    [Test]
+    [Arguments('\0')] // Default char value
+    [Arguments('B')] // Opposite color
+    public async Task MakeMove_WhenPawnMovesToLastRankWithInvalidPromotionPieceChar_ThrowsInvalidPromotionException(char promotionPieceChar)
     {
         var board = new Board("8/P7/8/8/8/8/K1k3p1/8");
         var castlingAvailability = new CastlingAvailability("-");
@@ -222,20 +221,20 @@ public class GameTest
 
         void Act() => sut.MakeMove("g2", "g1", promotionPieceChar);
 
-        var exception = Assert.ThrowsException<InvalidPromotionException>((Action) Act);
-        Assert.AreEqual($"Invalid promotion character {promotionPieceChar} for color Black", exception.Message);
+        var exception = await Assert.That(Act).Throws<InvalidPromotionException>();
+        await Assert.That(exception!.Message).IsEqualTo($"Invalid promotion character {promotionPieceChar} for color Black");
     }
     
     #endregion
 
     #region CastlingAvailability
     
-    [DataTestMethod]
-    [DataRow(0, "e1", "g1", "f1", "g1", "h1")]
-    [DataRow(0, "e1", "b1", "d1", "c1", "a1")]
-    [DataRow(1, "e8", "h8", "f8", "g8", "h8")]
-    [DataRow(1, "e8", "c8", "d8", "c8", "a8")]
-    public void MakeMove_CastlingWhenValid_MovesKingAndRook(int turn, string kingSquare, string destinationSquare,
+    [Test]
+    [Arguments(0, "e1", "g1", "f1", "g1", "h1")]
+    [Arguments(0, "e1", "b1", "d1", "c1", "a1")]
+    [Arguments(1, "e8", "h8", "f8", "g8", "h8")]
+    [Arguments(1, "e8", "c8", "d8", "c8", "a8")]
+    public async Task MakeMove_CastlingWhenValid_MovesKingAndRook(int turn, string kingSquare, string destinationSquare,
                                             string rookEndSquare, string kingEndSquare, string rookStartSquare)
     {
         var board = new Board("r3k2r/8/8/8/8/8/8/R3K2R");
@@ -244,14 +243,14 @@ public class GameTest
 
         sut.MakeMove(kingSquare, destinationSquare);
 
-        Assert.IsTrue(board[kingSquare].Piece is null);
-        Assert.IsTrue(board[rookEndSquare].Piece is Rook);
-        Assert.IsTrue(board[kingEndSquare].Piece is King);
-        Assert.IsTrue(board[rookStartSquare].Piece is null);
+        await Assert.That(board[kingSquare].Piece).IsNull();
+        await Assert.That(board[rookEndSquare].Piece).IsTypeOf<Rook>();
+        await Assert.That(board[kingEndSquare].Piece).IsTypeOf<King>();
+        await Assert.That(board[rookStartSquare].Piece).IsNull();
     }
     
-    [TestMethod]
-    public void MakeMove_CastlingMove_UpdatesCastlingProperty()
+    [Test]
+    public async Task MakeMove_CastlingMove_UpdatesCastlingProperty()
     {
         var board = new Board("r3k2r/8/8/8/8/8/8/R3K2R");
         var castlingAvailability = new CastlingAvailability("Kkq");
@@ -259,14 +258,14 @@ public class GameTest
 
         sut.MakeMove("e8", "a8");
 
-        Assert.AreEqual("K", sut.CastlingAvailability.ToString());
+        await Assert.That(sut.CastlingAvailability.ToString()).IsEqualTo("K");
     }
 
-    [DataTestMethod]
-    [DataRow(0, "kq", "e1", "g1")]
-    [DataRow(1, "k", "e8", "a8")]
-    [DataRow(0, "-", "e1", "b1")]
-    public void MakeMove_CastlingAfterKingOrRookHasMoved_ThrowsInvalidCastlingException
+    [Test]
+    [Arguments(0, "kq", "e1", "g1")]
+    [Arguments(1, "k", "e8", "a8")]
+    [Arguments(0, "-", "e1", "b1")]
+    public async Task MakeMove_CastlingAfterKingOrRookHasMoved_ThrowsInvalidCastlingException
         (int turn, string castling, string from, string to)
     {
         var board = new Board("r3k2r/8/8/8/8/8/8/R3K2R");
@@ -275,16 +274,16 @@ public class GameTest
 
         void Act() => sut.MakeMove(from, to);
 
-        var exception = Assert.ThrowsException<InvalidCastlingMoveException>((Action) Act);
-        Assert.AreEqual($"Cannot castle from {from} to {to} because the king and/or rook have moved (CastlingAvailability: {castling}).", exception.Message);
+        var exception = await Assert.That(Act).Throws<InvalidCastlingException>();
+        await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because the king and/or rook have moved (CastlingAvailability: {castling}).");
     }
 
-    [DataTestMethod]
-    [DataRow(0, "e1", "h1", "f")]
-    [DataRow(0, "e1", "c1", "c")]
-    [DataRow(1, "e8", "g8", "g")]
-    [DataRow(1, "e8", "a8", "b")]
-    public void MakeMove_CastlingWhenBlocked_ThrowsInvalidCastlingException(int turn, string from, string to, string blockedFile)
+    [Test]
+    [Arguments(0, "e1", "h1", "f")]
+    [Arguments(0, "e1", "c1", "c")]
+    [Arguments(1, "e8", "g8", "g")]
+    [Arguments(1, "e8", "a8", "b")]
+    public async Task MakeMove_CastlingWhenBlocked_ThrowsInvalidCastlingException(int turn, string from, string to, string blockedFile)
     {
         var board = new Board("rB2k1nr/8/8/8/8/8/8/R1N1KB1R");
         var castlingAvailability = new CastlingAvailability("KQkq");
@@ -292,8 +291,8 @@ public class GameTest
         
         void Act() => sut.MakeMove(from, to);
 
-        var exception = Assert.ThrowsException<InvalidCastlingMoveException>((Action) Act);
-        Assert.AreEqual($"Cannot castle from {from} to {to} because there is a piece blocking on file {blockedFile}", exception.Message);
+        var exception = await Assert.That(Act).Throws<InvalidCastlingException>();
+        await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because there is a piece blocking on file {blockedFile}");
     }
 
     #endregion

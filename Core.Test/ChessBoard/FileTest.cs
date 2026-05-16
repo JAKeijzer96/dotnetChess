@@ -1,44 +1,42 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.Exceptions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Test.ChessBoard;
 
-[TestClass]
 public class FileTest
 {
-    [TestMethod]
-    public void ParseChar_WithValidChar_ReturnsFile()
+    [Test]
+    public async Task ParseChar_WithValidChar_ReturnsFile()
     {
         var actual = File.ParseChar('c');
-        
-        Assert.AreEqual(File.C, actual);
+
+        await Assert.That(actual).IsEqualTo(File.C);
     }
 
-    [TestMethod]
-    public void ParseChar_WithInvalidChar_ThrowsOutOfBoardException()
+    [Test]
+    public async Task ParseChar_WithInvalidChar_ThrowsOutOfBoardException()
     {
-        void Act() => File.ParseChar('i');
+        void Act() => File.ParseChar('1');
 
-        var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
-        Assert.AreEqual("File 8 is out of board (must be between 0 and 7).", exception.Message);
+        var exception = await Assert.That(Act).Throws<OutOfBoardException>();
+        await Assert.That(exception!.Message).IsEqualTo("File 8 is out of board (must be between 0 and 7).");
     }
 
-    [DataTestMethod]
-    [DataRow(5)] // To the right
-    [DataRow(1)] // To the left
-    public void DistanceTo_OtherFile_ReturnsExpectedDistance(int fileValue)
+    [Test]
+    [Arguments(5)] // To the right
+    [Arguments(1)] // To the left
+    public async Task DistanceTo_OtherFile_ReturnsExpectedDistance(int fileValue)
     {
         var file = (File) fileValue;
 
         var actual = File.D.DistanceTo(file);
-        
-        Assert.AreEqual(2, actual);
+
+        await Assert.That(actual).IsEqualTo(2);
     }
 
-    [TestMethod]
-    public void Increment_WhenFileIsH_ThrowsOutOfBoardException()
+    [Test]
+    public async Task Increment_WhenFileIsH_ThrowsOutOfBoardException()
     {
         void Act()
         {
@@ -47,13 +45,13 @@ public class FileTest
             _ = ++file;
             #pragma warning restore S1854
         }
-
-        var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
-        Assert.AreEqual("File 8 is out of board (must be between 0 and 7).", exception.Message);
+        
+        var exception = await Assert.That(Act).Throws<OutOfBoardException>();
+        await Assert.That(exception!.Message).IsEqualTo("File 8 is out of board (must be between 0 and 7).");
     }
 
-    [TestMethod]
-    public void Decrement_WhenFileIsA_ThrowsOutOfBoardException()
+    [Test]
+    public async Task Decrement_WhenFileIsA_ThrowsOutOfBoardException()
     {
         void Act()
         {
@@ -62,8 +60,8 @@ public class FileTest
             _ = --file;
             #pragma warning restore S1854
         }
-        
-        var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
-        Assert.AreEqual("File -1 is out of board (must be between 0 and 7).", exception.Message);
+
+        var exception = await Assert.That(Act).Throws<OutOfBoardException>();
+        await Assert.That(exception!.Message).IsEqualTo("File -1 is out of board (must be between 0 and 7).");
     }
 }
