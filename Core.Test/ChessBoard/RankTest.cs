@@ -1,44 +1,43 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.Exceptions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Test.ChessBoard;
 
-[TestClass]
 public class RankTest
 {
-    [TestMethod]
-    public void ParseChar_WithValidChar_ReturnsRank()
+    [Test]
+    public async Task ParseChar_WithValidChar_ReturnsRank()
     {
         var actual = Rank.ParseChar('2');
-        
-        Assert.AreEqual(Rank.Second, actual);
+
+        await Assert.That(actual).IsEqualTo(Rank.Second);
     }
 
-    [TestMethod]
-    public void ParseChar_WithInvalidChar_ThrowsOutOfBoardException()
+    [Test]
+    public async Task ParseChar_WithInvalidChar_ThrowsOutOfBoardException()
     {
         void Act() => Rank.ParseChar('0');
 
-        var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
-        Assert.AreEqual("Rank -1 is out of board (must be between 0 and 7).", exception.Message);
+        var exception = await Assert.That(Act)
+            .Throws<OutOfBoardException>();
+        await Assert.That(exception.Message).IsEqualTo("Rank -1 is out of board (must be between 0 and 7).");
     }
 
-    [DataTestMethod]
-    [DataRow(5)] // Up
-    [DataRow(1)] // Down
-    public void DistanceTo_OtherRank_ReturnsExpectedDistance(int rankValue)
+    [Test]
+    [Arguments(5)] // Up
+    [Arguments(1)] // Down
+    public async Task DistanceTo_OtherRank_ReturnsExpectedDistance(int rankValue)
     {
         var rank = (Rank) rankValue;
 
         var actual = Rank.Fourth.DistanceTo(rank);
-        
-        Assert.AreEqual(2, actual);
+
+        await Assert.That(actual).IsEqualTo(2);
     }
 
-    [TestMethod]
-    public void Increment_WhenRankIsEighth_ThrowsOutOfBoardException()
+    [Test]
+    public async Task Increment_WhenRankIsEighth_ThrowsOutOfBoardException()
     {
         void Act()
         {
@@ -48,12 +47,13 @@ public class RankTest
             #pragma warning restore S1854
         }
 
-        var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
-        Assert.AreEqual("Rank 8 is out of board (must be between 0 and 7).", exception.Message);
+        var exception = await Assert.That(Act)
+            .Throws<OutOfBoardException>();
+        await Assert.That(exception.Message).IsEqualTo("Rank 8 is out of board (must be between 0 and 7).");
     }
 
-    [TestMethod]
-    public void Decrement_WhenRankIsFirst_ThrowsOutOfBoardException()
+    [Test]
+    public async Task Decrement_WhenRankIsFirst_ThrowsOutOfBoardException()
     {
         void Act()
         {
@@ -62,8 +62,9 @@ public class RankTest
             _ = --rank;
             #pragma warning restore S1854
         }
-        
-        var exception = Assert.ThrowsException<OutOfBoardException>((Action) Act);
-        Assert.AreEqual("Rank -1 is out of board (must be between 0 and 7).", exception.Message);
+
+        var exception = await Assert.That(Act)
+            .Throws<OutOfBoardException>();
+        await Assert.That(exception.Message).IsEqualTo("Rank -1 is out of board (must be between 0 and 7).");
     }
 }

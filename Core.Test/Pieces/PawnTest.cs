@@ -1,20 +1,19 @@
-﻿using Core.Pieces;
+﻿using System.Threading.Tasks;
+using Core.Pieces;
 using Core.Shared;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Core.Test.Pieces;
 
-[TestClass]
 public class PawnTest
 {
-    [DataTestMethod]
-    [DataRow(Color.White, 'P')]
-    [DataRow(Color.Black, 'p')]
-    public void Pawn_WithColor_HasCorrectNameAndColor(Color color, char name)
+    [Test]
+    [Arguments(Color.White, 'P')]
+    [Arguments(Color.Black, 'p')]
+    public async Task Pawn_WithColor_HasCorrectNameAndColor(Color color, char name)
     {
         var pawn = new Pawn(color);
         
-        Assert.AreEqual(name, pawn.Name);
-        Assert.AreEqual(color, pawn.Color);
+        await Assert.That(pawn.Name).IsEqualTo(name);
+        await Assert.That(pawn.Color).IsEqualTo(color);
     }
 }
