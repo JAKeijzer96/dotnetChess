@@ -210,8 +210,7 @@ public class Game
         Board.MovePiece(from: rookSquare, to: rookDestinationSquare);
         
         // Update CastlingAvailability property
-        var isWhite = kingDestinationSquare.Piece!.IsWhite();
-        CastlingAvailability.UpdateAfterCastlingMove(isWhite);
+        CastlingAvailability.UpdateAfterCastlingMove(kingDestinationSquare.Piece!.Color);
     }
 
     private static void PromotePawn(Square from, Square to, char promotionPieceChar)
