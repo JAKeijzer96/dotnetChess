@@ -288,11 +288,94 @@ public class GameTest
         var board = new Board("rB2k1nr/8/8/8/8/8/8/R1N1KB1R");
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(board, (Color)turn, castlingAvailability, null, 0, 1);
-        
+
         void Act() => sut.MakeMove(from, to);
 
         var exception = await Assert.That(Act).Throws<InvalidCastlingMoveException>();
         await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because there is a piece blocking on file {blockedFile}");
+    }
+
+    #endregion
+
+    #region CheckDetection
+
+    [Test]
+    public async Task MakeMove_MoveThatLeavesKingInCheck_ReturnsFalse()
+    {
+        // White rook on e4 is pinned to white king on e1 by black rook on e8
+        var board = new Board("4r3/8/8/8/4R3/8/8/4K3");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var result = sut.MakeMove("e4", "d4");
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task MakeMove_MoveThatDoesNotLeaveKingInCheck_ReturnsTrue()
+    {
+        // White rook on e4 is pinned to white king on e1 by black rook on e8
+        // Moving it along the e-file is still legal
+        var board = new Board("4r3/8/8/8/4R3/8/8/4K3");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var result = sut.MakeMove("e4", "e5");
+
+        await Assert.That(result).IsTrue();
+    }
+
+    [Test]
+    public async Task MakeMove_KingMovesIntoCheck_ReturnsFalse()
+    {
+        var board = new Board("4k3/8/8/8/8/8/2K5/r7");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var result = sut.MakeMove("c2", "c1");
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task MakeMove_EnPassantThatLeavesKingInCheck_ReturnsFalse()
+    {
+        // Capturing d5 by en passant on d6 puts king in check from black rook on a5
+        var board = new Board("8/8/8/r2pPK2/8/8/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        var enPassantSquare = board["d6"];
+        var sut = new Game(board, Color.White, castlingAvailability, enPassantSquare, 0, 10);
+
+        var result = sut.MakeMove("e5", "d6");
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    [Arguments("e1", "g1")]
+    [Arguments("e1", "c1")]
+    public async Task MakeMove_CastlingThroughCheck_ReturnsFalse(string from, string to)
+    {
+        var board = new Board("3rkr2/8/8/8/8/8/8/R3K2R");
+        var castlingAvailability = new CastlingAvailability("KQ");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var result = sut.MakeMove(from, to);
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task MakeMove_CastlingWhileInCheck_ReturnsFalse()
+    {
+        var board = new Board("3kr3/8/8/8/8/8/8/R3K2R");
+        var castlingAvailability = new CastlingAvailability("KQ");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var result = sut.MakeMove("e1", "g1");
+
+        await Assert.That(result).IsFalse();
     }
 
     #endregion

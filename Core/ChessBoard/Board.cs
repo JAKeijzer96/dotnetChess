@@ -25,6 +25,23 @@ public class Board
         SetupBoardFromBoardFen(boardFen);
     }
 
+    private Board(Square[,] squares)
+    {
+        _squares = new Square[BoardSize, BoardSize];
+        for (File file = File.A; file <= File.H; file++)
+        {
+            for (Rank rank = Rank.First; rank <= Rank.Eighth; rank++)
+            {
+                Square original = squares[file, rank];
+                _squares[file, rank] = new Square(original.File, original.Rank, original.Piece);
+                if (rank == Rank.Eighth) break;
+            }
+            if (file == File.H) break;
+        }
+    }
+
+    public Board Clone() => new Board(_squares);
+
     private void SetupBoardFromBoardFen(string boardFen)
     {
         string[] fenRanks = ValidateAndSplitBoardFen(boardFen);
@@ -120,6 +137,14 @@ public class Board
         return null;
     }
 
+    public bool IsKingInCheck(Color color)
+    {
+        Square? kingSquare = GetKingSquare(color);
+        if (kingSquare is null) return false;
+        Color attacker = color == Color.White ? Color.Black : Color.White;
+        return IsSquareUnderAttack(kingSquare, attacker);
+    }
+
     public bool IsSquareUnderAttack(Square square, Color attacker)
     {
         for (File file = File.A; file <= File.H; file++)
@@ -162,8 +187,7 @@ public class Board
     {
         var stringBuilder = new StringBuilder();
         var emptySquares = 0;
-        var file = File.A;
-        while (file <= File.H)
+        for (File file = File.A; file <= File.H; file++)
         {
             if (_squares[file, rank].IsOccupied())
             {
@@ -179,12 +203,7 @@ public class Board
             {
                 emptySquares++;
             }
-
-            if (file == File.H)
-            {
-                break;
-            }
-            file++;
+            if (file == File.H) break;
         }
 
         if (emptySquares > 0)

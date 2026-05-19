@@ -309,4 +309,58 @@ public class BoardTest
 
         await Assert.That(isUnderAttack).IsTrue();
     }
+
+    [Test]
+    public async Task Clone_HasSamePiecePositions()
+    {
+        var board = new Board();
+
+        Board clone = board.Clone();
+
+        for (File file = File.A; file <= File.H; file++)
+        {
+            for (Rank rank = Rank.First; rank <= Rank.Eighth; rank++)
+            {
+                await Assert.That(clone[file, rank].Piece).IsEqualTo(board[file, rank].Piece);
+                if (rank == Rank.Eighth) break;
+            }
+            if (file == File.H) break;
+        }
+    }
+
+    [Test]
+    public async Task Clone_MovingPieceOnClone_DoesNotAffectOriginal()
+    {
+        var board = new Board();
+
+        Board clone = board.Clone();
+        clone.MovePiece(clone["e2"], clone["e4"]);
+
+        await Assert.That(board["e2"].Piece).IsNotNull();
+        await Assert.That(board["e4"].Piece).IsNull();
+    }
+
+    [Test]
+    public async Task IsKingInCheck_WhiteKingNotInCheck_ReturnsFalse()
+    {
+        var board = new Board();
+
+        await Assert.That(board.IsKingInCheck(Color.White)).IsFalse();
+    }
+
+    [Test]
+    public async Task IsKingInCheck_WhiteKingInCheckByBlackRook_ReturnsTrue()
+    {
+        var board = new Board("4k3/8/8/8/8/8/8/r3K3");
+
+        await Assert.That(board.IsKingInCheck(Color.White)).IsTrue();
+    }
+
+    [Test]
+    public async Task IsKingInCheck_BlackKingInCheckByWhitePawn_ReturnsTrue()
+    {
+        var board = new Board("4k3/5P2/8/8/8/8/8/4K3");
+
+        await Assert.That(board.IsKingInCheck(Color.Black)).IsTrue();
+    }
 }

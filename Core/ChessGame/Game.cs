@@ -55,8 +55,13 @@ public class Game
         {
             return false;
         }
-        
-        // Move is valid. Move pieces and update gamestate
+
+        if (WouldLeaveKingInCheck(from, to, isEnPassantMove, isCastlingMove, piece.Color))
+        {
+            return false;
+        }
+
+        // Move is valid and legal. Move pieces and update gamestate
         var pieceCaptured = to.Piece is not null || isEnPassantMove;
         UpdateEnPassantSquare(from, to);
         MovePieces(from, to, isEnPassantMove, isCastlingMove, promotionPieceChar);
@@ -85,12 +90,16 @@ public class Game
 
     private bool IsCastlingMove(Square from, Square to)
     {
-        if (from.Piece is not King)
+        if (from.Piece is not King king)
         {
             return false;
         }
 
-        var king = from.Piece;
+        if (Board.IsKingInCheck(king.Color))
+        {
+            return false;
+        }
+
         var isWhiteKingMoveOnFirstRank = king.IsWhite() && from.Rank == Rank.First && to.Rank == Rank.First;
         var isBlackKingMoveOnEighthRank = king.IsBlack() && from.Rank == Rank.Eighth && to.Rank == Rank.Eighth;
         var isFileDifferenceGreaterThanTwo = from.File.DistanceTo(to.File) >= 2;
@@ -118,6 +127,13 @@ public class Game
         if (currentFile < from.File && Board[File.B, from.Rank].IsOccupied())
         {
             throw new InvalidCastlingMoveException(from, to, blockedFile: File.B);
+        }
+
+        Color opponent = king.IsWhite() ? Color.Black : Color.White;
+
+        if (IsCastlingPathUnderAttack(from, direction, opponent))
+        {
+            return false;
         }
 
         return true;
@@ -199,18 +215,22 @@ public class Game
 
     private void PerformCastlingMove(Square from, Square to)
     {
+        var color = from.Piece!.Color;
+        MoveCastlingPieces(Board, from, to);
+
+        CastlingAvailability.UpdateAfterCastlingMove(color);
+    }
+
+    private static void MoveCastlingPieces(Board board, Square from, Square to)
+    {
         var direction = from.File < to.File ? Direction.Right : Direction.Left;
         var rookFile = from.File < to.File ? File.H : File.A;
-            
-        // Move king and rook
-        var kingDestinationSquare = Board[from.File + 2 * direction, from.Rank];
-        Board.MovePiece(from: from, to: kingDestinationSquare);
-        var rookSquare = Board[rookFile, from.Rank]; 
-        var rookDestinationSquare = Board[from.File + direction, from.Rank];
-        Board.MovePiece(from: rookSquare, to: rookDestinationSquare);
-        
-        // Update CastlingAvailability property
-        CastlingAvailability.UpdateAfterCastlingMove(kingDestinationSquare.Piece!.Color);
+
+        var kingDestinationSquare = board[from.File + 2 * direction, from.Rank];
+        board.MovePiece(from: from, to: kingDestinationSquare);
+        var rookSquare = board[rookFile, from.Rank];
+        var rookDestinationSquare = board[from.File + direction, from.Rank];
+        board.MovePiece(from: rookSquare, to: rookDestinationSquare);
     }
 
     private static void PromotePawn(Square from, Square to, char promotionPieceChar)
@@ -224,7 +244,32 @@ public class Game
         Board[to.File, from.Rank].Piece = null;
     }
 
-    
+    private bool WouldLeaveKingInCheck(Square from, Square to, bool isEnPassantMove, bool isCastlingMove, Color movingColor)
+    {
+        Board clone = Board.Clone();
+        Square cloneFrom = clone[from.File, from.Rank];
+        Square cloneTo = clone[to.File, to.Rank];
+        
+        if (isCastlingMove)
+        {
+            MoveCastlingPieces(clone, cloneFrom, cloneTo);
+        }
+        else
+        {
+            clone.MovePiece(cloneFrom, cloneTo);
+            if (isEnPassantMove)
+            {
+                clone[to.File, from.Rank].Piece = null;
+            }
+        }
+
+        return clone.IsKingInCheck(movingColor);
+    }
+
+    private bool IsCastlingPathUnderAttack(Square from, int direction, Color opponent)
+    {
+        return Board.IsSquareUnderAttack(Board[from.File + direction, from.Rank], opponent);
+    }
 
     private void UpdateHalfMoveCount(Piece movedPiece, bool pieceCaptured)
     {
