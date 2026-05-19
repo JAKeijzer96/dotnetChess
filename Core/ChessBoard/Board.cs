@@ -1,6 +1,7 @@
 using System.Text;
 using Core.Exceptions;
 using Core.Pieces;
+using Core.Shared;
 
 namespace Core.ChessBoard;
 
@@ -98,6 +99,45 @@ public class Board
     {
         to.Piece = from.Piece;
         from.Piece = null;
+    }
+
+    public Square? GetKingSquare(Color color)
+    {
+        for (File file = File.A; file <= File.H; file++)
+        {
+            for (Rank rank = Rank.First; rank <= Rank.Eighth; rank++)
+            {
+                Square square = GetSquare(file, rank);
+                if (square.Piece is King king && king.Color == color)
+                {
+                    return square;
+                }
+
+                if (rank == Rank.Eighth) break;
+            }
+            if (file == File.H) break;
+        }
+        return null;
+    }
+
+    public bool IsSquareUnderAttack(Square square, Color attacker)
+    {
+        for (File file = File.A; file <= File.H; file++)
+        {
+            for (Rank rank = Rank.First; rank <= Rank.Eighth; rank++)
+            {
+                Square currentSquare = GetSquare(file, rank);
+                if (currentSquare.Piece is not null
+                    && currentSquare.Piece.Color == attacker
+                    && currentSquare.Piece.AttacksSquare(this, currentSquare, square))
+                {
+                    return true;
+                }
+                if (rank == Rank.Eighth) break;
+            }
+            if (file == File.H) break;
+        }
+        return false;
     }
 
     public override string ToString()

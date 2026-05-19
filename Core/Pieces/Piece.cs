@@ -21,6 +21,11 @@ public abstract class Piece
         return _moveValidator.IsValidMove(board, from, to);
     }
 
+    public virtual bool AttacksSquare(Board board, Square from, Square to)
+    {
+        return IsValidMove(board, from, to);
+    }
+
     public bool IsWhite()
     {
         return Color == Color.White;

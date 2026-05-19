@@ -75,7 +75,7 @@ public class BoardTest
         var actualPiece = board["e1"].Piece;
 
         await Assert.That(actualPiece).IsNotNull();
-        await Assert.That(actualPiece!.Color).IsEqualTo(expectedPiece.Color);
+        await Assert.That(actualPiece.Color).IsEqualTo(expectedPiece.Color);
         await Assert.That(actualPiece.Name).IsEqualTo(expectedPiece.Name);
     }
 
@@ -88,7 +88,7 @@ public class BoardTest
         var actualPiece = board["d8"].Piece;
 
         await Assert.That(actualPiece).IsNotNull();
-        await Assert.That(actualPiece!.Color).IsEqualTo(expectedPiece.Color);
+        await Assert.That(actualPiece.Color).IsEqualTo(expectedPiece.Color);
         await Assert.That(actualPiece.Name).IsEqualTo(expectedPiece.Name);
     }
 
@@ -140,7 +140,173 @@ public class BoardTest
         var boardFen = "8/2b5/8/2R5/8/8/k1K5/8";
 
         var board = new Board(boardFen);
-        
+
         await Assert.That(board.ToString()).IsEqualTo(boardFen);
+    }
+
+    [Test]
+    public async Task GetKingSquare_WithWhiteKingAtStartingPosition_ReturnsE1()
+    {
+        var board = new Board();
+
+        var kingSquare = board.GetKingSquare(Color.White);
+
+        await Assert.That(kingSquare).IsNotNull();
+        await Assert.That(kingSquare.File).IsEqualTo(File.E);
+        await Assert.That(kingSquare.Rank).IsEqualTo(Rank.First);
+    }
+
+    [Test]
+    public async Task GetKingSquare_WithBlackKingAtStartingPosition_ReturnsE8()
+    {
+        var board = new Board();
+
+        var kingSquare = board.GetKingSquare(Color.Black);
+
+        await Assert.That(kingSquare).IsNotNull();
+        await Assert.That(kingSquare.File).IsEqualTo(File.E);
+        await Assert.That(kingSquare.Rank).IsEqualTo(Rank.Eighth);
+    }
+
+    [Test]
+    public async Task GetKingSquare_WithWhiteKingMovedToD5_ReturnsD5()
+    {
+        var board = new Board("rnbqkbnr/pppppppp/8/3K4/8/8/PPPPPPPP/RNBQ1BNR");
+
+        var kingSquare = board.GetKingSquare(Color.White);
+
+        await Assert.That(kingSquare).IsNotNull();
+        await Assert.That(kingSquare.File).IsEqualTo(File.D);
+        await Assert.That(kingSquare.Rank).IsEqualTo(Rank.Fifth);
+    }
+
+    [Test]
+    public async Task GetKingSquare_WithMissingKing_ReturnsNull()
+    {
+        var board = new Board("rnbq1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+
+        var kingSquare = board.GetKingSquare(Color.Black);
+
+        await Assert.That(kingSquare).IsNull();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_WhiteSquareNotUnderAttack_ReturnsFalse()
+    {
+        var board = new Board();
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["e4"], Color.Black);
+
+        await Assert.That(isUnderAttack).IsFalse();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_SquareAttackedByBlackPawn_ReturnsTrue()
+    {
+        var board = new Board("4k3/8/8/2p5/3P4/8/8/4K3");
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["d4"], Color.Black);
+
+        await Assert.That(isUnderAttack).IsTrue();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_SquareAttackedByBlackKnight_ReturnsTrue()
+    {
+        var board = new Board("4k3/8/2n5/8/3P4/8/8/4K3");
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["d4"], Color.Black);
+
+        await Assert.That(isUnderAttack).IsTrue();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_SquareAttackedByBlackBishop_ReturnsTrue()
+    {
+        var board = new Board("4k3/8/8/8/3P4/8/8/4K1b1");
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["d4"], Color.Black);
+
+        await Assert.That(isUnderAttack).IsTrue();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_SquareAttackedByBlackRook_ReturnsTrue()
+    {
+        var board = new Board("4k3/8/8/8/3P2r1/8/8/4K3");
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["d4"], Color.Black);
+
+        await Assert.That(isUnderAttack).IsTrue();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_SquareAttackedByBlackQueen_ReturnsTrue()
+    {
+        var board = new Board("4k3/q7/8/8/3P4/8/8/4K3");
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["d4"], Color.Black);
+
+        await Assert.That(isUnderAttack).IsTrue();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_SquareAttackedByBlackKing_ReturnsTrue()
+    {
+        var board = new Board("8/8/8/2k5/3P4/8/8/8");
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["d4"], Color.Black);
+
+        await Assert.That(isUnderAttack).IsTrue();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_SquareNotAttackedButOtherPiecesExist_ReturnsFalse()
+    {
+        var board = new Board("4k3/8/2q5/8/8/8/8/4K3");
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["d4"], Color.Black);
+
+        await Assert.That(isUnderAttack).IsFalse();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_WhitePawnNotAttackingRankAboveItsPosition_ReturnsFalse()
+    {
+        var board = new Board("4k3/8/8/3P4/8/8/8/4K3");
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["d6"], Color.White);
+
+        await Assert.That(isUnderAttack).IsFalse();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_SquareBlockedByOwnPiece_ReturnsFalse()
+    {
+        var board = new Board("4k3/8/3r4/3p4/8/8/8/4K3");
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["d4"], Color.Black);
+
+        await Assert.That(isUnderAttack).IsFalse();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_A1UnderAttackByBlackQueen_ReturnsTrue()
+    {
+        var board = new Board("4k2q/8/8/8/8/8/8/Q3K3");
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["a1"], Color.Black);
+
+        await Assert.That(isUnderAttack).IsTrue();
+    }
+
+    [Test]
+    public async Task IsSquareUnderAttack_H8UnderAttackByWhiteQueen_ReturnsTrue()
+    {
+        var board = new Board("4k2q/8/8/8/8/8/8/Q3K3");
+
+        var isUnderAttack = board.IsSquareUnderAttack(board["h8"], Color.White);
+
+        await Assert.That(isUnderAttack).IsTrue();
     }
 }
