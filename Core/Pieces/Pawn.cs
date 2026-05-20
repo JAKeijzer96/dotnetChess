@@ -15,7 +15,7 @@ public class Pawn : Piece
     {
         if (from == to) return false;
 
-        var direction = IsWhite() ? Direction.Up : Direction.Down;
+        var direction = IsWhite ? Direction.Up : Direction.Down;
 
         var isOneDiagonalAhead = from.File.DistanceTo(to.File) == 1
                                  && from.Rank + direction == to.Rank;

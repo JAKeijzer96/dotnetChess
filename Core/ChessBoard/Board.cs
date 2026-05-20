@@ -141,8 +141,7 @@ public class Board
     {
         Square? kingSquare = GetKingSquare(color);
         if (kingSquare is null) return false;
-        Color attacker = color == Color.White ? Color.Black : Color.White;
-        return IsSquareUnderAttack(kingSquare, attacker);
+        return IsSquareUnderAttack(kingSquare, kingSquare.Piece!.OpposingColor);
     }
 
     public bool IsSquareUnderAttack(Square square, Color attacker)

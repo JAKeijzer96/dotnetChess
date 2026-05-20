@@ -46,7 +46,7 @@ public class CastlingAvailability
             return;
         }
 
-        var pieceIsWhite = piece.IsWhite();
+        var pieceIsWhite = piece.IsWhite;
         if (piece is King)
         {
             if (pieceIsWhite && CanWhiteCastle())

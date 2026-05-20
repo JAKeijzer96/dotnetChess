@@ -100,8 +100,8 @@ public class Game
             return false;
         }
 
-        var isWhiteKingMoveOnFirstRank = king.IsWhite() && from.Rank == Rank.First && to.Rank == Rank.First;
-        var isBlackKingMoveOnEighthRank = king.IsBlack() && from.Rank == Rank.Eighth && to.Rank == Rank.Eighth;
+        var isWhiteKingMoveOnFirstRank = king.IsWhite && from.Rank == Rank.First && to.Rank == Rank.First;
+        var isBlackKingMoveOnEighthRank = king.IsBlack && from.Rank == Rank.Eighth && to.Rank == Rank.Eighth;
         var isFileDifferenceGreaterThanTwo = from.File.DistanceTo(to.File) >= 2;
 
         if (!(isFileDifferenceGreaterThanTwo && (isWhiteKingMoveOnFirstRank || isBlackKingMoveOnEighthRank)))
@@ -129,9 +129,7 @@ public class Game
             throw new InvalidCastlingMoveException(from, to, blockedFile: File.B);
         }
 
-        Color opponent = king.IsWhite() ? Color.Black : Color.White;
-
-        if (IsCastlingPathUnderAttack(from, direction, opponent))
+        if (IsCastlingPathUnderAttack(from, direction, king.OpposingColor))
         {
             return false;
         }
@@ -142,10 +140,10 @@ public class Game
     private void VerifyKingCanCastleInGivenDirection(Square from, Square to, Piece king, int direction)
     {
         if (CastlingAvailability.CanNeitherSideCastle() ||
-            (king.IsWhite() && direction == Direction.Right && !CastlingAvailability.CanWhiteCastleKingside()) ||
-            (king.IsWhite() && direction == Direction.Left && !CastlingAvailability.CanWhiteCastleQueenside()) ||
-            (king.IsBlack() && direction == Direction.Right && !CastlingAvailability.CanBlackCastleKingside()) ||
-            (king.IsBlack() && direction == Direction.Left && !CastlingAvailability.CanBlackCastleQueenside()))
+            (king.IsWhite && direction == Direction.Right && !CastlingAvailability.CanWhiteCastleKingside()) ||
+            (king.IsWhite && direction == Direction.Left && !CastlingAvailability.CanWhiteCastleQueenside()) ||
+            (king.IsBlack && direction == Direction.Right && !CastlingAvailability.CanBlackCastleKingside()) ||
+            (king.IsBlack && direction == Direction.Left && !CastlingAvailability.CanBlackCastleQueenside()))
         {
             throw new InvalidCastlingMoveException($"Cannot castle from {from} to {to} because the " +
                                                $"king and/or rook have moved (CastlingAvailability: {CastlingAvailability}).");
@@ -161,7 +159,7 @@ public class Game
         // checking if the start rank is the second rank (for white) or seventh rank (for black)
         if (piece is Pawn && from.Rank.DistanceTo(to.Rank) == 2)
         {
-            var direction = piece.IsWhite() ? Direction.Up : Direction.Down;
+            var direction = piece.IsWhite ? Direction.Up : Direction.Down;
             EnPassant = Board[from.File, from.Rank + direction];
         }
         else
@@ -204,8 +202,8 @@ public class Game
         var whitePromotionPieces = new[] {'Q', 'R', 'B', 'N'};
         var blackPromotionPieces = new[] {'q', 'r', 'b', 'n'};
 
-        if ((piece.IsWhite() && !whitePromotionPieces.Contains(promotionPieceChar)) ||
-            (piece.IsBlack() && !blackPromotionPieces.Contains(promotionPieceChar)))
+        if ((piece.IsWhite && !whitePromotionPieces.Contains(promotionPieceChar)) ||
+            (piece.IsBlack && !blackPromotionPieces.Contains(promotionPieceChar)))
         {
             throw new InvalidPromotionException($"Invalid promotion character {promotionPieceChar} for color {Turn}");
         }
