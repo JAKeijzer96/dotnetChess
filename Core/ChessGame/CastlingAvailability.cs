@@ -7,7 +7,7 @@ using File = Core.ChessBoard.File;
 
 namespace Core.ChessGame;
 
-public class CastlingAvailability
+public partial class CastlingAvailability
 {
     private string _castlingAvailability;
 
@@ -86,9 +86,12 @@ public class CastlingAvailability
 
     private static void ValidateCastlingAvailability(string castling)
     {
-        if (string.IsNullOrEmpty(castling) || !Regex.Match(castling, @"^(-|(K?Q?k?q?))$").Success)
+        if (string.IsNullOrEmpty(castling) || !ValidCastlingRegex().IsMatch(castling))
         {
             throw new FormatException("Invalid castling format: " + castling);
         }
     }
+
+    [GeneratedRegex(@"^(-|(K?Q?k?q?))$")]
+    private static partial Regex ValidCastlingRegex();
 }

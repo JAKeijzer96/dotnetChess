@@ -6,7 +6,7 @@ using Core.Shared;
 
 namespace Core.Parsers;
 
-public static class FenParser
+public static partial class FenParser
 {
     private static Board _board = null!;
     
@@ -33,10 +33,7 @@ public static class FenParser
     
     private static string[] ValidateAndSplitFen(string fen)
     {
-        if (fen == null)
-        {
-            throw new ArgumentNullException(nameof(fen));
-        }
+        ArgumentNullException.ThrowIfNull(fen);
 
         string[] fenParts = fen.Split(' ');
         if (fenParts.Length != 6)
@@ -71,7 +68,7 @@ public static class FenParser
             return null;
         }
 
-        if (Regex.Match(enPassantFen, @"^[a-h][36]$").Success)
+        if (ValidEnPassantSquareRegex().IsMatch(enPassantFen))
         {
             return _board[enPassantFen];
         }
@@ -100,4 +97,7 @@ public static class FenParser
 
         return fullMoveCount;
     }
+
+    [GeneratedRegex(@"^[a-h][36]$")]
+    private static partial Regex ValidEnPassantSquareRegex();
 }

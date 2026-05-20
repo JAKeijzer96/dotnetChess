@@ -97,10 +97,7 @@ public class Board
     
     private Square GetSquare(string squareName)
     {
-        if (squareName == null)
-        {
-            throw new ArgumentNullException(nameof(squareName));
-        }
+        ArgumentNullException.ThrowIfNull(squareName);
 
         if (squareName.Length != 2)
         {
@@ -215,10 +212,7 @@ public class Board
     
     private static string[] ValidateAndSplitBoardFen(string boardFen)
     {
-        if (string.IsNullOrWhiteSpace(boardFen))
-        {
-            throw new ArgumentNullException(nameof(boardFen));
-        }
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(boardFen);
 
         if (boardFen.Split(' ').Length > 1)
         {
