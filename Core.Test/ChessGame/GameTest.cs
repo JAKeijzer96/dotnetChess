@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.ChessGame;
 using Core.Exceptions;
@@ -376,6 +377,133 @@ public class GameTest
         var result = sut.MakeMove("e1", "g1");
 
         await Assert.That(result).IsFalse();
+    }
+
+    #endregion
+
+    #region GameResult
+
+    [Test]
+    public async Task Result_AtStartOfGame_IsInProgress()
+    {
+        var sut = new Game();
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+    }
+
+    [Test]
+    public async Task Result_AfterNonTerminatingMove_IsInProgress()
+    {
+        var sut = new Game();
+
+        sut.MakeMove("e2", "e4");
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+    }
+
+    [Test]
+    public async Task Result_AfterFoolsMate_IsCheckmate()
+    {
+        var sut = new Game();
+        sut.MakeMove("f2", "f3");
+        sut.MakeMove("e7", "e5");
+        sut.MakeMove("g2", "g4");
+        sut.MakeMove("d8", "h4");
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.Checkmate);
+    }
+
+    [Test]
+    public async Task Result_AfterCheckmate_TurnIsLosingColor()
+    {
+        // After fool's mate white is checkmated. It is white's turn, but they have no legal moves
+        var sut = new Game();
+        sut.MakeMove("f2", "f3");
+        sut.MakeMove("e7", "e5");
+        sut.MakeMove("g2", "g4");
+        sut.MakeMove("d8", "h4");
+
+        await Assert.That(sut.Turn).IsEqualTo(Color.White);
+    }
+
+    [Test]
+    public async Task MakeMove_AfterCheckmate_ReturnsFalse()
+    {
+        var sut = new Game();
+        sut.MakeMove("f2", "f3");
+        sut.MakeMove("e7", "e5");
+        sut.MakeMove("g2", "g4");
+        sut.MakeMove("d8", "h4");
+
+        var result = sut.MakeMove("e2", "e4");
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task Result_AfterStalemate_IsStalemate()
+    {
+        var board = new Board("k7/8/1QK5/8/8/8/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.Black, castlingAvailability, null, 0, 1);
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.Stalemate);
+    }
+
+    [Test]
+    public async Task GetLegalMoves_InStartingPosition_Returns20Moves()
+    {
+        // 16 pawn moves + 4 knight moves
+        var sut = new Game();
+
+        int count = sut.GetLegalMoves(Color.White).Count();
+
+        await Assert.That(count).IsEqualTo(20);
+    }
+
+    [Test]
+    public async Task GetLegalMoves_WhenKingIsInCheckWithNoBlockers_OnlyKingMovesAreReturned()
+    {
+        // White king on e1 is in check from black rook on e8, only legal moves resolve the check
+        var board = new Board("4r3/8/8/PPk5/2P5/6PP/5P2/4K3");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var legalMoves = sut.GetLegalMoves(Color.White).ToList();
+
+        await Assert.That(legalMoves).IsNotEmpty();
+        await Assert.That(legalMoves.All(m => m.from.Piece is King)).IsTrue();
+    }
+
+    [Test]
+    public async Task GetLegalMoves_WhenKingInDoubleCheck_OnlyKingMovesAreReturned()
+    {
+        // King on e1 in double check from rook on e8 and bishop on h4
+        // White rook on d3 could block the e-file or e1-h4 diagonal but can't block both
+        // at the same time, meaning the king must move
+        var board = new Board("4r3/8/2k5/8/7b/3R4/7N/4K3");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var legalMoves = sut.GetLegalMoves(Color.White).ToList();
+
+        await Assert.That(legalMoves).IsNotEmpty();
+        await Assert.That(legalMoves.All(m => m.from.Piece is King)).IsTrue();
+    }
+
+    [Test]
+    public async Task MakeMove_EnPassantThatCapturesCheckingPawn_ReturnsTrue()
+    {
+        // Black pawn just moved d7-d5, now attacks e4 where the white king stands
+        // White pawn on e5 can capture en passant on d6, removing the checking pawn from d5
+        var board = new Board("4k3/8/8/3pP3/4K3/8/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        Square enPassantSquare = board["d6"];
+        var sut = new Game(board, Color.White, castlingAvailability, enPassantSquare, 0, 1);
+
+        var result = sut.MakeMove("e5", "d6");
+
+        await Assert.That(result).IsTrue();
     }
 
     #endregion

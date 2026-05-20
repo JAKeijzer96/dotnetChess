@@ -15,6 +15,7 @@ public class Game
     public Square? EnPassant { get; private set; }
     public int HalfMoveCount { get; private set; }
     public int FullMoveCount { get; private set; }
+    public GameResult Result { get; private set; }
 
     public Game()
     {
@@ -34,6 +35,7 @@ public class Game
         EnPassant = enPassant;
         HalfMoveCount = halfMoveCount;
         FullMoveCount = fullMoveCount;
+        Result = EvaluateResult();
     }
     
     public bool MakeMove(string from, string to, [Optional] char promotionPieceChar)
@@ -43,6 +45,11 @@ public class Game
 
     private bool MakeMove(Square from, Square to, [Optional] char promotionPieceChar)
     {
+        if (Result != GameResult.InProgress)
+        {
+            return false;
+        }
+
         var piece = from.Piece;
         if (piece is null || piece.Color != Turn)
         {
@@ -67,8 +74,36 @@ public class Game
         MovePieces(from, to, isEnPassantMove, isCastlingMove, promotionPieceChar);
         UpdateHalfMoveCount(piece, pieceCaptured);
         EndTurn();
-        
+
         return true;
+    }
+
+    private bool IsLegalMove(Square from, Square to)
+    {
+        var piece = from.Piece;
+        if (piece is null)
+        {
+            return false;
+        }
+
+        var isEnPassantMove = IsEnPassantMove(from, to);
+        bool isCastlingMove;
+        try
+        {
+            // TODO: Refactor towards MoveResult to avoid using exceptions for control flow
+            isCastlingMove = IsCastlingMove(from, to);
+        }
+        catch (InvalidCastlingMoveException)
+        {
+            return false;
+        }
+
+        if (!(piece.IsValidMove(Board, from, to) || isEnPassantMove || isCastlingMove))
+        {
+            return false;
+        }
+
+        return !WouldLeaveKingInCheck(from, to, isEnPassantMove, isCastlingMove, piece.Color);
     }
     
     private bool IsEnPassantMove(Square from, Square to)
@@ -91,11 +126,6 @@ public class Game
     private bool IsCastlingMove(Square from, Square to)
     {
         if (from.Piece is not King king)
-        {
-            return false;
-        }
-
-        if (Board.IsKingInCheck(king.Color))
         {
             return false;
         }
@@ -130,6 +160,11 @@ public class Game
         }
 
         if (IsCastlingPathUnderAttack(from, direction, king.OpposingColor))
+        {
+            return false;
+        }
+
+        if (Board.IsKingInCheck(king.Color))
         {
             return false;
         }
@@ -197,16 +232,16 @@ public class Game
         if (piece is not Pawn || !(to.Rank == Rank.First || to.Rank == Rank.Eighth))
         {
             return false;
-        }
-        
+    }
+
         var whitePromotionPieces = new[] {'Q', 'R', 'B', 'N'};
         var blackPromotionPieces = new[] {'q', 'r', 'b', 'n'};
 
         if ((piece.IsWhite && !whitePromotionPieces.Contains(promotionPieceChar)) ||
             (piece.IsBlack && !blackPromotionPieces.Contains(promotionPieceChar)))
-        {
+    {
             throw new InvalidPromotionException($"Invalid promotion character {promotionPieceChar} for color {Turn}");
-        }
+    }
 
         return true;
     }
@@ -244,6 +279,7 @@ public class Game
 
     private bool WouldLeaveKingInCheck(Square from, Square to, bool isEnPassantMove, bool isCastlingMove, Color movingColor)
     {
+        // Only call after checking IsValidMove to avoid unnecessary expensive clones
         Board clone = Board.Clone();
         Square cloneFrom = clone[from.File, from.Rank];
         Square cloneTo = clone[to.File, to.Rank];
@@ -269,6 +305,43 @@ public class Game
         return Board.IsSquareUnderAttack(Board[from.File + direction, from.Rank], opponent);
     }
 
+    public IEnumerable<(Square from, Square to)> GetLegalMoves(Color color)
+    {
+        for (var file = File.A; file <= File.H; file++)
+        {
+            for (var rank = Rank.First; rank <= Rank.Eighth; rank++)
+            {
+                Square from = Board[file, rank];
+                if (from.Piece is not null && from.Piece.Color == color)
+                {
+                    foreach (Square to in GetLegalMovesFromSquare(from))
+                    {
+                        yield return (from, to);
+                    }
+                }
+                if (rank == Rank.Eighth) break;
+            }
+            if (file == File.H) break;
+        }
+    }
+
+    private IEnumerable<Square> GetLegalMovesFromSquare(Square from)
+    {
+        for (var file = File.A; file <= File.H; file++)
+        {
+            for (var rank = Rank.First; rank <= Rank.Eighth; rank++)
+            {
+                Square to = Board[file, rank];
+                if (IsLegalMove(from, to))
+                {
+                    yield return to;
+                }
+                if (rank == Rank.Eighth) break;
+            }
+            if (file == File.H) break;
+        }
+    }
+
     private void UpdateHalfMoveCount(Piece movedPiece, bool pieceCaptured)
     {
         if (movedPiece is Pawn || pieceCaptured)
@@ -292,5 +365,17 @@ public class Game
         {
             Turn = Color.Black;
         }
+
+        Result = EvaluateResult();
+    }
+
+    private GameResult EvaluateResult()
+    {
+        if (GetLegalMoves(Turn).Any())
+        {
+            return GameResult.InProgress;
+        }
+
+        return Board.IsKingInCheck(Turn) ? GameResult.Checkmate : GameResult.Stalemate;
     }
 }
