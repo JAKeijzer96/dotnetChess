@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.ChessGame;
 using Core.Exceptions;
@@ -265,7 +266,7 @@ public class GameTest
     [Arguments(0, "kq", "e1", "g1")]
     [Arguments(1, "k", "e8", "a8")]
     [Arguments(0, "-", "e1", "b1")]
-    public async Task MakeMove_CastlingAfterKingOrRookHasMoved_ThrowsInvalidCastlingException
+    public async Task MakeMove_CastlingAfterKingOrRookHasMoved_ThrowsInvalidCastlingMoveException
         (int turn, string castling, string from, string to)
     {
         var board = new Board("r3k2r/8/8/8/8/8/8/R3K2R");
@@ -274,7 +275,7 @@ public class GameTest
 
         void Act() => sut.MakeMove(from, to);
 
-        var exception = await Assert.That(Act).Throws<InvalidCastlingException>();
+        var exception = await Assert.That(Act).Throws<InvalidCastlingMoveException>();
         await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because the king and/or rook have moved (CastlingAvailability: {castling}).");
     }
 
@@ -283,16 +284,226 @@ public class GameTest
     [Arguments(0, "e1", "c1", "c")]
     [Arguments(1, "e8", "g8", "g")]
     [Arguments(1, "e8", "a8", "b")]
-    public async Task MakeMove_CastlingWhenBlocked_ThrowsInvalidCastlingException(int turn, string from, string to, string blockedFile)
+    public async Task MakeMove_CastlingWhenBlocked_ThrowsInvalidCastlingMoveException(int turn, string from, string to, string blockedFile)
     {
         var board = new Board("rB2k1nr/8/8/8/8/8/8/R1N1KB1R");
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(board, (Color)turn, castlingAvailability, null, 0, 1);
-        
+
         void Act() => sut.MakeMove(from, to);
 
-        var exception = await Assert.That(Act).Throws<InvalidCastlingException>();
+        var exception = await Assert.That(Act).Throws<InvalidCastlingMoveException>();
         await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because there is a piece blocking on file {blockedFile}");
+    }
+
+    #endregion
+
+    #region CheckDetection
+
+    [Test]
+    public async Task MakeMove_MoveThatLeavesKingInCheck_ReturnsFalse()
+    {
+        // White rook on e4 is pinned to white king on e1 by black rook on e8
+        var board = new Board("4r3/8/8/8/4R3/8/8/4K3");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var result = sut.MakeMove("e4", "d4");
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task MakeMove_MoveThatDoesNotLeaveKingInCheck_ReturnsTrue()
+    {
+        // White rook on e4 is pinned to white king on e1 by black rook on e8
+        // Moving it along the e-file is still legal
+        var board = new Board("4r3/8/8/8/4R3/8/8/4K3");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var result = sut.MakeMove("e4", "e5");
+
+        await Assert.That(result).IsTrue();
+    }
+
+    [Test]
+    public async Task MakeMove_KingMovesIntoCheck_ReturnsFalse()
+    {
+        var board = new Board("4k3/8/8/8/8/8/2K5/r7");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var result = sut.MakeMove("c2", "c1");
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task MakeMove_EnPassantThatLeavesKingInCheck_ReturnsFalse()
+    {
+        // Capturing d5 by en passant on d6 puts king in check from black rook on a5
+        var board = new Board("8/8/8/r2pPK2/8/8/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        var enPassantSquare = board["d6"];
+        var sut = new Game(board, Color.White, castlingAvailability, enPassantSquare, 0, 10);
+
+        var result = sut.MakeMove("e5", "d6");
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    [Arguments("e1", "g1")]
+    [Arguments("e1", "c1")]
+    public async Task MakeMove_CastlingThroughCheck_ReturnsFalse(string from, string to)
+    {
+        var board = new Board("3rkr2/8/8/8/8/8/8/R3K2R");
+        var castlingAvailability = new CastlingAvailability("KQ");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var result = sut.MakeMove(from, to);
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task MakeMove_CastlingWhileInCheck_ReturnsFalse()
+    {
+        var board = new Board("3kr3/8/8/8/8/8/8/R3K2R");
+        var castlingAvailability = new CastlingAvailability("KQ");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var result = sut.MakeMove("e1", "g1");
+
+        await Assert.That(result).IsFalse();
+    }
+
+    #endregion
+
+    #region GameResult
+
+    [Test]
+    public async Task Result_AtStartOfGame_IsInProgress()
+    {
+        var sut = new Game();
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+    }
+
+    [Test]
+    public async Task Result_AfterNonTerminatingMove_IsInProgress()
+    {
+        var sut = new Game();
+
+        sut.MakeMove("e2", "e4");
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+    }
+
+    [Test]
+    public async Task Result_AfterFoolsMate_IsCheckmate()
+    {
+        var sut = new Game();
+        sut.MakeMove("f2", "f3");
+        sut.MakeMove("e7", "e5");
+        sut.MakeMove("g2", "g4");
+        sut.MakeMove("d8", "h4");
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.Checkmate);
+    }
+
+    [Test]
+    public async Task Result_AfterCheckmate_TurnIsLosingColor()
+    {
+        // After fool's mate white is checkmated. It is white's turn, but they have no legal moves
+        var sut = new Game();
+        sut.MakeMove("f2", "f3");
+        sut.MakeMove("e7", "e5");
+        sut.MakeMove("g2", "g4");
+        sut.MakeMove("d8", "h4");
+
+        await Assert.That(sut.Turn).IsEqualTo(Color.White);
+    }
+
+    [Test]
+    public async Task MakeMove_AfterCheckmate_ReturnsFalse()
+    {
+        var sut = new Game();
+        sut.MakeMove("f2", "f3");
+        sut.MakeMove("e7", "e5");
+        sut.MakeMove("g2", "g4");
+        sut.MakeMove("d8", "h4");
+
+        var result = sut.MakeMove("e2", "e4");
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task Result_AfterStalemate_IsStalemate()
+    {
+        var board = new Board("k7/8/1QK5/8/8/8/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.Black, castlingAvailability, null, 0, 1);
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.Stalemate);
+    }
+
+    [Test]
+    public async Task GetLegalMoves_InStartingPosition_Returns20Moves()
+    {
+        // 16 pawn moves + 4 knight moves
+        var sut = new Game();
+
+        int count = sut.GetLegalMoves(Color.White).Count();
+
+        await Assert.That(count).IsEqualTo(20);
+    }
+
+    [Test]
+    public async Task GetLegalMoves_WhenKingIsInCheckWithNoBlockers_OnlyKingMovesAreReturned()
+    {
+        // White king on e1 is in check from black rook on e8, only legal moves resolve the check
+        var board = new Board("4r3/8/8/PPk5/2P5/6PP/5P2/4K3");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var legalMoves = sut.GetLegalMoves(Color.White).ToList();
+
+        await Assert.That(legalMoves).IsNotEmpty();
+        await Assert.That(legalMoves.All(m => m.from.Piece is King)).IsTrue();
+    }
+
+    [Test]
+    public async Task GetLegalMoves_WhenKingInDoubleCheck_OnlyKingMovesAreReturned()
+    {
+        // King on e1 in double check from rook on e8 and bishop on h4
+        // White rook on d3 could block the e-file or e1-h4 diagonal but can't block both
+        // at the same time, meaning the king must move
+        var board = new Board("4r3/8/2k5/8/7b/3R4/7N/4K3");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        var legalMoves = sut.GetLegalMoves(Color.White).ToList();
+
+        await Assert.That(legalMoves).IsNotEmpty();
+        await Assert.That(legalMoves.All(m => m.from.Piece is King)).IsTrue();
+    }
+
+    [Test]
+    public async Task MakeMove_EnPassantThatCapturesCheckingPawn_ReturnsTrue()
+    {
+        // Black pawn just moved d7-d5, now attacks e4 where the white king stands
+        // White pawn on e5 can capture en passant on d6, removing the checking pawn from d5
+        var board = new Board("4k3/8/8/3pP3/4K3/8/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        Square enPassantSquare = board["d6"];
+        var sut = new Game(board, Color.White, castlingAvailability, enPassantSquare, 0, 1);
+
+        var result = sut.MakeMove("e5", "d6");
+
+        await Assert.That(result).IsTrue();
     }
 
     #endregion

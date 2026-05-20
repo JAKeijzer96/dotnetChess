@@ -20,6 +20,11 @@ public class Square
         return Piece is not null;
     }
 
+    public bool IsEmpty()
+    {
+        return Piece is null;
+    }
+
     public override string ToString()
     {
         var file = File.ToString();

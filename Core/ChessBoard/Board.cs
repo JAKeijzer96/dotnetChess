@@ -1,6 +1,7 @@
 using System.Text;
 using Core.Exceptions;
 using Core.Pieces;
+using Core.Shared;
 
 namespace Core.ChessBoard;
 
@@ -23,6 +24,23 @@ public class Board
         _squares = new Square[BoardSize, BoardSize];
         SetupBoardFromBoardFen(boardFen);
     }
+
+    private Board(Square[,] squares)
+    {
+        _squares = new Square[BoardSize, BoardSize];
+        for (File file = File.A; file <= File.H; file++)
+        {
+            for (Rank rank = Rank.First; rank <= Rank.Eighth; rank++)
+            {
+                Square original = squares[file, rank];
+                _squares[file, rank] = new Square(original.File, original.Rank, original.Piece);
+                if (rank == Rank.Eighth) break;
+            }
+            if (file == File.H) break;
+        }
+    }
+
+    public Board Clone() => new Board(_squares);
 
     private void SetupBoardFromBoardFen(string boardFen)
     {
@@ -79,10 +97,7 @@ public class Board
     
     private Square GetSquare(string squareName)
     {
-        if (squareName == null)
-        {
-            throw new ArgumentNullException(nameof(squareName));
-        }
+        ArgumentNullException.ThrowIfNull(squareName);
 
         if (squareName.Length != 2)
         {
@@ -98,6 +113,52 @@ public class Board
     {
         to.Piece = from.Piece;
         from.Piece = null;
+    }
+
+    public Square? GetKingSquare(Color color)
+    {
+        for (File file = File.A; file <= File.H; file++)
+        {
+            for (Rank rank = Rank.First; rank <= Rank.Eighth; rank++)
+            {
+                Square square = GetSquare(file, rank);
+                if (square.Piece is King king && king.Color == color)
+                {
+                    return square;
+                }
+
+                if (rank == Rank.Eighth) break;
+            }
+            if (file == File.H) break;
+        }
+        return null;
+    }
+
+    public bool IsKingInCheck(Color color)
+    {
+        Square? kingSquare = GetKingSquare(color);
+        if (kingSquare is null) return false;
+        return IsSquareUnderAttack(kingSquare, kingSquare.Piece!.OpposingColor);
+    }
+
+    public bool IsSquareUnderAttack(Square square, Color attacker)
+    {
+        for (File file = File.A; file <= File.H; file++)
+        {
+            for (Rank rank = Rank.First; rank <= Rank.Eighth; rank++)
+            {
+                Square currentSquare = GetSquare(file, rank);
+                if (currentSquare.Piece is not null
+                    && currentSquare.Piece.Color == attacker
+                    && currentSquare.Piece.AttacksSquare(this, currentSquare, square))
+                {
+                    return true;
+                }
+                if (rank == Rank.Eighth) break;
+            }
+            if (file == File.H) break;
+        }
+        return false;
     }
 
     public override string ToString()
@@ -122,8 +183,7 @@ public class Board
     {
         var stringBuilder = new StringBuilder();
         var emptySquares = 0;
-        var file = File.A;
-        while (file <= File.H)
+        for (File file = File.A; file <= File.H; file++)
         {
             if (_squares[file, rank].IsOccupied())
             {
@@ -139,12 +199,7 @@ public class Board
             {
                 emptySquares++;
             }
-
-            if (file == File.H)
-            {
-                break;
-            }
-            file++;
+            if (file == File.H) break;
         }
 
         if (emptySquares > 0)
@@ -157,10 +212,7 @@ public class Board
     
     private static string[] ValidateAndSplitBoardFen(string boardFen)
     {
-        if (string.IsNullOrWhiteSpace(boardFen))
-        {
-            throw new ArgumentNullException(nameof(boardFen));
-        }
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(boardFen);
 
         if (boardFen.Split(' ').Length > 1)
         {

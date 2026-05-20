@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.ChessGame;
 using Core.Pieces;
+using Core.Shared;
 
 namespace Core.Test.ChessGame;
 
@@ -33,15 +34,15 @@ public class CastlingAvailabilityTest
     }
 
     [Test]
-    [Arguments("KQkq", true, "kq")]
-    [Arguments("Kkq", false, "K")]
-    [Arguments("KQ", true, "-")]
-    public async Task UpdateAfterCastlingMove_WhiteOrBlack_UpdatesCastlingAvailability(string castling, bool isWhite,
+    [Arguments("KQkq", Color.White, "kq")]
+    [Arguments("Kkq", Color.Black, "K")]
+    [Arguments("KQ", Color.White, "-")]
+    public async Task UpdateAfterCastlingMove_WhiteOrBlack_UpdatesCastlingAvailability(string castling, Color color,
         string expected)
     {
         var sut = new CastlingAvailability(castling);
 
-        sut.UpdateAfterCastlingMove(isWhite);
+        sut.UpdateAfterCastlingMove(color);
 
         await Assert.That(sut.ToString()).IsEqualTo(expected);
     }

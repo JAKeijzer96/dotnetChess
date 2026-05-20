@@ -6,11 +6,11 @@ public class InvalidFenException : Exception
     {
     }
 
-    public InvalidFenException(string message) : base(message)
+    public InvalidFenException(string? message) : base(message)
     {
     }
 
-    public InvalidFenException(string message, Exception innerException) : base(message, innerException)
+    public InvalidFenException(string? message, Exception? innerException) : base(message, innerException)
     {
     }
 }

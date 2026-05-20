@@ -10,6 +10,10 @@ public abstract class Piece
     public Color Color { get; }
     public char Name { get; protected init; }
 
+    public bool IsWhite => Color == Color.White;
+    public bool IsBlack => Color == Color.Black;
+    public Color OpposingColor => Color == Color.White ? Color.Black : Color.White;
+
     protected Piece(Color color, MoveValidator moveValidator)
     {
         Color = color;
@@ -21,14 +25,9 @@ public abstract class Piece
         return _moveValidator.IsValidMove(board, from, to);
     }
 
-    public bool IsWhite()
+    public virtual bool AttacksSquare(Board board, Square from, Square to)
     {
-        return Color == Color.White;
-    }
-
-    public bool IsBlack()
-    {
-        return Color == Color.Black;
+        return IsValidMove(board, from, to);
     }
 
     public override string ToString()

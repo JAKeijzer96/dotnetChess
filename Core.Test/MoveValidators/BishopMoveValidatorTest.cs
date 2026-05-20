@@ -7,13 +7,13 @@ namespace Core.Test.MoveValidators;
 public class BishopMoveValidatorTest
 {
     [Test]
-    [Arguments("e4", "b1")] // Down left
-    [Arguments("e4", "a8")] // Up left
-    [Arguments("e4", "h7")] // Down right
-    [Arguments("e4", "h1")] // Up right
+    [Arguments("e5", "a1")] // Down left
+    [Arguments("e5", "b8")] // Up left
+    [Arguments("e5", "h2")] // Down right
+    [Arguments("e5", "h8")] // Up right
     public async Task IsValidMove_ForDiagonalMove_ReturnsTrue(string from, string to)
     {
-        var board = new Board("8/8/8/8/4B3/8/4P3/k3K3");
+        var board = new Board("8/8/8/4B3/8/8/4P3/1k2K3");
         var validator = new BishopMoveValidator();
         var fromSquare = board[from];
         var toSquare = board[to];
@@ -24,13 +24,13 @@ public class BishopMoveValidatorTest
     }
 
     [Test]
-    [Arguments("e4", "e8")] // Up
-    [Arguments("e4", "e1")] // Down
-    [Arguments("e4", "a4")] // Left
-    [Arguments("e4", "h4")] // Right
+    [Arguments("e5", "e8")] // Up
+    [Arguments("e5", "e3")] // Down
+    [Arguments("e5", "a5")] // Left
+    [Arguments("e5", "h5")] // Right
     public async Task IsValidMove_ForMoveThatIsNotDiagonal_ReturnsFalse(string from, string to)
     {
-        var board = new Board("8/8/8/8/4B3/8/4P3/k3K3");
+        var board = new Board("8/8/8/4B3/8/8/4P3/1k2K3");
         var validator = new BishopMoveValidator();
         var fromSquare = board[from];
         var toSquare = board[to];

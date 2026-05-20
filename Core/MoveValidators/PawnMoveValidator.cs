@@ -10,18 +10,19 @@ public class PawnMoveValidator : MoveValidator
         if (!IsValidDestinationSquare(board, from, to)) return false;
 
         var pawn = (Pawn) from.Piece!;
-        var direction = pawn.IsWhite() ? Direction.Up : Direction.Down;
+        var direction = pawn.IsWhite ? Direction.Up : Direction.Down;
         if (from.File == to.File)
         {
             if (from.Rank + direction == to.Rank)
             {
-                return !to.IsOccupied();
+                return to.IsEmpty();
             }
 
-            var isFirstMove = pawn.IsWhite() ? from.Rank == 1 : from.Rank == 6;
+            var isFirstMove = pawn.IsWhite ? from.Rank == 1 : from.Rank == 6;
             if (from.Rank + 2 * direction == to.Rank && isFirstMove)
             {
-                return !(board[from.File, from.Rank + direction].IsOccupied() || to.IsOccupied());
+                var oneForward = board[from.File, from.Rank + direction];
+                return oneForward.IsEmpty() && to.IsEmpty();
             }
 
             return false;

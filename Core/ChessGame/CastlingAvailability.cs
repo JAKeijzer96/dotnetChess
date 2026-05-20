@@ -1,11 +1,13 @@
 ﻿using System.Text.RegularExpressions;
 using Core.ChessBoard;
+using Core.Exceptions;
 using Core.Pieces;
+using Core.Shared;
 using File = Core.ChessBoard.File;
 
 namespace Core.ChessGame;
 
-public class CastlingAvailability
+public partial class CastlingAvailability
 {
     private string _castlingAvailability;
 
@@ -22,12 +24,13 @@ public class CastlingAvailability
     public bool CanBlackCastleKingside() => _castlingAvailability.Contains('k');
     public bool CanBlackCastleQueenside() => _castlingAvailability.Contains('q');
 
-    public void UpdateAfterCastlingMove(bool isWhite)
+    public void UpdateAfterCastlingMove(Color color)
     {
-        _castlingAvailability = isWhite switch
+        _castlingAvailability = color switch
         {
-            true => _castlingAvailability.Replace("K", "").Replace("Q", ""),
-            false => _castlingAvailability.Replace("k", "").Replace("q", "")
+            Color.White => _castlingAvailability.Replace("K", "").Replace("Q", ""),
+            Color.Black => _castlingAvailability.Replace("k", "").Replace("q", ""),
+            _ => throw new InvalidColorException("Invalid color: " + color.ToString())
         };
 
         if (_castlingAvailability == "")
@@ -43,7 +46,7 @@ public class CastlingAvailability
             return;
         }
 
-        var pieceIsWhite = piece.IsWhite();
+        var pieceIsWhite = piece.IsWhite;
         if (piece is King)
         {
             if (pieceIsWhite && CanWhiteCastle())
@@ -83,9 +86,12 @@ public class CastlingAvailability
 
     private static void ValidateCastlingAvailability(string castling)
     {
-        if (string.IsNullOrEmpty(castling) || !Regex.Match(castling, @"^(-|(K?Q?k?q?))$").Success)
+        if (string.IsNullOrEmpty(castling) || !ValidCastlingRegex().IsMatch(castling))
         {
             throw new FormatException("Invalid castling format: " + castling);
         }
     }
+
+    [GeneratedRegex(@"^(-|(K?Q?k?q?))$")]
+    private static partial Regex ValidCastlingRegex();
 }

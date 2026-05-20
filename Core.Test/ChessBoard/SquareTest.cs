@@ -37,6 +37,22 @@ public class SquareTests
     }
 
     [Test]
+    public async Task IsEmpty_OfEmptySquare_IsTrue()
+    {
+        var square = new Square(File.B, Rank.Fourth);
+
+        await Assert.That(square.IsEmpty()).IsTrue();
+    }
+
+    [Test]
+    public async Task IsEmpty_OfSquareWithPiece_IsFalse()
+    {
+        var square = new Square(File.F, Rank.Fifth, new Pawn(Color.White));
+
+        await Assert.That(square.IsEmpty()).IsFalse();
+    }
+
+    [Test]
     [Arguments(0, 0, "a1")]
     [Arguments(3, 7, "d8")]
     public async Task ToString_ReturnsExpectedValue(int file, int rank, string expected)
