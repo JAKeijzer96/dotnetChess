@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.ChessGame;
-using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
 
@@ -214,16 +213,15 @@ public class GameTest
     [Test]
     [Arguments('\0')] // Default char value
     [Arguments('B')] // Opposite color
-    public async Task MakeMove_WhenPawnMovesToLastRankWithInvalidPromotionPieceChar_ThrowsInvalidPromotionException(char promotionPieceChar)
+    public async Task MakeMove_WhenPawnMovesToLastRankWithInvalidPromotionPieceChar_ReturnsFalse(char promotionPieceChar)
     {
         var board = new Board("8/P7/8/8/8/8/K1k3p1/8");
         var castlingAvailability = new CastlingAvailability("-");
         var sut = new Game(board, Color.Black, castlingAvailability, null, 0, 1);
 
-        void Act() => sut.MakeMove("g2", "g1", promotionPieceChar);
+        var result = sut.MakeMove("g2", "g1", promotionPieceChar);
 
-        var exception = await Assert.That(Act).Throws<InvalidPromotionException>();
-        await Assert.That(exception!.Message).IsEqualTo($"Invalid promotion character {promotionPieceChar} for color Black");
+        await Assert.That(result).IsFalse();
     }
     
     #endregion
@@ -266,34 +264,32 @@ public class GameTest
     [Arguments(0, "kq", "e1", "g1")]
     [Arguments(1, "k", "e8", "a8")]
     [Arguments(0, "-", "e1", "b1")]
-    public async Task MakeMove_CastlingAfterKingOrRookHasMoved_ThrowsInvalidCastlingMoveException
+    public async Task MakeMove_CastlingAfterKingOrRookHasMoved_ReturnsFalse
         (int turn, string castling, string from, string to)
     {
         var board = new Board("r3k2r/8/8/8/8/8/8/R3K2R");
         var castlingAvailability = new CastlingAvailability(castling);
         var sut = new Game(board, (Color)turn, castlingAvailability, null, 0, 1);
 
-        void Act() => sut.MakeMove(from, to);
+        var result = sut.MakeMove(from, to);
 
-        var exception = await Assert.That(Act).Throws<InvalidCastlingMoveException>();
-        await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because the king and/or rook have moved (CastlingAvailability: {castling}).");
+        await Assert.That(result).IsFalse();
     }
 
     [Test]
-    [Arguments(0, "e1", "h1", "f")]
-    [Arguments(0, "e1", "c1", "c")]
-    [Arguments(1, "e8", "g8", "g")]
-    [Arguments(1, "e8", "a8", "b")]
-    public async Task MakeMove_CastlingWhenBlocked_ThrowsInvalidCastlingMoveException(int turn, string from, string to, string blockedFile)
+    [Arguments(0, "e1", "h1")]
+    [Arguments(0, "e1", "c1")]
+    [Arguments(1, "e8", "g8")]
+    [Arguments(1, "e8", "a8")]
+    public async Task MakeMove_CastlingWhenBlocked_ReturnsFalse(int turn, string from, string to)
     {
         var board = new Board("rB2k1nr/8/8/8/8/8/8/R1N1KB1R");
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(board, (Color)turn, castlingAvailability, null, 0, 1);
 
-        void Act() => sut.MakeMove(from, to);
+        var result = sut.MakeMove(from, to);
 
-        var exception = await Assert.That(Act).Throws<InvalidCastlingMoveException>();
-        await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because there is a piece blocking on file {blockedFile}");
+        await Assert.That(result).IsFalse();
     }
 
     #endregion

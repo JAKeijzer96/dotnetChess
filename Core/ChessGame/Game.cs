@@ -1,6 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 using Core.ChessBoard;
-using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
 using File = Core.ChessBoard.File;
@@ -68,6 +67,11 @@ public class Game
             return false;
         }
 
+        if (IsPromotionMove(piece, to) && !IsValidPromotionChar(piece, promotionPieceChar))
+        {
+            return false;
+        }
+
         // Move is valid and legal. Move pieces and update gamestate
         var pieceCaptured = to.Piece is not null || isEnPassantMove;
         UpdateEnPassantSquare(from, to);
@@ -87,16 +91,7 @@ public class Game
         }
 
         var isEnPassantMove = IsEnPassantMove(from, to);
-        bool isCastlingMove;
-        try
-        {
-            // TODO: Refactor towards MoveResult to avoid using exceptions for control flow
-            isCastlingMove = IsCastlingMove(from, to);
-        }
-        catch (InvalidCastlingMoveException)
-        {
-            return false;
-        }
+        var isCastlingMove = IsCastlingMove(from, to);
 
         if (!(piece.IsValidMove(Board, from, to) || isEnPassantMove || isCastlingMove))
         {
@@ -123,7 +118,7 @@ public class Game
         return to.File == EnPassant.File && to.Rank == EnPassant.Rank;
     }
 
-    private bool IsCastlingMove(Square from, Square to)
+    private bool IsCastlingAttempt(Square from, Square to)
     {
         if (from.Piece is not King king)
         {
@@ -134,14 +129,24 @@ public class Game
         var isBlackKingMoveOnEighthRank = king.IsBlack && from.Rank == Rank.Eighth && to.Rank == Rank.Eighth;
         var isFileDifferenceGreaterThanTwo = from.File.DistanceTo(to.File) >= 2;
 
-        if (!(isFileDifferenceGreaterThanTwo && (isWhiteKingMoveOnFirstRank || isBlackKingMoveOnEighthRank)))
+        return isFileDifferenceGreaterThanTwo && (isWhiteKingMoveOnFirstRank || isBlackKingMoveOnEighthRank);
+    }
+
+    private bool IsCastlingMove(Square from, Square to)
+    {
+        if (!IsCastlingAttempt(from, to))
         {
             return false;
         }
-        
+
+        var king = (King)from.Piece!;
         var direction = from.File < to.File ? Direction.Right : Direction.Left;
-        VerifyKingCanCastleInGivenDirection(from, to, king, direction);
-        
+
+        if (!CanCastleInDirection(king, direction))
+        {
+            return false;
+        }
+
         var currentFile = from.File;
         var destinationFile = from.File + 2 * direction;
         while (currentFile != destinationFile)
@@ -149,14 +154,14 @@ public class Game
             currentFile += direction;
             if (Board[currentFile, from.Rank].IsOccupied())
             {
-                throw new InvalidCastlingMoveException(from, to, blockedFile: currentFile);
+                return false;
             }
         }
 
-        // When castlingAvailability queenside, need to check the b-file for obstructions because the rook needs to move through it
+        // When castling queenside, need to check the b-file for obstructions because the rook needs to move through it
         if (currentFile < from.File && Board[File.B, from.Rank].IsOccupied())
         {
-            throw new InvalidCastlingMoveException(from, to, blockedFile: File.B);
+            return false;
         }
 
         if (IsCastlingPathUnderAttack(from, direction, king.OpposingColor))
@@ -172,17 +177,17 @@ public class Game
         return true;
     }
 
-    private void VerifyKingCanCastleInGivenDirection(Square from, Square to, Piece king, int direction)
+    private bool CanCastleInDirection(King king, int direction)
     {
-        if (CastlingAvailability.CanNeitherSideCastle() ||
-            (king.IsWhite && direction == Direction.Right && !CastlingAvailability.CanWhiteCastleKingside()) ||
-            (king.IsWhite && direction == Direction.Left && !CastlingAvailability.CanWhiteCastleQueenside()) ||
-            (king.IsBlack && direction == Direction.Right && !CastlingAvailability.CanBlackCastleKingside()) ||
-            (king.IsBlack && direction == Direction.Left && !CastlingAvailability.CanBlackCastleQueenside()))
+        if (CastlingAvailability.CanNeitherSideCastle())
         {
-            throw new InvalidCastlingMoveException($"Cannot castle from {from} to {to} because the " +
-                                               $"king and/or rook have moved (CastlingAvailability: {CastlingAvailability}).");
+            return false;
         }
+
+        return (king.IsWhite && direction == Direction.Right && CastlingAvailability.CanWhiteCastleKingside()) ||
+               (king.IsWhite && direction == Direction.Left && CastlingAvailability.CanWhiteCastleQueenside()) ||
+               (king.IsBlack && direction == Direction.Right && CastlingAvailability.CanBlackCastleKingside()) ||
+               (king.IsBlack && direction == Direction.Left && CastlingAvailability.CanBlackCastleQueenside());
     }
 
     private void UpdateEnPassantSquare(Square from, Square to)
@@ -206,7 +211,7 @@ public class Game
     private void MovePieces(Square from, Square to, bool isEnPassantMove, bool isCastlingMove, [Optional] char promotionPieceChar)
     {
         var piece = from.Piece!;
-        var isPromotionMove = IsPromotionMove(piece, to, promotionPieceChar);
+        var isPromotionMove = IsPromotionMove(piece, to);
 
         if (isCastlingMove)
         {
@@ -227,23 +232,18 @@ public class Game
         }
     }
     
-    private bool IsPromotionMove(Piece piece, Square to, char promotionPieceChar)
+    private static bool IsPromotionMove(Piece piece, Square to)
     {
-        if (piece is not Pawn || !(to.Rank == Rank.First || to.Rank == Rank.Eighth))
-        {
-            return false;
+        return piece is Pawn && (to.Rank == Rank.First || to.Rank == Rank.Eighth);
     }
 
-        var whitePromotionPieces = new[] {'Q', 'R', 'B', 'N'};
-        var blackPromotionPieces = new[] {'q', 'r', 'b', 'n'};
-
-        if ((piece.IsWhite && !whitePromotionPieces.Contains(promotionPieceChar)) ||
-            (piece.IsBlack && !blackPromotionPieces.Contains(promotionPieceChar)))
+    private static bool IsValidPromotionChar(Piece piece, char promotionPieceChar)
     {
-            throw new InvalidPromotionException($"Invalid promotion character {promotionPieceChar} for color {Turn}");
-    }
+        var whitePromotionPieces = new[] { 'Q', 'R', 'B', 'N' };
+        var blackPromotionPieces = new[] { 'q', 'r', 'b', 'n' };
 
-        return true;
+        return (piece.IsWhite && whitePromotionPieces.Contains(promotionPieceChar)) ||
+               (piece.IsBlack && blackPromotionPieces.Contains(promotionPieceChar));
     }
 
     private void PerformCastlingMove(Square from, Square to)
