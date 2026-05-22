@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.ChessGame;
-using Core.Exceptions;
 using Core.Pieces;
 using Core.Shared;
 
@@ -13,47 +12,47 @@ public class GameTest
     [Test]
     [Arguments(Color.White, "e7", "e5")]
     [Arguments(Color.Black, "e2", "e4")]
-    public async Task MakeMove_MovingOpponentsPiece_ReturnsFalse(Color turn, string from, string to)
+    public async Task MakeMove_MovingOpponentsPiece_ReturnsInvalidPiece(Color turn, string from, string to)
     {
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(new Board(), turn, castlingAvailability, null, 0, 1);
 
         var result = sut.MakeMove(from, to);
 
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsEqualTo(MoveResult.InvalidPiece);
     }
     
     [Test]
-    public async Task MakeMove_WhenPieceIsNull_ReturnsFalse()
+    public async Task MakeMove_WhenPieceIsNull_ReturnsInvalidPiece()
     {
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(new Board(), Color.White, castlingAvailability, null, 0, 1);
 
         var result = sut.MakeMove("a4", "a5");
 
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsEqualTo(MoveResult.InvalidPiece);
     }
     
     [Test]
-    public async Task MakeMove_WithInvalidMove_ReturnsFalse()
+    public async Task MakeMove_WithInvalidMove_ReturnsIllegalMove()
     {
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(new Board(), Color.White, castlingAvailability, null, 0, 1);
 
         var result = sut.MakeMove("e2", "b4");
 
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
     }
     
     [Test]
-    public async Task MakeMove_WithValidMove_ReturnsTrue()
+    public async Task MakeMove_WithValidMove_ReturnsSuccess()
     {
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(new Board(), Color.White, castlingAvailability, null, 0, 1);
 
         var result = sut.MakeMove("e2", "e4");
 
-        await Assert.That(result).IsTrue();
+        await Assert.That(result).IsEqualTo(MoveResult.Success);
     }
 
     [Test]
@@ -129,16 +128,16 @@ public class GameTest
     #region EnPassant
 
     [Test]
-    public async Task MakeMove_WhenMoveIsEnPassant_ReturnsTrue()
+    public async Task MakeMove_WhenMoveIsEnPassant_ReturnsSuccess()
     {
         var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
         var castlingAvailability = new CastlingAvailability("KQkq");
         var enPassantSquare = board["e3"];
         var sut = new Game(board, Color.Black, castlingAvailability, enPassantSquare, 0, 5);
-        
+
         var result = sut.MakeMove("d4", "e3");
 
-        await Assert.That(result).IsTrue();
+        await Assert.That(result).IsEqualTo(MoveResult.Success);
     }
 
     [Test]
@@ -168,16 +167,16 @@ public class GameTest
     }
     
     [Test]
-    public async Task MakeMove_WhenMoveIsEnPassantWithNonPawn_ReturnsFalse()
+    public async Task MakeMove_WhenMoveIsEnPassantWithNonPawn_ReturnsIllegalMove()
     {
         var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
         var castlingAvailability = new CastlingAvailability("KQkq");
         var enPassantSquare = board["e3"];
         var sut = new Game(board, Color.Black,  castlingAvailability, enPassantSquare, 0, 5);
-        
+
         var result = sut.MakeMove("f4", "e3");
 
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     #endregion
@@ -214,16 +213,15 @@ public class GameTest
     [Test]
     [Arguments('\0')] // Default char value
     [Arguments('B')] // Opposite color
-    public async Task MakeMove_WhenPawnMovesToLastRankWithInvalidPromotionPieceChar_ThrowsInvalidPromotionException(char promotionPieceChar)
+    public async Task MakeMove_WhenPawnMovesToLastRankWithInvalidPromotionPieceChar_ReturnsInvalidPromotion(char promotionPieceChar)
     {
         var board = new Board("8/P7/8/8/8/8/K1k3p1/8");
         var castlingAvailability = new CastlingAvailability("-");
         var sut = new Game(board, Color.Black, castlingAvailability, null, 0, 1);
 
-        void Act() => sut.MakeMove("g2", "g1", promotionPieceChar);
+        var result = sut.MakeMove("g2", "g1", promotionPieceChar);
 
-        var exception = await Assert.That(Act).Throws<InvalidPromotionException>();
-        await Assert.That(exception!.Message).IsEqualTo($"Invalid promotion character {promotionPieceChar} for color Black");
+        await Assert.That(result).IsEqualTo(MoveResult.InvalidPromotion);
     }
     
     #endregion
@@ -266,34 +264,32 @@ public class GameTest
     [Arguments(0, "kq", "e1", "g1")]
     [Arguments(1, "k", "e8", "a8")]
     [Arguments(0, "-", "e1", "b1")]
-    public async Task MakeMove_CastlingAfterKingOrRookHasMoved_ThrowsInvalidCastlingMoveException
+    public async Task MakeMove_CastlingAfterKingOrRookHasMoved_ReturnsIllegalMove
         (int turn, string castling, string from, string to)
     {
         var board = new Board("r3k2r/8/8/8/8/8/8/R3K2R");
         var castlingAvailability = new CastlingAvailability(castling);
         var sut = new Game(board, (Color)turn, castlingAvailability, null, 0, 1);
 
-        void Act() => sut.MakeMove(from, to);
+        var result = sut.MakeMove(from, to);
 
-        var exception = await Assert.That(Act).Throws<InvalidCastlingMoveException>();
-        await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because the king and/or rook have moved (CastlingAvailability: {castling}).");
+        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     [Test]
-    [Arguments(0, "e1", "h1", "f")]
-    [Arguments(0, "e1", "c1", "c")]
-    [Arguments(1, "e8", "g8", "g")]
-    [Arguments(1, "e8", "a8", "b")]
-    public async Task MakeMove_CastlingWhenBlocked_ThrowsInvalidCastlingMoveException(int turn, string from, string to, string blockedFile)
+    [Arguments(0, "e1", "h1")]
+    [Arguments(0, "e1", "c1")]
+    [Arguments(1, "e8", "g8")]
+    [Arguments(1, "e8", "a8")]
+    public async Task MakeMove_CastlingWhenBlocked_ReturnsIllegalMove(int turn, string from, string to)
     {
         var board = new Board("rB2k1nr/8/8/8/8/8/8/R1N1KB1R");
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(board, (Color)turn, castlingAvailability, null, 0, 1);
 
-        void Act() => sut.MakeMove(from, to);
+        var result = sut.MakeMove(from, to);
 
-        var exception = await Assert.That(Act).Throws<InvalidCastlingMoveException>();
-        await Assert.That(exception!.Message).IsEqualTo($"Cannot castle from {from} to {to} because there is a piece blocking on file {blockedFile}");
+        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     #endregion
@@ -301,7 +297,7 @@ public class GameTest
     #region CheckDetection
 
     [Test]
-    public async Task MakeMove_MoveThatLeavesKingInCheck_ReturnsFalse()
+    public async Task MakeMove_MoveThatLeavesKingInCheck_ReturnsIllegalMove()
     {
         // White rook on e4 is pinned to white king on e1 by black rook on e8
         var board = new Board("4r3/8/8/8/4R3/8/8/4K3");
@@ -310,11 +306,11 @@ public class GameTest
 
         var result = sut.MakeMove("e4", "d4");
 
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     [Test]
-    public async Task MakeMove_MoveThatDoesNotLeaveKingInCheck_ReturnsTrue()
+    public async Task MakeMove_MoveThatDoesNotLeaveKingInCheck_ReturnsSuccess()
     {
         // White rook on e4 is pinned to white king on e1 by black rook on e8
         // Moving it along the e-file is still legal
@@ -324,11 +320,11 @@ public class GameTest
 
         var result = sut.MakeMove("e4", "e5");
 
-        await Assert.That(result).IsTrue();
+        await Assert.That(result).IsEqualTo(MoveResult.Success);
     }
 
     [Test]
-    public async Task MakeMove_KingMovesIntoCheck_ReturnsFalse()
+    public async Task MakeMove_KingMovesIntoCheck_ReturnsIllegalMove()
     {
         var board = new Board("4k3/8/8/8/8/8/2K5/r7");
         var castlingAvailability = new CastlingAvailability("-");
@@ -336,11 +332,11 @@ public class GameTest
 
         var result = sut.MakeMove("c2", "c1");
 
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     [Test]
-    public async Task MakeMove_EnPassantThatLeavesKingInCheck_ReturnsFalse()
+    public async Task MakeMove_EnPassantThatLeavesKingInCheck_ReturnsIllegalMove()
     {
         // Capturing d5 by en passant on d6 puts king in check from black rook on a5
         var board = new Board("8/8/8/r2pPK2/8/8/8/8");
@@ -350,13 +346,13 @@ public class GameTest
 
         var result = sut.MakeMove("e5", "d6");
 
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     [Test]
     [Arguments("e1", "g1")]
     [Arguments("e1", "c1")]
-    public async Task MakeMove_CastlingThroughCheck_ReturnsFalse(string from, string to)
+    public async Task MakeMove_CastlingThroughCheck_ReturnsIllegalMove(string from, string to)
     {
         var board = new Board("3rkr2/8/8/8/8/8/8/R3K2R");
         var castlingAvailability = new CastlingAvailability("KQ");
@@ -364,11 +360,11 @@ public class GameTest
 
         var result = sut.MakeMove(from, to);
 
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     [Test]
-    public async Task MakeMove_CastlingWhileInCheck_ReturnsFalse()
+    public async Task MakeMove_CastlingWhileInCheck_ReturnsIllegalMove()
     {
         var board = new Board("3kr3/8/8/8/8/8/8/R3K2R");
         var castlingAvailability = new CastlingAvailability("KQ");
@@ -376,7 +372,7 @@ public class GameTest
 
         var result = sut.MakeMove("e1", "g1");
 
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     #endregion
@@ -427,7 +423,7 @@ public class GameTest
     }
 
     [Test]
-    public async Task MakeMove_AfterCheckmate_ReturnsFalse()
+    public async Task MakeMove_AfterCheckmate_ReturnsGameAlreadyOver()
     {
         var sut = new Game();
         sut.MakeMove("f2", "f3");
@@ -437,7 +433,7 @@ public class GameTest
 
         var result = sut.MakeMove("e2", "e4");
 
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsEqualTo(MoveResult.GameAlreadyOver);
     }
 
     [Test]
@@ -492,7 +488,7 @@ public class GameTest
     }
 
     [Test]
-    public async Task MakeMove_EnPassantThatCapturesCheckingPawn_ReturnsTrue()
+    public async Task MakeMove_EnPassantThatCapturesCheckingPawn_ReturnsSuccess()
     {
         // Black pawn just moved d7-d5, now attacks e4 where the white king stands
         // White pawn on e5 can capture en passant on d6, removing the checking pawn from d5
@@ -503,7 +499,7 @@ public class GameTest
 
         var result = sut.MakeMove("e5", "d6");
 
-        await Assert.That(result).IsTrue();
+        await Assert.That(result).IsEqualTo(MoveResult.Success);
     }
 
     #endregion
