@@ -37,39 +37,39 @@ public class Game
         Result = EvaluateResult();
     }
     
-    public bool MakeMove(string from, string to, [Optional] char promotionPieceChar)
+    public MoveResult MakeMove(string from, string to, [Optional] char promotionPieceChar)
     {
         return MakeMove(Board[from], Board[to], promotionPieceChar);
     }
 
-    private bool MakeMove(Square from, Square to, [Optional] char promotionPieceChar)
+    private MoveResult MakeMove(Square from, Square to, [Optional] char promotionPieceChar)
     {
         if (Result != GameResult.InProgress)
         {
-            return false;
+            return MoveResult.GameAlreadyOver;
         }
 
         var piece = from.Piece;
         if (piece is null || piece.Color != Turn)
         {
-            return false;
+            return MoveResult.InvalidPiece;
         }
 
         var isEnPassantMove = IsEnPassantMove(from, to);
         var isCastlingMove = IsCastlingMove(from, to);
         if (!(piece.IsValidMove(Board, from, to) || isEnPassantMove || isCastlingMove))
         {
-            return false;
+            return MoveResult.IllegalMove;
         }
 
         if (WouldLeaveKingInCheck(from, to, isEnPassantMove, isCastlingMove, piece.Color))
         {
-            return false;
+            return MoveResult.IllegalMove;
         }
 
         if (IsPromotionMove(piece, to) && !IsValidPromotionChar(piece, promotionPieceChar))
         {
-            return false;
+            return MoveResult.InvalidPromotion;
         }
 
         // Move is valid and legal. Move pieces and update gamestate
@@ -79,7 +79,7 @@ public class Game
         UpdateHalfMoveCount(piece, pieceCaptured);
         EndTurn();
 
-        return true;
+        return MoveResult.Success;
     }
 
     private bool IsLegalMove(Square from, Square to)
