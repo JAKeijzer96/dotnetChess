@@ -16,6 +16,9 @@ public class Game
     public int FullMoveCount { get; private set; }
     public GameResult Result { get; private set; }
 
+    // Position history for repetition detection. Will be replaced with full move history in Phase 2 (immutability).
+    private readonly List<string> _positionHistory = new();
+
     public Game()
     {
         Board = new Board();
@@ -24,6 +27,7 @@ public class Game
         EnPassant = null;
         HalfMoveCount = 0;
         FullMoveCount = 1;
+        _positionHistory.Add(GetPositionKey());
     }
 
     public Game(Board board, Color turn, CastlingAvailability castlingAvailability, Square? enPassant, int halfMoveCount, int fullMoveCount)
@@ -34,6 +38,7 @@ public class Game
         EnPassant = enPassant;
         HalfMoveCount = halfMoveCount;
         FullMoveCount = fullMoveCount;
+        _positionHistory.Add(GetPositionKey());
         Result = EvaluateResult();
     }
     
@@ -366,16 +371,104 @@ public class Game
             Turn = Color.Black;
         }
 
+        _positionHistory.Add(GetPositionKey());
         Result = EvaluateResult();
     }
 
     private GameResult EvaluateResult()
     {
-        if (GetLegalMoves(Turn).Any())
+        if (IsDrawByFiftyMoveRule()) return GameResult.DrawByFiftyMoveRule;
+        if (IsFivefoldRepetition()) return GameResult.DrawByFivefoldRepetition;
+        if (IsInsufficientMaterial()) return GameResult.DrawByInsufficientMaterial;
+        if (!GetLegalMoves(Turn).Any()) return Board.IsKingInCheck(Turn) ? GameResult.Checkmate : GameResult.Stalemate;
+        return GameResult.InProgress;
+    }
+
+    private bool IsDrawByFiftyMoveRule()
+    {
+        return HalfMoveCount >= 100;
+    }
+
+    private bool IsFivefoldRepetition()
+    {
+        string currentPosition = GetPositionKey();
+        int count = _positionHistory.Count(p => p == currentPosition);
+        return count >= 5;
+    }
+
+    private bool IsInsufficientMaterial()
+    {
+        // Insufficient material scenarios:
+        // King vs King
+        // King + Bishop vs King
+        // King + Knight vs King
+        // King + Bishop vs King + Bishop, with bishops on the same color
+
+        var pieces = Board.GetAllPieces().ToList();
+        var whitePieces = pieces.Where(p => p.IsWhite).ToList();
+        var blackPieces = pieces.Where(p => p.IsBlack).ToList();
+
+        if (whitePieces.Count == 1 && blackPieces.Count == 1)
         {
-            return GameResult.InProgress;
+            return true;
         }
 
-        return Board.IsKingInCheck(Turn) ? GameResult.Checkmate : GameResult.Stalemate;
+        if (whitePieces.Count == 2 && blackPieces.Count == 1)
+        {
+            return whitePieces.Any(p => p is Bishop or Knight);
+        }
+        if (blackPieces.Count == 2 && whitePieces.Count == 1)
+        {
+            return blackPieces.Any(p => p is Bishop or Knight);
+        }
+
+        if (whitePieces.Count == 2 && blackPieces.Count == 2)
+        {
+            var whiteBishop = whitePieces.FirstOrDefault(p => p is Bishop);
+            var blackBishop = blackPieces.FirstOrDefault(p => p is Bishop);
+
+            if (whiteBishop is null || blackBishop is null)
+            {
+                return false;
+            }
+           
+            Square whiteSquare = GetSquareWithPiece(whiteBishop)!;
+            Square blackSquare = GetSquareWithPiece(blackBishop)!;
+
+            bool whiteOnLightSquare = ((int)whiteSquare.File + (int)whiteSquare.Rank) % 2 == 0;
+            bool blackOnLightSquare = ((int)blackSquare.File + (int)blackSquare.Rank) % 2 == 0;
+            return whiteOnLightSquare == blackOnLightSquare;
+        }
+
+        return false;
+    }
+
+    private Square? GetSquareWithPiece(Piece piece)
+    {
+        for (File file = File.A; file <= File.H; file++)
+        {
+            for (Rank rank = Rank.First; rank <= Rank.Eighth; rank++)
+            {
+                Square square = Board[file, rank];
+                if (square.Piece == piece)
+                {
+                    return square;
+                }
+                if (rank == Rank.Eighth) break;
+            }
+            if (file == File.H) break;
+        }
+        return null;
+    }
+
+    private string GetPositionKey()
+    {
+        // Identical position according to FIDE Laws of Chess Article 9.2. (Dresden, 2008)
+        string boardFen = Board.ToString();
+        string turn = Turn == Color.White ? "w" : "b";
+        string castling = CastlingAvailability.ToString();
+        string enPassant = EnPassant?.ToString() ?? "-";
+
+        return $"{boardFen} {turn} {castling} {enPassant}";
     }
 }

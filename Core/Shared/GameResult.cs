@@ -4,5 +4,8 @@ public enum GameResult
 {
     InProgress,
     Checkmate,
-    Stalemate
+    Stalemate,
+    DrawByFiftyMoveRule,
+    DrawByInsufficientMaterial,
+    DrawByFivefoldRepetition
 }
