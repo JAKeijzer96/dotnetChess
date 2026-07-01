@@ -503,4 +503,219 @@ public class GameTest
     }
 
     #endregion
+
+    #region Draw Conditions
+
+    [Test]
+    public async Task Result_After49MovesWithoutCaptureOrPawnMove_IsInProgress()
+    {
+        var board = new Board("8/p7/4k3/8/8/4K3/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 99, 50);
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+    }
+
+    [Test]
+    public async Task Result_After50MovesWithoutCaptureOrPawnMove_IsDrawByFiftyMoveRule()
+    {
+        var board = new Board("8/p7/4k3/8/8/4K3/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 100, 51);
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.DrawByFiftyMoveRule);
+    }
+
+
+    [Test]
+    public async Task Result_FiftyMoveRuleCounterResetsAfterPawnMove_IsInProgress()
+    {
+        var board = new Board("8/p7/4k3/8/8/4K3/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.Black, castlingAvailability, null, 99, 50);
+
+        sut.MakeMove("a7", "a5");
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+        await Assert.That(sut.HalfMoveCount).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Result_FiftyMoveRuleCounterResetsAfterCapture_IsInProgress()
+    {
+        var board = new Board("3k4/8/8/8/8/4r3/3K4/4R3");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 99, 50);
+
+        sut.MakeMove("e1", "e3");
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+        await Assert.That(sut.HalfMoveCount).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Result_KingVsKing_IsDrawByInsufficientMaterial()
+    {
+        var board = new Board("4k3/8/8/8/8/8/8/4K3");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.DrawByInsufficientMaterial);
+    }
+
+    [Test]
+    [Arguments("4k3/8/8/8/8/8/8/4KN2", Color.White)]
+    [Arguments("4kn2/8/8/8/8/8/8/4K3", Color.Black)]
+    public async Task Result_KingAndKnightVsKing_IsDrawByInsufficientMaterial(string boardFen, Color turn)
+    {
+        var board = new Board(boardFen);
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, turn, castlingAvailability, null, 0, 37);
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.DrawByInsufficientMaterial);
+    }
+
+    [Test]
+    [Arguments("4k3/8/8/8/8/8/8/4KB2", Color.White)]
+    [Arguments("4kb2/8/8/8/8/8/8/4K3", Color.Black)]
+    public async Task Result_KingAndBishopVsKing_IsDrawByInsufficientMaterial(string boardFen, Color turn)
+    {
+        var board = new Board(boardFen);
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, turn, castlingAvailability, null, 0, 1);
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.DrawByInsufficientMaterial);
+    }
+
+    [Test]
+    public async Task Result_KingAndBishopVsKingAndBishop_SameColorSquares_IsDrawByInsufficientMaterial()
+    {
+        var board = new Board("7b/8/8/8/8/8/8/BK5k");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.DrawByInsufficientMaterial);
+    }
+
+    [Test]
+    public async Task Result_KingAndBishopVsKingAndBishop_OppositeColorSquares_IsInProgress()
+    {
+        // White bishop on light square (a1), black bishop on dark square (a8): (0+7)%2=1
+        var board = new Board("b7/8/8/8/8/8/8/BK5k");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.Black, castlingAvailability, null, 0, 1);
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+    }
+
+    [Test]
+    public async Task Result_KingAndQueenVsKing_IsInProgress()
+    {
+        var board = new Board("4k3/8/8/8/8/8/8/4KQ2");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+    }
+
+    [Test]
+    public async Task Result_KingAndPawnVsKing_IsInProgress()
+    {
+        var board = new Board("4k3/8/8/8/8/8/4P3/4K3");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+    }
+
+    [Test]
+    public async Task Result_PositionRepeatedFiveTimes_IsDrawByFivefoldRepetition()
+    {
+        var board = new Board("7k/R7/7K/8/8/8/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        // Repeat position 4 more times (5 total)
+        sut.MakeMove("h6", "g6");
+        sut.MakeMove("h8", "g8");
+        sut.MakeMove("g6", "h6");
+        sut.MakeMove("g8", "h8"); // 2nd occurence
+
+        sut.MakeMove("h6", "g6");
+        sut.MakeMove("h8", "g8");
+        sut.MakeMove("g6", "h6");
+        sut.MakeMove("g8", "h8"); // 3nd occurence
+
+        sut.MakeMove("h6", "g6");
+        sut.MakeMove("h8", "g8");
+        sut.MakeMove("g6", "h6");
+        sut.MakeMove("g8", "h8"); // 4th occurence
+
+        sut.MakeMove("h6", "g6");
+        sut.MakeMove("h8", "g8");
+        sut.MakeMove("g6", "h6");
+        sut.MakeMove("g8", "h8"); // 5th occurence
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.DrawByFivefoldRepetition);
+    }
+
+    [Test]
+    public async Task Result_PositionRepeatedFourTimes_IsInProgress()
+    {
+        var board = new Board("7k/R7/7K/8/8/8/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        // Repeat position 3 more times (4 total)
+        sut.MakeMove("h6", "g6");
+        sut.MakeMove("h8", "g8");
+        sut.MakeMove("g6", "h6");
+        sut.MakeMove("g7", "h8"); // 2nd occurence
+
+        sut.MakeMove("h6", "g6");
+        sut.MakeMove("h8", "g8");
+        sut.MakeMove("g6", "h6");
+        sut.MakeMove("g7", "h8"); // 3nd occurence
+
+        sut.MakeMove("h6", "g6");
+        sut.MakeMove("h8", "g8");
+        sut.MakeMove("g6", "h6");
+        sut.MakeMove("g7", "h8"); // 4th occurence
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+    }
+
+    [Test]
+    public async Task Result_PositionDiffersByCastlingRights_NotRepetition()
+    {
+        var board = new Board("b3k2r/B7/8/8/8/8/8/4K2R");
+        var castlingAvailability = new CastlingAvailability("Kk");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        // Shuffle white and black bishop.
+        // Then move the white rook back and forth to create the same board position but with different castling rights
+        sut.MakeMove("a7", "b8");
+        sut.MakeMove("a8", "b7");
+        sut.MakeMove("b8", "a7");
+        sut.MakeMove("b7", "a8"); // 2nd occurence
+
+        sut.MakeMove("a7", "b8");
+        sut.MakeMove("a8", "b7");
+        sut.MakeMove("b8", "a7");
+        sut.MakeMove("b7", "a8"); // 3rd occurence
+
+        sut.MakeMove("a7", "b8");
+        sut.MakeMove("a8", "b7");
+        sut.MakeMove("b8", "a7");
+        sut.MakeMove("b7", "a8"); // 4th occurence
+
+        sut.MakeMove("h1", "h2"); // Shuffle white rook to change castling rights
+        sut.MakeMove("a8", "b7");
+        sut.MakeMove("h2", "h1");
+        sut.MakeMove("b7", "a8"); // 5th occurence but with different castling rights
+
+        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
+    }
+
+    #endregion
 }

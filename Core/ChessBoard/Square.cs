@@ -25,6 +25,16 @@ public class Square
         return Piece is null;
     }
 
+    public bool AttacksSquare(Board board, Square target)
+    {
+        if (Piece is null)
+        {
+            return false;
+        }
+
+        return Piece.AttacksSquare(board, this, target);
+    }
+
     public override string ToString()
     {
         var file = File.ToString();

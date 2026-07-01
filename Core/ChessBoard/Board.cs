@@ -134,6 +134,22 @@ public class Board
         return null;
     }
 
+    public IEnumerable<Piece> GetAllPieces()
+    {
+        for (File file = File.A; file <= File.H; file++)
+        {
+            for (Rank rank = Rank.First; rank <= Rank.Eighth; rank++)
+            {
+                if (GetSquare(file, rank).Piece is { } piece)
+                {
+                    yield return piece;
+                }
+                if (rank == Rank.Eighth) break;
+            }
+            if (file == File.H) break;
+        }
+    }
+
     public bool IsKingInCheck(Color color)
     {
         Square? kingSquare = GetKingSquare(color);
@@ -150,7 +166,7 @@ public class Board
                 Square currentSquare = GetSquare(file, rank);
                 if (currentSquare.Piece is not null
                     && currentSquare.Piece.Color == attacker
-                    && currentSquare.Piece.AttacksSquare(this, currentSquare, square))
+                    && currentSquare.AttacksSquare(this, square))
                 {
                     return true;
                 }
