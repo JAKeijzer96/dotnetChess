@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections.Immutable;
+using System.Runtime.InteropServices;
 using Core.ChessBoard;
 using Core.Pieces;
 using Core.Shared;
@@ -14,10 +15,12 @@ public class Game
     public Square? EnPassant { get; private set; }
     public int HalfMoveCount { get; private set; }
     public int FullMoveCount { get; private set; }
-    public GameResult Result { get; private set; }
+    public GameResult GameResult { get; private set; }
+    public ImmutableList<Move> MoveHistory { get; private set; }
 
-    // Position history for repetition detection. Will be replaced with full move history in Phase 2 (immutability).
-    private readonly List<string> _positionHistory = new();
+    private readonly string _initialPositionKey;
+
+    public int CurrentMoveIndex { get; private set; }
 
     public Game()
     {
@@ -27,10 +30,17 @@ public class Game
         EnPassant = null;
         HalfMoveCount = 0;
         FullMoveCount = 1;
-        _positionHistory.Add(GetPositionKey());
+        MoveHistory = [];
+        _initialPositionKey = BuildPositionKey(Board, Turn, CastlingAvailability, EnPassant);
+        CurrentMoveIndex = 0;
+        GameResult = GameResult.InProgress;
     }
 
     public Game(Board board, Color turn, CastlingAvailability castlingAvailability, Square? enPassant, int halfMoveCount, int fullMoveCount)
+        : this(board, turn, castlingAvailability, enPassant, halfMoveCount, fullMoveCount, [], 0, BuildPositionKey(board, turn, castlingAvailability, enPassant))
+    { }
+
+    public Game(Board board, Color turn, CastlingAvailability castlingAvailability, Square? enPassant, int halfMoveCount, int fullMoveCount, ImmutableList<Move> moveHistory, int currentMoveIndex, string initialPositionKey)
     {
         Board = board;
         Turn = turn;
@@ -38,53 +48,102 @@ public class Game
         EnPassant = enPassant;
         HalfMoveCount = halfMoveCount;
         FullMoveCount = fullMoveCount;
-        _positionHistory.Add(GetPositionKey());
-        Result = EvaluateResult();
+        MoveHistory = moveHistory;
+        _initialPositionKey = initialPositionKey;
+        CurrentMoveIndex = currentMoveIndex;
+        GameResult = EvaluateResult();
     }
     
-    public MoveResult MakeMove(string from, string to, [Optional] char promotionPieceChar)
+    public MakeMoveResult MakeMove(string from, string to, [Optional] char promotionPieceChar)
     {
         return MakeMove(Board[from], Board[to], promotionPieceChar);
     }
 
-    private MoveResult MakeMove(Square from, Square to, [Optional] char promotionPieceChar)
+    private MakeMoveResult MakeMove(Square from, Square to, [Optional] char promotionPieceChar)
     {
-        if (Result != GameResult.InProgress)
+        if (GameResult != GameResult.InProgress)
         {
-            return MoveResult.GameAlreadyOver;
+            return new MakeMoveResult(MoveResult.GameAlreadyOver, this);
         }
 
         var piece = from.Piece;
         if (piece is null || piece.Color != Turn)
         {
-            return MoveResult.InvalidPiece;
+            return new MakeMoveResult(MoveResult.InvalidPiece, this);
         }
 
         var isEnPassantMove = IsEnPassantMove(from, to);
         var isCastlingMove = IsCastlingMove(from, to);
         if (!(piece.IsValidMove(Board, from, to) || isEnPassantMove || isCastlingMove))
         {
-            return MoveResult.IllegalMove;
+            return new MakeMoveResult(MoveResult.IllegalMove, this);
         }
 
         if (WouldLeaveKingInCheck(from, to, isEnPassantMove, isCastlingMove, piece.Color))
         {
-            return MoveResult.IllegalMove;
+            return new MakeMoveResult(MoveResult.IllegalMove, this);
         }
 
         if (IsPromotionMove(piece, to) && !IsValidPromotionChar(piece, promotionPieceChar))
         {
-            return MoveResult.InvalidPromotion;
+            return new MakeMoveResult(MoveResult.InvalidPromotion, this);
         }
 
-        // Move is valid and legal. Move pieces and update gamestate
-        var pieceCaptured = to.Piece is not null || isEnPassantMove;
-        UpdateEnPassantSquare(from, to);
-        MovePieces(from, to, isEnPassantMove, isCastlingMove, promotionPieceChar);
-        UpdateHalfMoveCount(piece, pieceCaptured);
-        EndTurn();
+        // Move is valid and legal. Move pieces and return new gamestate
+        Game newGame = ApplyMove(from, to, isEnPassantMove, isCastlingMove, promotionPieceChar);
+        return new MakeMoveResult(MoveResult.Success, newGame);
+    }
 
-        return MoveResult.Success;
+    private Game ApplyMove(Square from, Square to, bool isEnPassantMove, bool isCastlingMove, [Optional] char promotionPieceChar)
+    {
+        var piece = from.Piece!;
+        var isPieceCaptured = to.Piece is not null || isEnPassantMove;
+
+        var enPassant = CalculateEnPassantSquare(Board, from, to);
+        var board = ApplyMoveToBoard(from, to, isEnPassantMove, isCastlingMove, promotionPieceChar);
+        var castlingAvailability = UpdateCastlingAvailability(piece, from, isCastlingMove);
+        var halfMoveCount = CalculateHalfMoveCount(piece, isPieceCaptured);
+        var turn = CalculateNextTurn();
+        var newFullMoveCount = CalculateNextFullMoveCount();
+
+        var positionKey = BuildPositionKey(board, turn, castlingAvailability, enPassant);
+        var move = new Move(from, to, promotionPieceChar, positionKey);
+        var moveHistory = MoveHistory.Add(move);
+
+        return new Game(board, turn, castlingAvailability, enPassant, halfMoveCount, newFullMoveCount, moveHistory, CurrentMoveIndex + 1, _initialPositionKey);
+    }
+
+    public Game GoToNextMove() => GoToMove(CurrentMoveIndex + 1);
+    public Game GoToPreviousMove() => GoToMove(CurrentMoveIndex - 1);
+
+    public Game GoToMove(int moveIndex)
+    {
+        if (moveIndex < 0 || moveIndex > MoveHistory.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(moveIndex), $"Move index must be between 0 and {MoveHistory.Count}");
+        }
+
+        if (moveIndex == CurrentMoveIndex)
+        {
+            return this;
+        }
+
+        return ReconstructGameAtMove(moveIndex);
+    }
+
+    private Game ReconstructGameAtMove(int targetMoveIndex)
+    {
+        var game = new Game();
+
+        for (int i = 0; i < targetMoveIndex; i++)
+        {
+            var move = MoveHistory[i];
+            var result = game.MakeMove(move.From, move.To, move.PromotionPiece);
+            game = result.Game;
+        }
+
+        return new Game(game.Board, game.Turn, game.CastlingAvailability, game.EnPassant,
+                        game.HalfMoveCount, game.FullMoveCount, MoveHistory, targetMoveIndex, _initialPositionKey);
     }
 
     private bool IsLegalMove(Square from, Square to)
@@ -123,7 +182,7 @@ public class Game
         return to.File == EnPassant.File && to.Rank == EnPassant.Rank;
     }
 
-    private bool IsCastlingAttempt(Square from, Square to)
+    private static bool IsCastlingAttempt(Square from, Square to)
     {
         if (from.Piece is not King king)
         {
@@ -144,7 +203,7 @@ public class Game
             return false;
         }
 
-        var king = (King)from.Piece!;
+        var king = (from.Piece as King)!;
         var direction = from.File < to.File ? Direction.Right : Direction.Left;
 
         if (!CanCastleInDirection(king, direction))
@@ -195,7 +254,7 @@ public class Game
                (king.IsBlack && direction == Direction.Left && CastlingAvailability.CanBlackCastleQueenside());
     }
 
-    private void UpdateEnPassantSquare(Square from, Square to)
+    private static Square? CalculateEnPassantSquare(Board board, Square from, Square to)
     {
         var piece = from.Piece;
 
@@ -205,38 +264,64 @@ public class Game
         if (piece is Pawn && from.Rank.DistanceTo(to.Rank) == 2)
         {
             var direction = piece.IsWhite ? Direction.Up : Direction.Down;
-            EnPassant = Board[from.File, from.Rank + direction];
+            return board[from.File, from.Rank + direction];
         }
-        else
-        {
-            EnPassant = null;
-        }
+        return null;
     }
 
-    private void MovePieces(Square from, Square to, bool isEnPassantMove, bool isCastlingMove, [Optional] char promotionPieceChar)
+    private Board ApplyMoveToBoard(Square fromSquare, Square toSquare, bool isEnPassantMove, bool isCastlingMove, [Optional] char promotionPieceChar)
     {
+        var board = Board.Clone();
+        var from = board[fromSquare.File, fromSquare.Rank];
+        var to = board[toSquare.File, toSquare.Rank];
+
         var piece = from.Piece!;
         var isPromotionMove = IsPromotionMove(piece, to);
 
         if (isCastlingMove)
         {
-            PerformCastlingMove(from, to);
+            MoveCastlingPieces(board, from, to);
         }
         else if (isPromotionMove)
         {
             PromotePawn(from, to, promotionPieceChar);
-        } 
+        }
         else
         {
-            Board.MovePiece(from, to);
+            board.MovePiece(from, to);
             if (isEnPassantMove)
             {
-                RemoveCapturedEnPassantPawn(from, to);
+                RemoveCapturedEnPassantPawn(board, from, to);
             }
-            CastlingAvailability.UpdateAfterRegularMove(piece, from);
         }
+
+        return board;
     }
-    
+
+    private CastlingAvailability UpdateCastlingAvailability(Piece piece, Square from, bool isCastlingMove)
+    {
+        if (isCastlingMove)
+        {
+            return CastlingAvailability.AfterCastlingMove(piece.Color);
+        }
+        return CastlingAvailability.AfterRegularMove(piece, from);
+    }
+
+    private int CalculateHalfMoveCount(Piece movedPiece, bool isPieceCaptured)
+    {
+        return (movedPiece is Pawn || isPieceCaptured) ? 0 : HalfMoveCount + 1;
+    }
+
+    private Color CalculateNextTurn()
+    {
+        return Turn == Color.White ? Color.Black : Color.White;
+    }
+
+    private int CalculateNextFullMoveCount()
+    {
+        return Turn == Color.Black ? FullMoveCount + 1 : FullMoveCount;
+    }
+
     private static bool IsPromotionMove(Piece piece, Square to)
     {
         return piece is Pawn && (to.Rank == Rank.First || to.Rank == Rank.Eighth);
@@ -249,14 +334,6 @@ public class Game
 
         return (piece.IsWhite && whitePromotionPieces.Contains(promotionPieceChar)) ||
                (piece.IsBlack && blackPromotionPieces.Contains(promotionPieceChar));
-    }
-
-    private void PerformCastlingMove(Square from, Square to)
-    {
-        var color = from.Piece!.Color;
-        MoveCastlingPieces(Board, from, to);
-
-        CastlingAvailability.UpdateAfterCastlingMove(color);
     }
 
     private static void MoveCastlingPieces(Board board, Square from, Square to)
@@ -277,9 +354,9 @@ public class Game
         to.Piece = PieceFactory.CreatePiece(promotionPieceChar);
     }
 
-    private void RemoveCapturedEnPassantPawn(Square from, Square to)
+    private static void RemoveCapturedEnPassantPawn(Board board, Square from, Square to)
     {
-        Board[to.File, from.Rank].Piece = null;
+        board[to.File, from.Rank].Piece = null;
     }
 
     private bool WouldLeaveKingInCheck(Square from, Square to, bool isEnPassantMove, bool isCastlingMove, Color movingColor)
@@ -347,34 +424,6 @@ public class Game
         }
     }
 
-    private void UpdateHalfMoveCount(Piece movedPiece, bool pieceCaptured)
-    {
-        if (movedPiece is Pawn || pieceCaptured)
-        {
-            HalfMoveCount = 0;
-        }
-        else
-        {
-            HalfMoveCount++;
-        }
-    }
-    
-    private void EndTurn()
-    {
-        if (Turn == Color.Black)
-        {
-            Turn = Color.White;
-            FullMoveCount++;
-        }
-        else
-        {
-            Turn = Color.Black;
-        }
-
-        _positionHistory.Add(GetPositionKey());
-        Result = EvaluateResult();
-    }
-
     private GameResult EvaluateResult()
     {
         if (IsDrawByFiftyMoveRule()) return GameResult.DrawByFiftyMoveRule;
@@ -392,7 +441,14 @@ public class Game
     private bool IsFivefoldRepetition()
     {
         string currentPosition = GetPositionKey();
-        int count = _positionHistory.Count(p => p == currentPosition);
+        int count = MoveHistory
+            .Count(m => m.PositionAfterMove == currentPosition);
+
+        if (currentPosition == _initialPositionKey)
+        {
+            count++;
+        }
+
         return count >= 5;
     }
 
@@ -463,12 +519,16 @@ public class Game
 
     private string GetPositionKey()
     {
-        // Identical position according to FIDE Laws of Chess Article 9.2. (Dresden, 2008)
-        string boardFen = Board.ToString();
-        string turn = Turn == Color.White ? "w" : "b";
-        string castling = CastlingAvailability.ToString();
-        string enPassant = EnPassant?.ToString() ?? "-";
+        return BuildPositionKey(Board, Turn, CastlingAvailability, EnPassant);
+    }
 
-        return $"{boardFen} {turn} {castling} {enPassant}";
+    private static string BuildPositionKey(Board board, Color turn, CastlingAvailability castling, Square? enPassant)
+    {
+        // Identical position according to FIDE Laws of Chess Article 9.2. (Dresden, 2008)
+        string boardFen = board.ToString();
+        string turnStr = turn == Color.White ? "w" : "b";
+        string castlingStr = castling.ToString();
+        string enPassantStr = enPassant?.ToString() ?? "-";
+        return $"{boardFen} {turnStr} {castlingStr} {enPassantStr}";
     }
 }

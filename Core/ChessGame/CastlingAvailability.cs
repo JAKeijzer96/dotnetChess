@@ -24,56 +24,61 @@ public partial class CastlingAvailability
     public bool CanBlackCastleKingside() => _castlingAvailability.Contains('k');
     public bool CanBlackCastleQueenside() => _castlingAvailability.Contains('q');
 
-    public void UpdateAfterCastlingMove(Color color)
+    public CastlingAvailability AfterCastlingMove(Color color)
     {
-        _castlingAvailability = color switch
+        var newCastlingAvailability = color switch
         {
             Color.White => _castlingAvailability.Replace("K", "").Replace("Q", ""),
             Color.Black => _castlingAvailability.Replace("k", "").Replace("q", ""),
             _ => throw new InvalidColorException("Invalid color: " + color.ToString())
         };
 
-        if (_castlingAvailability == "")
+        if (newCastlingAvailability == "")
         {
-            _castlingAvailability = "-";
+            newCastlingAvailability = "-";
         }
+
+        return new CastlingAvailability(newCastlingAvailability);
     }
 
-    public void UpdateAfterRegularMove(Piece piece, Square from)
+    public CastlingAvailability AfterRegularMove(Piece piece, Square from)
     {
         if (CanNeitherSideCastle())
         {
-            return;
+            return this;
         }
 
+        var newCastlingAvailability = _castlingAvailability;
         var pieceIsWhite = piece.IsWhite;
         if (piece is King)
         {
             if (pieceIsWhite && CanWhiteCastle())
             {
-                _castlingAvailability = _castlingAvailability.Replace("K", "").Replace("Q", "");
+                newCastlingAvailability = newCastlingAvailability.Replace("K", "").Replace("Q", "");
             }
             else if (CanBlackCastle())
             {
-                _castlingAvailability = _castlingAvailability.Replace("k", "").Replace("q", "");
+                newCastlingAvailability = newCastlingAvailability.Replace("k", "").Replace("q", "");
             }
         }
         else if (piece is Rook)
         {
-            _castlingAvailability = pieceIsWhite switch
+            newCastlingAvailability = pieceIsWhite switch
             {
-                true when from.File == File.A => _castlingAvailability.Replace("Q", ""),
-                true when from.File == File.H => _castlingAvailability.Replace("K", ""),
-                false when from.File == File.A => _castlingAvailability.Replace("q", ""),
-                false when from.File == File.H => _castlingAvailability.Replace("k", ""),
-                _ => _castlingAvailability
+                true when from.File == File.A => newCastlingAvailability.Replace("Q", ""),
+                true when from.File == File.H => newCastlingAvailability.Replace("K", ""),
+                false when from.File == File.A => newCastlingAvailability.Replace("q", ""),
+                false when from.File == File.H => newCastlingAvailability.Replace("k", ""),
+                _ => newCastlingAvailability
             };
         }
 
-        if (_castlingAvailability == "")
+        if (newCastlingAvailability == "")
         {
-            _castlingAvailability = "-";
+            newCastlingAvailability = "-";
         }
+
+        return new CastlingAvailability(newCastlingAvailability);
     }
 
     public override string ToString()

@@ -42,9 +42,9 @@ public class CastlingAvailabilityTest
     {
         var sut = new CastlingAvailability(castling);
 
-        sut.UpdateAfterCastlingMove(color);
+        var result = sut.AfterCastlingMove(color);
 
-        await Assert.That(sut.ToString()).IsEqualTo(expected);
+        await Assert.That(result.ToString()).IsEqualTo(expected);
     }
 
     [Test]
@@ -60,8 +60,8 @@ public class CastlingAvailabilityTest
         var sut = new CastlingAvailability(castling);
 
         var piece = PieceFactory.CreatePiece(pieceChar);
-        sut.UpdateAfterRegularMove(piece, new Square((File) file, (Rank) rank, piece));
+        var result = sut.AfterRegularMove(piece, new Square((File) file, (Rank) rank, piece));
 
-        await Assert.That(sut.ToString()).IsEqualTo(expectedCastlingValue);
+        await Assert.That(result.ToString()).IsEqualTo(expectedCastlingValue);
     }
 }
