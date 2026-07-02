@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.ChessGame;
@@ -9,6 +9,8 @@ namespace Core.Test.ChessGame;
 
 public class GameTest
 {
+    // TODO: Move history is now [] everywhere in this class.
+    // Update tests to include proper/believable move history for each test case.
     [Test]
     [Arguments(Color.White, "e7", "e5")]
     [Arguments(Color.Black, "e2", "e4")]
@@ -19,7 +21,7 @@ public class GameTest
 
         var result = sut.MakeMove(from, to);
 
-        await Assert.That(result).IsEqualTo(MoveResult.InvalidPiece);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.InvalidPiece);
     }
     
     [Test]
@@ -30,7 +32,7 @@ public class GameTest
 
         var result = sut.MakeMove("a4", "a5");
 
-        await Assert.That(result).IsEqualTo(MoveResult.InvalidPiece);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.InvalidPiece);
     }
     
     [Test]
@@ -41,7 +43,7 @@ public class GameTest
 
         var result = sut.MakeMove("e2", "b4");
 
-        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.IllegalMove);
     }
     
     [Test]
@@ -52,7 +54,7 @@ public class GameTest
 
         var result = sut.MakeMove("e2", "e4");
 
-        await Assert.That(result).IsEqualTo(MoveResult.Success);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.Success);
     }
 
     [Test]
@@ -60,9 +62,9 @@ public class GameTest
     {
         var sut = new Game();
 
-        sut.MakeMove("e2", "e4");
+        var result = sut.MakeMove("e2", "e4");
 
-        await Assert.That(sut.Turn).IsEqualTo(Color.Black);
+        await Assert.That(result.Game.Turn).IsEqualTo(Color.Black);
     }
     
     [Test]
@@ -72,9 +74,9 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(board, Color.Black, castlingAvailability, null, 0, 1);
 
-        sut.MakeMove("e7", "e5");
+        var result = sut.MakeMove("e7", "e5");
 
-        await Assert.That(sut.Turn).IsEqualTo(Color.White);
+        await Assert.That(result.Game.Turn).IsEqualTo(Color.White);
     }
     
     [Test]
@@ -84,9 +86,9 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(board, Color.Black, castlingAvailability, null, 5, 4);
 
-        sut.MakeMove("f6", "e4");
+        var result = sut.MakeMove("f6", "e4");
 
-        await Assert.That(sut.FullMoveCount).IsEqualTo(5);
+        await Assert.That(result.Game.FullMoveCount).IsEqualTo(5);
     }
 
     [Test]
@@ -96,9 +98,9 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(board, Color.Black, castlingAvailability, null, 3, 4);
 
-        sut.MakeMove("e7", "e6");
+        var result = sut.MakeMove("e7", "e6");
 
-        await Assert.That(sut.HalfMoveCount).IsEqualTo(0);
+        await Assert.That(result.Game.HalfMoveCount).IsEqualTo(0);
     }
     
     [Test]
@@ -108,9 +110,9 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(board, Color.White, castlingAvailability, null, 2, 6);
 
-        sut.MakeMove("b5", "c6");
+        var result = sut.MakeMove("b5", "c6");
 
-        await Assert.That(sut.HalfMoveCount).IsEqualTo(0);
+        await Assert.That(result.Game.HalfMoveCount).IsEqualTo(0);
     }
     
     [Test]
@@ -120,9 +122,9 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("kq");
         var sut = new Game(board, Color.Black, castlingAvailability, null, 3, 6);
 
-        sut.MakeMove("g8", "f6");
+        var result = sut.MakeMove("g8", "f6");
 
-        await Assert.That(sut.HalfMoveCount).IsEqualTo(4);
+        await Assert.That(result.Game.HalfMoveCount).IsEqualTo(4);
     }
 
     #region EnPassant
@@ -137,7 +139,7 @@ public class GameTest
 
         var result = sut.MakeMove("d4", "e3");
 
-        await Assert.That(result).IsEqualTo(MoveResult.Success);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.Success);
     }
 
     [Test]
@@ -147,10 +149,10 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("KQkq");
         var enPassantSquare = board["e3"];
         var sut = new Game(board, Color.Black, castlingAvailability, enPassantSquare, 0, 5);
-        
-        sut.MakeMove("d4", "e3");
 
-        await Assert.That(sut.EnPassant).IsNull();
+        var result = sut.MakeMove("d4", "e3");
+
+        await Assert.That(result.Game.EnPassant).IsNull();
     }
 
     [Test]
@@ -160,10 +162,10 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("KQkq");
         var enPassantSquare = board["e3"];
         var sut = new Game(board, Color.Black, castlingAvailability, enPassantSquare, 0, 5);
-        
-        sut.MakeMove("d4", "e3");
 
-        await Assert.That(sut.Board["e4"].Piece).IsNull();
+        var result = sut.MakeMove("d4", "e3");
+
+        await Assert.That(result.Game.Board["e4"].Piece).IsNull();
     }
     
     [Test]
@@ -176,7 +178,7 @@ public class GameTest
 
         var result = sut.MakeMove("f4", "e3");
 
-        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     #endregion
@@ -190,9 +192,9 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("-");
         var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
 
-        sut.MakeMove("a7", "a8", 'N');
+        var result = sut.MakeMove("a7", "a8", 'N');
 
-        var actual = sut.Board["a8"].Piece!.Name;
+        var actual = result.Game.Board["a8"].Piece!.Name;
         
         await Assert.That(actual).IsEqualTo('N');
     }
@@ -204,9 +206,9 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("-");
         var sut = new Game(board, Color.Black, castlingAvailability, null, 0, 1);
 
-        sut.MakeMove("g2", "g1", 'b');
+        var result = sut.MakeMove("g2", "g1", 'b');
 
-        var actual = sut.Board["g1"].Piece!.Name;
+        var actual = result.Game.Board["g1"].Piece!.Name;
         await Assert.That(actual).IsEqualTo('b');
     }
     
@@ -221,7 +223,7 @@ public class GameTest
 
         var result = sut.MakeMove("g2", "g1", promotionPieceChar);
 
-        await Assert.That(result).IsEqualTo(MoveResult.InvalidPromotion);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.InvalidPromotion);
     }
     
     #endregion
@@ -240,12 +242,12 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("KQkq");
         var sut = new Game(board, (Color)turn, castlingAvailability, null, 0, 1);
 
-        sut.MakeMove(kingSquare, destinationSquare);
+        var result = sut.MakeMove(kingSquare, destinationSquare);
 
-        await Assert.That(board[kingSquare].Piece).IsNull();
-        await Assert.That(board[rookEndSquare].Piece).IsTypeOf<Rook>();
-        await Assert.That(board[kingEndSquare].Piece).IsTypeOf<King>();
-        await Assert.That(board[rookStartSquare].Piece).IsNull();
+        await Assert.That(result.Game.Board[kingSquare].Piece).IsNull();
+        await Assert.That(result.Game.Board[rookEndSquare].Piece).IsTypeOf<Rook>();
+        await Assert.That(result.Game.Board[kingEndSquare].Piece).IsTypeOf<King>();
+        await Assert.That(result.Game.Board[rookStartSquare].Piece).IsNull();
     }
     
     [Test]
@@ -255,9 +257,9 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("Kkq");
         var sut = new Game(board, Color.Black, castlingAvailability, null, 0, 1);
 
-        sut.MakeMove("e8", "a8");
+        var result = sut.MakeMove("e8", "a8");
 
-        await Assert.That(sut.CastlingAvailability.ToString()).IsEqualTo("K");
+        await Assert.That(result.Game.CastlingAvailability.ToString()).IsEqualTo("K");
     }
 
     [Test]
@@ -273,7 +275,7 @@ public class GameTest
 
         var result = sut.MakeMove(from, to);
 
-        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     [Test]
@@ -289,7 +291,7 @@ public class GameTest
 
         var result = sut.MakeMove(from, to);
 
-        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     #endregion
@@ -306,7 +308,7 @@ public class GameTest
 
         var result = sut.MakeMove("e4", "d4");
 
-        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     [Test]
@@ -320,7 +322,7 @@ public class GameTest
 
         var result = sut.MakeMove("e4", "e5");
 
-        await Assert.That(result).IsEqualTo(MoveResult.Success);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.Success);
     }
 
     [Test]
@@ -332,7 +334,7 @@ public class GameTest
 
         var result = sut.MakeMove("c2", "c1");
 
-        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     [Test]
@@ -346,7 +348,7 @@ public class GameTest
 
         var result = sut.MakeMove("e5", "d6");
 
-        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     [Test]
@@ -360,7 +362,7 @@ public class GameTest
 
         var result = sut.MakeMove(from, to);
 
-        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     [Test]
@@ -372,7 +374,7 @@ public class GameTest
 
         var result = sut.MakeMove("e1", "g1");
 
-        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.IllegalMove);
     }
 
     #endregion
@@ -401,10 +403,10 @@ public class GameTest
     public async Task Result_AfterFoolsMate_IsCheckmate()
     {
         var sut = new Game();
-        sut.MakeMove("f2", "f3");
-        sut.MakeMove("e7", "e5");
-        sut.MakeMove("g2", "g4");
-        sut.MakeMove("d8", "h4");
+        sut = sut.MakeMove("f2", "f3").Game;
+        sut = sut.MakeMove("e7", "e5").Game;
+        sut = sut.MakeMove("g2", "g4").Game;
+        sut = sut.MakeMove("d8", "h4").Game;
 
         await Assert.That(sut.Result).IsEqualTo(GameResult.Checkmate);
     }
@@ -426,14 +428,14 @@ public class GameTest
     public async Task MakeMove_AfterCheckmate_ReturnsGameAlreadyOver()
     {
         var sut = new Game();
-        sut.MakeMove("f2", "f3");
-        sut.MakeMove("e7", "e5");
-        sut.MakeMove("g2", "g4");
-        sut.MakeMove("d8", "h4");
+        sut = sut.MakeMove("f2", "f3").Game;
+        sut = sut.MakeMove("e7", "e5").Game;
+        sut = sut.MakeMove("g2", "g4").Game;
+        sut = sut.MakeMove("d8", "h4").Game;
 
         var result = sut.MakeMove("e2", "e4");
 
-        await Assert.That(result).IsEqualTo(MoveResult.GameAlreadyOver);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.GameAlreadyOver);
     }
 
     [Test]
@@ -499,7 +501,7 @@ public class GameTest
 
         var result = sut.MakeMove("e5", "d6");
 
-        await Assert.That(result).IsEqualTo(MoveResult.Success);
+        await Assert.That(result.Result).IsEqualTo(MoveResult.Success);
     }
 
     #endregion
@@ -534,7 +536,7 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("-");
         var sut = new Game(board, Color.Black, castlingAvailability, null, 99, 50);
 
-        sut.MakeMove("a7", "a5");
+        sut = sut.MakeMove("a7", "a5").Game;
 
         await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
         await Assert.That(sut.HalfMoveCount).IsEqualTo(0);
@@ -547,10 +549,10 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("-");
         var sut = new Game(board, Color.White, castlingAvailability, null, 99, 50);
 
-        sut.MakeMove("e1", "e3");
+        var result = sut.MakeMove("e1", "e3").Game;
 
-        await Assert.That(sut.Result).IsEqualTo(GameResult.InProgress);
-        await Assert.That(sut.HalfMoveCount).IsEqualTo(0);
+        await Assert.That(result.Result).IsEqualTo(GameResult.InProgress);
+        await Assert.That(result.HalfMoveCount).IsEqualTo(0);
     }
 
     [Test]
@@ -633,28 +635,29 @@ public class GameTest
     {
         var board = new Board("7k/R7/7K/8/8/8/8/8");
         var castlingAvailability = new CastlingAvailability("-");
+        // TODO: Position from setup should be added to history (Change implementation, not the test)
         var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
 
         // Repeat position 4 more times (5 total)
-        sut.MakeMove("h6", "g6");
-        sut.MakeMove("h8", "g8");
-        sut.MakeMove("g6", "h6");
-        sut.MakeMove("g8", "h8"); // 2nd occurence
+        sut = sut.MakeMove("h6", "g6").Game;
+        sut = sut.MakeMove("h8", "g8").Game;
+        sut = sut.MakeMove("g6", "h6").Game;
+        sut = sut.MakeMove("g8", "h8").Game; // 2nd occurence
 
-        sut.MakeMove("h6", "g6");
-        sut.MakeMove("h8", "g8");
-        sut.MakeMove("g6", "h6");
-        sut.MakeMove("g8", "h8"); // 3nd occurence
+        sut = sut.MakeMove("h6", "g6").Game;
+        sut = sut.MakeMove("h8", "g8").Game;
+        sut = sut.MakeMove("g6", "h6").Game;
+        sut = sut.MakeMove("g8", "h8").Game; // 3nd occurence
 
-        sut.MakeMove("h6", "g6");
-        sut.MakeMove("h8", "g8");
-        sut.MakeMove("g6", "h6");
-        sut.MakeMove("g8", "h8"); // 4th occurence
+        sut = sut.MakeMove("h6", "g6").Game;
+        sut = sut.MakeMove("h8", "g8").Game;
+        sut = sut.MakeMove("g6", "h6").Game;
+        sut = sut.MakeMove("g8", "h8").Game; // 4th occurence
 
-        sut.MakeMove("h6", "g6");
-        sut.MakeMove("h8", "g8");
-        sut.MakeMove("g6", "h6");
-        sut.MakeMove("g8", "h8"); // 5th occurence
+        sut = sut.MakeMove("h6", "g6").Game;
+        sut = sut.MakeMove("h8", "g8").Game;
+        sut = sut.MakeMove("g6", "h6").Game;
+        sut = sut.MakeMove("g8", "h8").Game; // 5th occurence
 
         await Assert.That(sut.Result).IsEqualTo(GameResult.DrawByFivefoldRepetition);
     }

@@ -7,6 +7,5 @@ public record Move(
     Square From,
     Square To,
     [Optional] char PromotionPiece,
-    MoveResult Result,
     string PositionAfterMove
 );

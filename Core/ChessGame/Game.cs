@@ -19,6 +19,9 @@ public class Game
 
     private readonly ImmutableList<Move> _moveHistory;
     public IReadOnlyList<Move> MoveHistory => _moveHistory;
+    private readonly string _initialPositionKey;
+
+    public int CurrentMoveIndex { get; private set; }
 
     public Game()
     {
@@ -29,10 +32,16 @@ public class Game
         HalfMoveCount = 0;
         FullMoveCount = 1;
         _moveHistory = [];
+        _initialPositionKey = BuildPositionKey(Board, Turn, CastlingAvailability, EnPassant);
+        CurrentMoveIndex = 0;
         Result = GameResult.InProgress;
     }
 
-    public Game(Board board, Color turn, CastlingAvailability castlingAvailability, Square? enPassant, int halfMoveCount, int fullMoveCount, ImmutableList<Move> moveHistory)
+    public Game(Board board, Color turn, CastlingAvailability castlingAvailability, Square? enPassant, int halfMoveCount, int fullMoveCount)
+        : this(board, turn, castlingAvailability, enPassant, halfMoveCount, fullMoveCount, [], 0, BuildPositionKey(board, turn, castlingAvailability, enPassant))
+    { }
+
+    public Game(Board board, Color turn, CastlingAvailability castlingAvailability, Square? enPassant, int halfMoveCount, int fullMoveCount, ImmutableList<Move> moveHistory, int currentMoveIndex, string initialPositionKey)
     {
         Board = board;
         Turn = turn;
@@ -41,52 +50,49 @@ public class Game
         HalfMoveCount = halfMoveCount;
         FullMoveCount = fullMoveCount;
         _moveHistory = moveHistory;
+        _initialPositionKey = initialPositionKey;
+        CurrentMoveIndex = currentMoveIndex;
         Result = EvaluateResult();
     }
     
-    public Game MakeMove(string from, string to, [Optional] char promotionPieceChar)
+    public MakeMoveResult MakeMove(string from, string to, [Optional] char promotionPieceChar)
     {
         return MakeMove(Board[from], Board[to], promotionPieceChar);
     }
 
-    private Game MakeMove(Square from, Square to, [Optional] char promotionPieceChar)
+    private MakeMoveResult MakeMove(Square from, Square to, [Optional] char promotionPieceChar)
     {
         if (Result != GameResult.InProgress)
         {
-            //TODO: Repetition of two lines: failedmove = new Move(..); return new Game(..); Only difference is in MoveResult
-            var failedMove = new Move(from, to, promotionPieceChar, MoveResult.GameAlreadyOver, GetPositionKey());
-            return new Game(Board, Turn, CastlingAvailability, EnPassant, HalfMoveCount, FullMoveCount, _moveHistory.Add(failedMove));
+            return new MakeMoveResult(MoveResult.GameAlreadyOver, this);
         }
 
         var piece = from.Piece;
         if (piece is null || piece.Color != Turn)
         {
-            var failedMove = new Move(from, to, promotionPieceChar, MoveResult.InvalidPiece, GetPositionKey());
-            return new Game(Board, Turn, CastlingAvailability, EnPassant, HalfMoveCount, FullMoveCount, _moveHistory.Add(failedMove));
+            return new MakeMoveResult(MoveResult.InvalidPiece, this);
         }
 
         var isEnPassantMove = IsEnPassantMove(from, to);
         var isCastlingMove = IsCastlingMove(from, to);
         if (!(piece.IsValidMove(Board, from, to) || isEnPassantMove || isCastlingMove))
         {
-            var failedMove = new Move(from, to, promotionPieceChar, MoveResult.IllegalMove, GetPositionKey());
-            return new Game(Board, Turn, CastlingAvailability, EnPassant, HalfMoveCount, FullMoveCount, _moveHistory.Add(failedMove));
+            return new MakeMoveResult(MoveResult.IllegalMove, this);
         }
 
         if (WouldLeaveKingInCheck(from, to, isEnPassantMove, isCastlingMove, piece.Color))
         {
-            var failedMove = new Move(from, to, promotionPieceChar, MoveResult.IllegalMove, GetPositionKey());
-            return new Game(Board, Turn, CastlingAvailability, EnPassant, HalfMoveCount, FullMoveCount, _moveHistory.Add(failedMove));
+            return new MakeMoveResult(MoveResult.IllegalMove, this);
         }
 
         if (IsPromotionMove(piece, to) && !IsValidPromotionChar(piece, promotionPieceChar))
         {
-            var failedMove = new Move(from, to, promotionPieceChar, MoveResult.InvalidPromotion, GetPositionKey());
-            return new Game(Board, Turn, CastlingAvailability, EnPassant, HalfMoveCount, FullMoveCount, _moveHistory.Add(failedMove));
+            return new MakeMoveResult(MoveResult.InvalidPromotion, this);
         }
 
         // Move is valid and legal. Move pieces and return new gamestate
-        return ApplyMove(from, to, isEnPassantMove, isCastlingMove, promotionPieceChar);
+        Game newGame = ApplyMove(from, to, isEnPassantMove, isCastlingMove, promotionPieceChar);
+        return new MakeMoveResult(MoveResult.Success, newGame);
     }
 
     private Game ApplyMove(Square from, Square to, bool isEnPassantMove, bool isCastlingMove, [Optional] char promotionPieceChar)
@@ -94,18 +100,51 @@ public class Game
         var piece = from.Piece!;
         var isPieceCaptured = to.Piece is not null || isEnPassantMove;
 
-        var newEnPassant = CalculateEnPassantSquare(from, to);
-        var newBoard = ApplyMoveToBoard(from, to, isEnPassantMove, isCastlingMove, promotionPieceChar);
-        var newCastlingAvailability = UpdateCastlingAvailability(piece, from, isCastlingMove);
-        var newHalfMoveCount = CalculateHalfMoveCount(piece, isPieceCaptured);
-        var newTurn = CalculateNextTurn();
+        var enPassant = CalculateEnPassantSquare(Board, from, to);
+        var board = ApplyMoveToBoard(from, to, isEnPassantMove, isCastlingMove, promotionPieceChar);
+        var castlingAvailability = UpdateCastlingAvailability(piece, from, isCastlingMove);
+        var halfMoveCount = CalculateHalfMoveCount(piece, isPieceCaptured);
+        var turn = CalculateNextTurn();
         var newFullMoveCount = CalculateNextFullMoveCount();
 
-        var newPositionKey = BuildPositionKey(newBoard, newTurn, newCastlingAvailability, newEnPassant);
-        var move = new Move(from, to, promotionPieceChar, MoveResult.Success, newPositionKey);
-        var newMoveHistory = _moveHistory.Add(move);
+        var positionKey = BuildPositionKey(board, turn, castlingAvailability, enPassant);
+        var move = new Move(from, to, promotionPieceChar, positionKey);
+        var moveHistory = _moveHistory.Add(move);
 
-        return new Game(newBoard, newTurn, newCastlingAvailability, newEnPassant, newHalfMoveCount, newFullMoveCount, newMoveHistory);
+        return new Game(board, turn, castlingAvailability, enPassant, halfMoveCount, newFullMoveCount, moveHistory, CurrentMoveIndex + 1, _initialPositionKey);
+    }
+
+    public Game GoToNextMove() => GoToMove(CurrentMoveIndex + 1);
+    public Game GoToPreviousMove() => GoToMove(CurrentMoveIndex - 1);
+
+    public Game GoToMove(int moveIndex)
+    {
+        if (moveIndex < 0 || moveIndex > _moveHistory.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(moveIndex), $"Move index must be between 0 and {_moveHistory.Count}");
+        }
+
+        if (moveIndex == CurrentMoveIndex)
+        {
+            return this;
+        }
+
+        return ReconstructGameAtMove(moveIndex);
+    }
+
+    private Game ReconstructGameAtMove(int targetMoveIndex)
+    {
+        var game = new Game();
+
+        for (int i = 0; i < targetMoveIndex; i++)
+        {
+            var move = _moveHistory[i];
+            var result = game.MakeMove(move.From, move.To, move.PromotionPiece);
+            game = result.Game;
+        }
+
+        return new Game(game.Board, game.Turn, game.CastlingAvailability, game.EnPassant,
+                        game.HalfMoveCount, game.FullMoveCount, _moveHistory, targetMoveIndex, _initialPositionKey);
     }
 
     private bool IsLegalMove(Square from, Square to)
@@ -216,7 +255,7 @@ public class Game
                (king.IsBlack && direction == Direction.Left && CastlingAvailability.CanBlackCastleQueenside());
     }
 
-    private Square? CalculateEnPassantSquare(Square from, Square to)
+    private static Square? CalculateEnPassantSquare(Board board, Square from, Square to)
     {
         var piece = from.Piece;
 
@@ -226,7 +265,7 @@ public class Game
         if (piece is Pawn && from.Rank.DistanceTo(to.Rank) == 2)
         {
             var direction = piece.IsWhite ? Direction.Up : Direction.Down;
-            return Board[from.File, from.Rank + direction];
+            return board[from.File, from.Rank + direction];
         }
         return null;
     }
@@ -404,10 +443,12 @@ public class Game
     {
         string currentPosition = GetPositionKey();
         int count = _moveHistory
-            // TODO: I want a move history to consist only of succesful moves
-            // Need to think of a good way of handing failures
-            .Where(m => m.Result == MoveResult.Success)
             .Count(m => m.PositionAfterMove == currentPosition);
+
+        if (currentPosition == _initialPositionKey)
+        {
+            count++;
+        }
 
         return count >= 5;
     }
