@@ -15,10 +15,9 @@ public class Game
     public Square? EnPassant { get; private set; }
     public int HalfMoveCount { get; private set; }
     public int FullMoveCount { get; private set; }
-    public GameResult Result { get; private set; }
+    public GameResult GameResult { get; private set; }
+    public ImmutableList<Move> MoveHistory { get; private set; }
 
-    private readonly ImmutableList<Move> _moveHistory;
-    public IReadOnlyList<Move> MoveHistory => _moveHistory;
     private readonly string _initialPositionKey;
 
     public int CurrentMoveIndex { get; private set; }
@@ -31,10 +30,10 @@ public class Game
         EnPassant = null;
         HalfMoveCount = 0;
         FullMoveCount = 1;
-        _moveHistory = [];
+        MoveHistory = [];
         _initialPositionKey = BuildPositionKey(Board, Turn, CastlingAvailability, EnPassant);
         CurrentMoveIndex = 0;
-        Result = GameResult.InProgress;
+        GameResult = GameResult.InProgress;
     }
 
     public Game(Board board, Color turn, CastlingAvailability castlingAvailability, Square? enPassant, int halfMoveCount, int fullMoveCount)
@@ -49,10 +48,10 @@ public class Game
         EnPassant = enPassant;
         HalfMoveCount = halfMoveCount;
         FullMoveCount = fullMoveCount;
-        _moveHistory = moveHistory;
+        MoveHistory = moveHistory;
         _initialPositionKey = initialPositionKey;
         CurrentMoveIndex = currentMoveIndex;
-        Result = EvaluateResult();
+        GameResult = EvaluateResult();
     }
     
     public MakeMoveResult MakeMove(string from, string to, [Optional] char promotionPieceChar)
@@ -62,7 +61,7 @@ public class Game
 
     private MakeMoveResult MakeMove(Square from, Square to, [Optional] char promotionPieceChar)
     {
-        if (Result != GameResult.InProgress)
+        if (GameResult != GameResult.InProgress)
         {
             return new MakeMoveResult(MoveResult.GameAlreadyOver, this);
         }
@@ -109,7 +108,7 @@ public class Game
 
         var positionKey = BuildPositionKey(board, turn, castlingAvailability, enPassant);
         var move = new Move(from, to, promotionPieceChar, positionKey);
-        var moveHistory = _moveHistory.Add(move);
+        var moveHistory = MoveHistory.Add(move);
 
         return new Game(board, turn, castlingAvailability, enPassant, halfMoveCount, newFullMoveCount, moveHistory, CurrentMoveIndex + 1, _initialPositionKey);
     }
@@ -119,9 +118,9 @@ public class Game
 
     public Game GoToMove(int moveIndex)
     {
-        if (moveIndex < 0 || moveIndex > _moveHistory.Count)
+        if (moveIndex < 0 || moveIndex > MoveHistory.Count)
         {
-            throw new ArgumentOutOfRangeException(nameof(moveIndex), $"Move index must be between 0 and {_moveHistory.Count}");
+            throw new ArgumentOutOfRangeException(nameof(moveIndex), $"Move index must be between 0 and {MoveHistory.Count}");
         }
 
         if (moveIndex == CurrentMoveIndex)
@@ -138,13 +137,13 @@ public class Game
 
         for (int i = 0; i < targetMoveIndex; i++)
         {
-            var move = _moveHistory[i];
+            var move = MoveHistory[i];
             var result = game.MakeMove(move.From, move.To, move.PromotionPiece);
             game = result.Game;
         }
 
         return new Game(game.Board, game.Turn, game.CastlingAvailability, game.EnPassant,
-                        game.HalfMoveCount, game.FullMoveCount, _moveHistory, targetMoveIndex, _initialPositionKey);
+                        game.HalfMoveCount, game.FullMoveCount, MoveHistory, targetMoveIndex, _initialPositionKey);
     }
 
     private bool IsLegalMove(Square from, Square to)
@@ -442,7 +441,7 @@ public class Game
     private bool IsFivefoldRepetition()
     {
         string currentPosition = GetPositionKey();
-        int count = _moveHistory
+        int count = MoveHistory
             .Count(m => m.PositionAfterMove == currentPosition);
 
         if (currentPosition == _initialPositionKey)
