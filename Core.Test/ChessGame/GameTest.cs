@@ -518,22 +518,22 @@ public class GameTest
     }
 
     [Test]
-    public async Task Result_After50MovesWithoutCaptureOrPawnMove_IsDrawByFiftyMoveRule()
+    public async Task Result_After75MovesWithoutCaptureOrPawnMove_IsDrawBySeventyFiveMoveRule()
     {
         var board = new Board("8/p7/4k3/8/8/4K3/8/8");
         var castlingAvailability = new CastlingAvailability("-");
-        var sut = new Game(board, Color.White, castlingAvailability, null, 100, 51);
+        var sut = new Game(board, Color.White, castlingAvailability, null, 150, 76);
 
-        await Assert.That(sut.GameResult).IsEqualTo(GameResult.DrawByFiftyMoveRule);
+        await Assert.That(sut.GameResult).IsEqualTo(GameResult.DrawBySeventyFiveMoveRule);
     }
 
 
     [Test]
-    public async Task Result_FiftyMoveRuleCounterResetsAfterPawnMove_IsInProgress()
+    public async Task Result_SeventyFiveMoveRuleCounterResetsAfterPawnMove_IsInProgress()
     {
         var board = new Board("8/p7/4k3/8/8/4K3/8/8");
         var castlingAvailability = new CastlingAvailability("-");
-        var sut = new Game(board, Color.Black, castlingAvailability, null, 99, 50);
+        var sut = new Game(board, Color.Black, castlingAvailability, null, 149, 75);
 
         sut = sut.MakeMove("a7", "a5").Game;
 
@@ -542,11 +542,11 @@ public class GameTest
     }
 
     [Test]
-    public async Task Result_FiftyMoveRuleCounterResetsAfterCapture_IsInProgress()
+    public async Task Result_SeventyFiveMoveRuleCounterResetsAfterCapture_IsInProgress()
     {
         var board = new Board("3k4/8/8/8/8/4r3/3K4/4R3");
         var castlingAvailability = new CastlingAvailability("-");
-        var sut = new Game(board, Color.White, castlingAvailability, null, 99, 50);
+        var sut = new Game(board, Color.White, castlingAvailability, null, 149, 50);
 
         var result = sut.MakeMove("e1", "e3").Game;
 

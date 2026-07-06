@@ -426,16 +426,16 @@ public class Game
 
     private GameResult EvaluateResult()
     {
-        if (IsDrawByFiftyMoveRule()) return GameResult.DrawByFiftyMoveRule;
+        if (IsDrawBySeventyFiveMoveRule()) return GameResult.DrawBySeventyFiveMoveRule;
         if (IsFivefoldRepetition()) return GameResult.DrawByFivefoldRepetition;
         if (IsInsufficientMaterial()) return GameResult.DrawByInsufficientMaterial;
         if (!GetLegalMoves(Turn).Any()) return Board.IsKingInCheck(Turn) ? GameResult.Checkmate : GameResult.Stalemate;
         return GameResult.InProgress;
     }
 
-    private bool IsDrawByFiftyMoveRule()
+    private bool IsDrawBySeventyFiveMoveRule()
     {
-        return HalfMoveCount >= 100;
+        return HalfMoveCount >= 150;
     }
 
     private bool IsFivefoldRepetition()
