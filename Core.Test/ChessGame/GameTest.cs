@@ -1,5 +1,6 @@
 using Core.ChessBoard;
 using Core.ChessGame;
+using Core.Parsers;
 using Core.Pieces;
 using Core.Shared;
 using System;
@@ -503,6 +504,15 @@ public class GameTest
         await Assert.That(result.MoveResult).IsEqualTo(MoveResult.Success);
     }
 
+    [Test]
+    public async Task MakeMove_FailedMoveReturnsOriginalGame()
+    {
+        var sut = new Game();
+        var result = sut.MakeMove("e2", "d5");
+
+        await Assert.That(result.Game).IsSameReferenceAs(sut);
+    }
+
     #endregion
 
     #region Draw Conditions
@@ -720,67 +730,46 @@ public class GameTest
 
     #endregion
 
-    #region MoveHistory
+    #region CurrentBranchLength
 
     [Test]
-    public async Task MoveHistory_AtStartOfGame_IsEmpty()
+    public async Task CurrentBranchLength_AtStartOfGame_IsZero()
     {
         var sut = new Game();
 
-        await Assert.That(sut.MoveHistory).IsEmpty();
+        await Assert.That(sut.CurrentBranchLength).IsZero();
     }
 
     [Test]
-    public async Task MoveHistory_AfterSuccessfulMove_ContainsOneEntry()
+    public async Task CurrentBranchLength_AfterSuccessfulMove_IsOne()
     {
         var sut = new Game();
 
         var game = sut.MakeMove("e2", "e4").Game;
 
-        await Assert.That(game.MoveHistory).Count().IsEqualTo(1);
+        await Assert.That(game.CurrentBranchLength).IsEqualTo(1);
     }
 
     [Test]
-    public async Task MoveHistory_AfterFailedMove_IsUnchanged()
+    public async Task CurrentBranchLengthy_AfterFailedMove_IsUnchanged()
     {
         var sut = new Game();
 
         var result = sut.MakeMove("e2", "b4");
 
         await Assert.That(result.MoveResult).IsEqualTo(MoveResult.IllegalMove);
-        await Assert.That(result.Game.MoveHistory).IsEmpty();
+        await Assert.That(result.Game.CurrentBranchLength).IsZero();
     }
 
     [Test]
-    public async Task MoveHistory_AfterThreeMoves_ContainsThreeEntries()
+    public async Task CurrentBranchLength_AfterThreeMoves_IsThree()
     {
         var sut = new Game();
         sut = sut.MakeMove("e2", "e4").Game;
         sut = sut.MakeMove("e7", "e5").Game;
         sut = sut.MakeMove("g1", "f3").Game;
 
-        await Assert.That(sut.MoveHistory).Count().IsEqualTo(3);
-    }
-
-    [Test]
-    public async Task MoveHistory_RecordsCorrectFromAndToSquares()
-    {
-        var sut = new Game();
-        var game = sut.MakeMove("e2", "e4").Game;
-
-        var move = game.MoveHistory[0];
-
-        await Assert.That(move.From.ToString()).IsEqualTo("e2");
-        await Assert.That(move.To.ToString()).IsEqualTo("e4");
-    }
-
-    [Test]
-    public async Task MoveHistory_FailedMoveReturnsOriginalGame()
-    {
-        var sut = new Game();
-        var result = sut.MakeMove("e2", "d5");
-
-        await Assert.That(result.Game).IsSameReferenceAs(sut);
+        await Assert.That(sut.CurrentBranchLength).IsEqualTo(3);
     }
 
     #endregion
@@ -863,7 +852,7 @@ public class GameTest
     }
 
     [Test]
-    public async Task GoToMove_PreservesMoveHistory()
+    public async Task GoToMove_PreservesCurrentBranchLength()
     {
         var sut = new Game();
         sut = sut.MakeMove("e2", "e4").Game;
@@ -872,7 +861,7 @@ public class GameTest
 
         var result = sut.GoToMove(1);
 
-        await Assert.That(result.MoveHistory).Count().IsEqualTo(3);
+        await Assert.That(result.CurrentBranchLength).IsEqualTo(3);
     }
 
     [Test]
@@ -988,6 +977,30 @@ public class GameTest
 
         await Assert.That(sut.CurrentMoveIndex).IsEqualTo(2);
         await Assert.That(navigated.CurrentMoveIndex).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task GoToMove_ToStartPosition_FromFenGame_ReturnsCustomInitialPosition()
+    {
+        var sut = FenParser.Parse("4k3/8/R3K3/8/8/8/8/8 w - - 0 1");
+        sut = sut.MakeMove("a6", "a8").Game;
+
+        var result = sut.GoToMove(0);
+
+        await Assert.That(result.Board["a6"].Piece).IsNotNull();
+        await Assert.That(result.Board["a8"].Piece).IsNull();
+    }
+
+
+    [Test]
+    public async Task GoToMove_ToStartPosition_FromFenGame_PreservesInitialTurn()
+    {
+        var sut = FenParser.Parse("4k3/8/8/8/8/8/8/4K2R b K - 0 1");
+        sut = sut.MakeMove("e8", "d8").Game;
+
+        var result = sut.GoToMove(0);
+
+        await Assert.That(result.Turn).IsEqualTo(Color.Black);
     }
 
     #endregion
