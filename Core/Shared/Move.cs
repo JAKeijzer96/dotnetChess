@@ -6,6 +6,9 @@ namespace Core.Shared;
 public record Move(
     Square From,
     Square To,
-    [Optional] char PromotionPiece,
-    string PositionAfterMove
-);
+    string PositionAfterMove,
+    [Optional] char PromotionPiece
+)
+{
+    public Guid Id { get; init; } = Guid.NewGuid();
+}
