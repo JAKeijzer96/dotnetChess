@@ -13,7 +13,7 @@ public class MoveNodeTest
         var random = new Random();
         var from = new Square((File)random.Next(8), (Rank)random.Next(8));
         var to = new Square((File)random.Next(8), (Rank)random.Next(8));
-        return new(from, to, "PositionAfterMove");
+        return new(from, to, "PositionAfterMove", false, false);
     }
 
     #region Create

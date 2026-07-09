@@ -19,7 +19,7 @@ public class PawnMoveValidator : MoveValidator
             }
 
             var isFirstMove = pawn.IsWhite ? from.Rank == 1 : from.Rank == 6;
-            if (from.Rank + 2 * direction == to.Rank && isFirstMove)
+            if (isFirstMove && from.Rank + 2 * direction == to.Rank)
             {
                 var oneForward = board[from.File, from.Rank + direction];
                 return oneForward.IsEmpty() && to.IsEmpty();

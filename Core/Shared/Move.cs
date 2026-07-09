@@ -7,6 +7,8 @@ public record Move(
     Square From,
     Square To,
     string PositionAfterMove,
+    bool IsCapture,
+    bool IsCastling,
     [Optional] char PromotionPiece
 )
 {
