@@ -1,4 +1,4 @@
-﻿namespace Core.Parsers;
+namespace Core.Parsers;
 
 internal enum PgnTokenType
 {

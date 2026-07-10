@@ -1,4 +1,4 @@
-﻿using Core.ChessBoard;
+using Core.ChessBoard;
 using Core.Pieces;
 
 namespace Core.MoveValidators;

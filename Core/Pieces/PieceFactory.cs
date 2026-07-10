@@ -1,4 +1,4 @@
-﻿using Core.Shared;
+using Core.Shared;
 
 namespace Core.Pieces;
 

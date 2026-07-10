@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.Pieces;
 using Core.Shared;

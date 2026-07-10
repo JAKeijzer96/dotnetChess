@@ -1,4 +1,4 @@
-﻿namespace Core.Exceptions;
+namespace Core.Exceptions;
 
 public class InvalidFenException : Exception
 {

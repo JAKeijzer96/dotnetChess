@@ -1,4 +1,4 @@
-﻿using Core.ChessBoard;
+using Core.ChessBoard;
 using Core.ChessGame;
 using Core.Exceptions;
 using Core.Pieces;

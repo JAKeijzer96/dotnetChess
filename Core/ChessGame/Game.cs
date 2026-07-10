@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 using Core.ChessBoard;
 using Core.Pieces;
