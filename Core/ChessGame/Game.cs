@@ -20,15 +20,15 @@ public class Game
     // Structural context belongs to Game, not to nodes. MoveNode.Parent is not used because
     // path-copying an immutable tree creates new node instances up the spine, which would leave
     // any child's Parent pointing at a stale ancestor. Instead, RootContinuations holds the
-    // full move tree and _currentPath holds the ordered sequence of nodes from the root to the
+    // full move tree and CurrentPath holds the ordered sequence of nodes from the root to the
     // current position, giving each Game instance a self-consistent view of the tree.
     internal readonly ImmutableList<MoveNode> RootContinuations;
-    private readonly ImmutableList<MoveNode> _currentPath;
+    internal readonly ImmutableList<MoveNode> CurrentPath;
 
     internal readonly Game InitialGame;
     
-    private ImmutableList<MoveNode> CurrentContinuations => _currentPath.IsEmpty ? RootContinuations : _currentPath[^1].Continuations;
-    public int CurrentMoveIndex => _currentPath.Count;
+    private ImmutableList<MoveNode> CurrentContinuations => CurrentPath.IsEmpty ? RootContinuations : CurrentPath[^1].Continuations;
+    public int CurrentMoveIndex => CurrentPath.Count;
     public int CurrentBranchLength => CountCurrentBranchLength();
 
     public Game()
@@ -40,7 +40,7 @@ public class Game
         HalfMoveCount = 0;
         FullMoveCount = 1;
         RootContinuations = [];
-        _currentPath = [];
+        CurrentPath = [];
         InitialGame = this;
         GameResult = GameResult.InProgress;
     }
@@ -58,7 +58,7 @@ public class Game
         HalfMoveCount = halfMoveCount;
         FullMoveCount = fullMoveCount;
         RootContinuations = rootContinuations;
-        _currentPath = currentPath;
+        CurrentPath = currentPath;
         InitialGame = initialGame ?? this;
         GameResult = EvaluateResult();
     }
@@ -122,7 +122,7 @@ public class Game
         if (existingNode is not null)
         {
             newRootContinuations = RootContinuations;
-            newCurrentPath = _currentPath.Add(existingNode);
+            newCurrentPath = CurrentPath.Add(existingNode);
         }
         else
         {
@@ -160,7 +160,7 @@ public class Game
             throw new ArgumentOutOfRangeException(nameof(variationIndex), $"Variation index must be between 0 and {CurrentContinuations.Count - 1}");
         }
 
-        return ReconstructGameFromPath(_currentPath.Add(CurrentContinuations[variationIndex]));
+        return ReconstructGameFromPath(CurrentPath.Add(CurrentContinuations[variationIndex]));
     }
 
     private Game ReconstructGameFromPath(ImmutableList<MoveNode> targetPath)
@@ -178,17 +178,17 @@ public class Game
     
     private ImmutableList<MoveNode> CollectPathToIndex(int targetIndex)
     {
-        int pathNodesNeeded = Math.Min(targetIndex, _currentPath.Count);
+        int pathNodesNeeded = Math.Min(targetIndex, CurrentPath.Count);
         var builder = ImmutableList.CreateBuilder<MoveNode>();
 
         for (var i = 0; i < pathNodesNeeded; i++)
         {
-            builder.Add(_currentPath[i]);
+            builder.Add(CurrentPath[i]);
         }
 
-        if (targetIndex > _currentPath.Count)
+        if (targetIndex > CurrentPath.Count)
         {
-            int stepsForward = targetIndex - _currentPath.Count;
+            int stepsForward = targetIndex - CurrentPath.Count;
             MoveNode? current = CurrentContinuations.FirstOrDefault();
             for (var i = 0; i < stepsForward; i++)
             {
@@ -207,24 +207,24 @@ public class Game
     // regardless of total tree size.
     private (ImmutableList<MoveNode> newRootContinuations, ImmutableList<MoveNode> newCurrentPath) AddNodeToTree(MoveNode newNode)
     {
-        if (_currentPath.IsEmpty)
+        if (CurrentPath.IsEmpty)
         {
-            return (RootContinuations.Add(newNode), _currentPath.Add(newNode));
+            return (RootContinuations.Add(newNode), CurrentPath.Add(newNode));
         }
 
         // Attach newNode to the current leaf, then rebuild the spine bottom-up
-        var updatedNodes = new MoveNode[_currentPath.Count];
-        updatedNodes[^1] = _currentPath[^1].WithContinuation(newNode);
+        var updatedNodes = new MoveNode[CurrentPath.Count];
+        updatedNodes[^1] = CurrentPath[^1].WithContinuation(newNode);
 
-        for (var i = _currentPath.Count - 2; i >= 0; i--)
+        for (var i = CurrentPath.Count - 2; i >= 0; i--)
         {
             // Find where the next path node sits in this node's continuations, then replace it with the updated version.
-            int childIndex = FindContinuationIndex(_currentPath[i].Continuations, _currentPath[i + 1].Move.Id);
-            updatedNodes[i] = _currentPath[i].ReplaceContinuation(childIndex, updatedNodes[i + 1]);
+            int childIndex = FindContinuationIndex(CurrentPath[i].Continuations, CurrentPath[i + 1].Move.Id);
+            updatedNodes[i] = CurrentPath[i].ReplaceContinuation(childIndex, updatedNodes[i + 1]);
         }
 
         // Splice the rebuilt spine back into the root list and advance the current path to newNode.
-        int rootIndex = FindContinuationIndex(RootContinuations, _currentPath[0].Move.Id);
+        int rootIndex = FindContinuationIndex(RootContinuations, CurrentPath[0].Move.Id);
         ImmutableList<MoveNode> newRootContinuations = RootContinuations.SetItem(rootIndex, updatedNodes[0]);
         ImmutableList<MoveNode> newCurrentPath = updatedNodes.ToImmutableList().Add(newNode);
 
@@ -250,7 +250,7 @@ public class Game
 
     private int CountCurrentBranchLength()
     {
-        int length = _currentPath.Count;
+        int length = CurrentPath.Count;
         MoveNode? current = CurrentContinuations.FirstOrDefault();
         while (current is not null)
         {
@@ -555,7 +555,7 @@ public class Game
     private bool IsFivefoldRepetition()
     {
         string currentPosition = GetPositionKey();
-        int count = _currentPath.Count(node => node.Move.PositionAfterMove == currentPosition);
+        int count = CurrentPath.Count(node => node.Move.PositionAfterMove == currentPosition);
 
         if (currentPosition == InitialGame.GetPositionKey())
         {
