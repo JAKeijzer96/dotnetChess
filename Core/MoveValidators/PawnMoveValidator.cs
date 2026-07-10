@@ -30,8 +30,7 @@ public class PawnMoveValidator : MoveValidator
         
         if (from.File.DistanceTo(to.File) == 1 && from.Rank + direction == to.Rank)
         {
-            // Already checked that if there is a piece on the target square,
-            // that it is of the opposite color
+            // Already checked that if there is a piece on the target square, that it is of the opposite color
             return to.IsOccupied();
         }
 
