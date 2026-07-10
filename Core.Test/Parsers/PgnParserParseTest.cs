@@ -15,7 +15,7 @@ public class PgnParserParseTest
     private static string PgnFromMovetext(string moveText, string result = "*", string? fen = null)
     {
         string newLine = Environment.NewLine;
-        var baseTags = $"[Event \"?\"{newLine}[Site \"?\"{newLine}[Date \"????.??.??\"{newLine}[Round \"?\"{newLine}[White \"?\"{newLine}[Black \"?\"{newLine}";
+        var baseTags = $"[Event \"?\"]{newLine}[Site \"?\"]{newLine}[Date \"????.??.??\"]{newLine}[Round \"?\"]{newLine}[White \"?\"]{newLine}[Black \"?\"]{newLine}";
         var resultTag = $"[Result \"{result}\"]";
         var fenTag = $"[FEN \"{fen}\"]";
         return baseTags + resultTag + (fen is not null ? $"{newLine}{fenTag}" : "") + $"{newLine}{newLine}" + moveText;
