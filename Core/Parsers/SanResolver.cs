@@ -53,13 +53,10 @@ internal static class SanResolver
         {
             throw new InvalidPgnException($"SAN '{san}' contains invalid destination square '{destinationSquareString}'.", ex);
         }
-        // TODO PRECANDIDATES VERWIJDEREN
-        var precandidates = game.GetLegalMoves(game.Turn)
+        
+        var candidates = game.GetLegalMoves(game.Turn)
             .Where(m => m.to.File == destinationSquare.File && m.to.Rank == destinationSquare.Rank)
             .Where(m => m.from.Piece?.GetType() == pieceType)
-            .ToList();
-
-        var candidates = precandidates
             .Where(m => MatchesDisambiguation(m.from, rankFileDisambiguation))
             .ToList();
 
@@ -73,12 +70,8 @@ internal static class SanResolver
     private static (string from, string to, char promotionPiece) ResolveCastling(string san, Game game)
     {
         bool isQueenside = san == "O-O-O";
-        var precandidates = game.GetLegalMoves(game.Turn).ToList();
-
-        var kingcandidates = precandidates
-            .Where(m => m.from.Piece is King);
-
-        var candidates = kingcandidates
+        var candidates = game.GetLegalMoves(game.Turn)
+            .Where(m => m.from.Piece is King)
             .Where(m => isQueenside ? m.to.File < m.from.File : m.to.File > m.from.File)
             .Where(m => m.from.File.DistanceTo(m.to.File) == 2) // Parse castling moves as king moves of exactly two squares
             .ToList();

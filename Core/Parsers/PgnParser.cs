@@ -10,6 +10,9 @@
  *   The seven roster tags (always present, in this order):
  *     [Event "?"]  [Site "?"]  [Date "????.??.??"]  [Round "?"]
  *     [White "?"]  [Black "?"] [Result "1-0" | "0-1" | "1/2-1/2" | "*"]
+ *   For games starting from a non-standard position, an additional FEN tag is required:
+ *     [FEN "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"]
+ *     This tag is also included in the serialized PGN output when the game does not start from the standard initial position.
  *
  * MOVETEXT / SAN (Standard Algebraic Notation)
  *   Move numbers precede White's move and follow a variation open:
@@ -19,9 +22,9 @@
  *     1. e4 (1. d4 d5) 1... e5
  *
  *   SAN token format:
- *     Piece moves : [BNQRK] [file|rank|both]? x? [a-h][1-8] [=BNQR]? [+|#]?
- *     Pawn moves  :         [file]?            x? [a-h][1-8] [=BNQR]? [+|#]?
- *     Castling    : O-O  or  O-O-O             [+|#]?
+ *     Piece moves : [BNQRK] [file|rank|both]? x? [a-h][1-8]          [+|#]?
+ *     Pawn moves  :         [file]?           x? [a-h][1-8] [=BNQR]? [+|#]?
+ *     Castling    : O-O | O-O-O                                      [+|#]?
  *
  *   Disambiguation: added when two (or more) pieces of the same type can legally
  *   reach the same destination square.
@@ -45,16 +48,19 @@
  *   - NAG annotations ($1, $2, ...)
  *   - Comments ({ ... } and ; ...)
  *   - Clock annotations (%clk, %emt)
- *   - Non-roster tag pairs beyond the seven above
- *   - Parsing PGN back into a Game (serialization only for now)
+ *
+ * DECISIONS
+ *   FEN fullmove count vs. movetext move numbers:
+ *     The fullmove count from the FEN tag is leading. Move numbers in the movetext
+ *     are parsed for structure only and will be overwritten by the FEN value.
+ *
+ *   Check/checkmate annotations (+/#) in movetext:
+ *     Annotations are stripped before SAN resolution and not semantically validated.
+ *     If the movetext omits a '+' or '#' that the position warrants, it is parsed as
+ *     a legal move regardless. If the movetext includes '+' or '#' for a move that
+ *     is not actually check(mate), it is still parsed as a legal move. Annotation
+ *     accuracy is the responsibility of the PGN producer, not the parser.
  */
-
-
-// TODO: Handle case where FEN fullmovecount is 10 but in the movetext it's a different number
-//
-// TODO: Verify that checks are actually checks
-// if pgn movetext contains Ra8+ but it's not check because the king is on e7 instead of e8, then parsing that should fail
-// 
 
 using System.Collections.Immutable;
 using System.Text;
