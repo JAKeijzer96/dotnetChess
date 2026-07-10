@@ -34,7 +34,6 @@ public class PgnParserSerializeTest
     [Test]
     public async Task Serialize_CheckmateByWhite_ResultTagIsOneZero()
     {
-        // Scholar's mate
         var game = new Game();
         game = game.MakeMove("e2", "e4").Game;
         game = game.MakeMove("e7", "e5").Game;
@@ -52,7 +51,6 @@ public class PgnParserSerializeTest
     [Test]
     public async Task Serialize_CheckmateByBlack_ResultTagIsZeroOne()
     {
-        // Fool's mate
         var game = new Game();
         game = game.MakeMove("f2", "f3").Game;
         game = game.MakeMove("e7", "e5").Game;
@@ -202,7 +200,6 @@ public class PgnParserSerializeTest
     [Test]
     public async Task Serialize_Checkmate_HasHashSuffix()
     {
-        // Fool's mate
         var game = new Game();
         game = game.MakeMove("f2", "f3").Game;
         game = game.MakeMove("e7", "e5").Game;
@@ -276,7 +273,6 @@ public class PgnParserSerializeTest
     [Test]
     public async Task Serialize_Checkmate_MovetextEndsWithResultToken()
     {
-        // Fool's mate
         var game = new Game();
         game = game.MakeMove("f2", "f3").Game;
         game = game.MakeMove("e7", "e5").Game;

@@ -17,11 +17,13 @@ public class Game
     public int FullMoveCount { get; }
     public GameResult GameResult { get; }
 
-    // Structural context belongs to Game, not to nodes. MoveNode.Parent is not used because
-    // path-copying an immutable tree creates new node instances up the spine, which would leave
-    // any child's Parent pointing at a stale ancestor. Instead, RootContinuations holds the
-    // full move tree and CurrentPath holds the ordered sequence of nodes from the root to the
-    // current position, giving each Game instance a self-consistent view of the tree.
+    /* 
+     * Structural context belongs to Game, not to nodes. MoveNode.Parent is not used because
+     * path-copying an immutable tree creates new node instances up the spine, which would leave
+     * any child's Parent pointing at a stale ancestor. Instead, RootContinuations holds the
+     * full move tree and CurrentPath holds the ordered sequence of nodes from the root to the
+     * current position, giving each Game instance a self-consistent view of the tree.
+     */
     internal readonly ImmutableList<MoveNode> RootContinuations;
     internal readonly ImmutableList<MoveNode> CurrentPath;
 
@@ -201,10 +203,12 @@ public class Game
         return builder.ToImmutable();
     }
 
-    // Inserting a node into an immutable tree requires rebuilding every ancestor because nodes
-    // cannot be mutated. Only the spine from the current leaf up to the root is recreated. All
-    // unaffected branches are shared with the previous tree. Cost is O(depth) allocations
-    // regardless of total tree size.
+    /*
+     * Inserting a node into an immutable tree requires rebuilding every ancestor because nodes
+     * cannot be mutated. Only the spine from the current leaf up to the root is recreated. All
+     * unaffected branches are shared with the previous tree. Cost is O(depth) allocations
+     * regardless of total tree size.
+     */ 
     private (ImmutableList<MoveNode> newRootContinuations, ImmutableList<MoveNode> newCurrentPath) AddNodeToTree(MoveNode newNode)
     {
         if (CurrentPath.IsEmpty)
@@ -567,11 +571,13 @@ public class Game
 
     private bool IsInsufficientMaterial()
     {
-        // Insufficient material scenarios:
-        // King vs King
-        // King + Bishop vs King
-        // King + Knight vs King
-        // King + Bishop vs King + Bishop, with bishops on the same color
+        /*
+         * Insufficient material scenarios:
+         * King vs King
+         * King + Bishop vs King
+         * King + Knight vs King
+         * King + Bishop vs King + Bishop, with bishops on the same color
+         */
         var pieces = Board.GetAllPieces().ToList();
         var whitePieces = pieces.Where(p => p.IsWhite).ToList();
         var blackPieces = pieces.Where(p => p.IsBlack).ToList();

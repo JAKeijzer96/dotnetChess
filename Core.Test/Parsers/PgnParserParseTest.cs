@@ -32,8 +32,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_InvalidSan_ThrowsInvalidPgnException()
     {
-        var serialized = PgnFromMovetext("1. Ni2 *");
-        void Act() => PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. Ni2 *");
+        void Act() => PgnParser.Parse(pgn);
 
         await Assert.That(Act).ThrowsExactly<InvalidPgnException>();
     }
@@ -41,8 +41,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_UnmatchedCloseParen_ThrowsInvalidPgnException()
     {
-        var serialized = PgnFromMovetext("1. e4 ) *");
-        void Act() => PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. e4 ) *");
+        void Act() => PgnParser.Parse(pgn);
 
         await Assert.That(Act).ThrowsExactly<InvalidPgnException>();
     }
@@ -50,8 +50,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_VariationOpenAtMoveZero_ThrowsInvalidPgnException()
     {
-        var serialized = PgnFromMovetext("( 1. e4 ) *");
-        void Act() => PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("( 1. e4 ) *");
+        void Act() => PgnParser.Parse(pgn);
 
         await Assert.That(Act).ThrowsExactly<InvalidPgnException>();
     }
@@ -117,9 +117,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_WithBraceComment_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("1. e4 { This is a comment } e5 *");
+        var pgn = PgnFromMovetext("1. e4 { This is a comment } e5 *");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         var e4Piece = game.Board["e4"].Piece!;
         var e5Piece = game.Board["e5"].Piece!;
@@ -132,9 +132,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_WithSemicolonComment_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("1. e4 e5 ; this is a line comment\n2. Nf3 *");
+        var pgn = PgnFromMovetext("1. e4 e5 ; this is a line comment\n2. Nf3 *");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         var e4Piece = game.Board["e4"].Piece!;
         var e5Piece = game.Board["e5"].Piece!;
@@ -151,9 +151,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_WithNag_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("1. e4 $1 e5 $2 *");
+        var pgn = PgnFromMovetext("1. e4 $1 e5 $2 *");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         var e4Piece = game.Board["e4"].Piece!;
         var e5Piece = game.Board["e5"].Piece!;
@@ -174,9 +174,9 @@ public class PgnParserParseTest
     public async Task Parse_WithFenTag_AppliesFenToInitialBoardState()
     {
         // Only a rook and kings on the board
-        var serialized = PgnFromMovetext("*", fen: "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1");
+        var pgn = PgnFromMovetext("*", fen: "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["a1"].Piece).IsTypeOf<Rook>();
         await Assert.That(game.Board["a1"].Piece!.Color).IsEqualTo(Color.White);
@@ -190,9 +190,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_WithoutFenTag_UsesStandardStartingPosition()
     {
-        var serialized = PgnFromMovetext("*");
+        var pgn = PgnFromMovetext("*");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["e1"].Piece).IsTypeOf<King>();
         await Assert.That(game.Board["e8"].Piece).IsTypeOf<King>();
@@ -207,8 +207,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_WithInvalidFenTag_ThrowsInvalidPgnException()
     {
-        var serialized = PgnFromMovetext("*", fen: "4k3/8/8/8/8/8/8/R3K3");
-        void Act() => PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("*", fen: "4k3/8/8/8/8/8/8/R3K3");
+        void Act() => PgnParser.Parse(pgn);
 
         await Assert.That(Act)
             .ThrowsExactly<InvalidPgnException>()
@@ -218,9 +218,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_FenTagWithMovesInMovetext_BoardReflectsPositionAfterMoves()
     {
-        var serialized = PgnFromMovetext("1. Ra4 *", fen: "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1");
+        var pgn = PgnFromMovetext("1. Ra4 *", fen: "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["a4"].Piece).IsTypeOf<Rook>();
         await Assert.That(game.Board["a4"].Piece!.Color).IsEqualTo(Color.White);
@@ -231,9 +231,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_FenTagWithMovesInMovetext_NavigationReflectsCorrectPositionAtEachMove()
     {
-        var serialized = PgnFromMovetext("1. Ra8+ Ke7 2. Ra7+ *", fen: "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1");
+        var pgn = PgnFromMovetext("1. Ra8+ Ke7 2. Ra7+ *", fen: "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["a7"].Piece).IsTypeOf<Rook>();
 
@@ -251,9 +251,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_FenTagWithBlackToMove_ParsesBlackFirstMove()
     {
-        var serialized = PgnFromMovetext("1... a5 *", fen: "4k3/p7/8/8/8/8/8/4K3 b - - 0 1");
+        var pgn = PgnFromMovetext("1... a5 *", fen: "4k3/p7/8/8/8/8/8/4K3 b - - 0 1");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["a5"].Piece).IsTypeOf<Pawn>();
         await Assert.That(game.Board["a5"].Piece!.Color).IsEqualTo(Color.Black);
@@ -267,9 +267,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_FenTagWithCastlingRights_CastlingRightsArePreserved()
     {
-        var serialized = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+        var pgn = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.CastlingAvailability.CanWhiteCastleKingside()).IsTrue();
         await Assert.That(game.CastlingAvailability.CanWhiteCastleQueenside()).IsTrue();
@@ -280,9 +280,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_FenTagWithCastlingRights_CastlingRightsAreUpdatedAfterCastling()
     {
-        var serialized = PgnFromMovetext("1. O-O *", fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+        var pgn = PgnFromMovetext("1. O-O *", fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.CastlingAvailability.CanWhiteCastleKingside()).IsFalse();
         await Assert.That(game.CastlingAvailability.CanWhiteCastleQueenside()).IsFalse();
@@ -293,9 +293,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_FenTagWithEnPassantSquare_EnPassantIsAvailableAfterParsing()
     {
-        var serialized = PgnFromMovetext("1. exd6 *", fen: "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1");
+        var pgn = PgnFromMovetext("1. exd6 *", fen: "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["d6"].Piece).IsTypeOf<Pawn>();
         await Assert.That(game.Board["d6"].Piece!.Color).IsEqualTo(Color.White);
@@ -306,9 +306,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_FenTagWithHalfMoveClock_HalfMoveClockIsPreservedAndUpdated()
     {
-        var serialized = PgnFromMovetext("1. Ra4 *", fen: "4k3/8/8/8/8/8/8/R3K3 w Q - 5 1");
+        var pgn = PgnFromMovetext("1. Ra4 *", fen: "4k3/8/8/8/8/8/8/R3K3 w Q - 5 1");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.HalfMoveCount).IsEqualTo(6);
     }
@@ -316,9 +316,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_FenTagWithFullMoveCount_FullMoveCountIsPreservedAndUpdated()
     {
-        var serialized = PgnFromMovetext("10. Ra4 Kf8 *", fen: "4k3/8/8/8/8/8/8/R3K3 w Q - 0 10");
+        var pgn = PgnFromMovetext("10. Ra4 Kf8 *", fen: "4k3/8/8/8/8/8/8/R3K3 w Q - 0 10");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.FullMoveCount).IsEqualTo(11);
     }
@@ -330,8 +330,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_EmptyMovetext_ReturnsInitialGame()
     {
-        var serialized = PgnFromMovetext("*");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("*");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.CurrentMoveIndex).IsEqualTo(0);
         await Assert.That(game.Turn).IsEqualTo(Color.White);
@@ -340,8 +340,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_BasicMoves_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("1. e4 e5 2. Nf3 Nc6 *");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. e4 e5 2. Nf3 Nc6 *");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.FullMoveCount).IsEqualTo(3);
         await Assert.That(game.HalfMoveCount).IsEqualTo(2);
@@ -364,20 +364,20 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_BasicMoves_EqualsSerializeOutput()
     {
-        var serialized = PgnFromMovetext("1. e4 e5 2. Nf3 Nc6 *");
+        var pgn = PgnFromMovetext("1. e4 e5 2. Nf3 Nc6 *");
         
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
         string serializedFromParsed = PgnParser.Serialize(game);
 
-        await Assert.That(serializedFromParsed).IsEqualTo(serialized);
+        await Assert.That(serializedFromParsed).IsEqualTo(pgn);
     }
 
     [Test]
     public async Task Parse_PawnCapture_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("1. e4 d5 2. exd5 *");
+        var pgn = PgnFromMovetext("1. e4 d5 2. exd5 *");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.CurrentMoveIndex).IsEqualTo(3);
         await Assert.That(game.Turn).IsEqualTo(Color.Black);
@@ -390,9 +390,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_EnPassant_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("1. e4 h6 2. e5 d5 3. exd6 *");
+        var pgn = PgnFromMovetext("1. e4 h6 2. e5 d5 3. exd6 *");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.CurrentMoveIndex).IsEqualTo(5);
         await Assert.That(game.Turn).IsEqualTo(Color.Black);
@@ -405,8 +405,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_Checkmate_ParsesGameResultCorrectly()
     {
-        var serialized = PgnFromMovetext("1. f3 e5 2. g4 Qh4# 0-1", "0-1");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. f3 e5 2. g4 Qh4# 0-1", "0-1");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.GameResult).IsEqualTo(GameResult.Checkmate);
     }
@@ -414,8 +414,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_Stalemate_ParsesGameResultCorrectly()
     {
-        var serialized = PgnFromMovetext("1. 1/2-1/2", "1/2-1/2", fen: "8/8/8/8/8/5kq1/8/7K w - - 0 1");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. 1/2-1/2", "1/2-1/2", fen: "8/8/8/8/8/5kq1/8/7K w - - 0 1");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.GameResult).IsEqualTo(GameResult.Stalemate);
     }
@@ -423,8 +423,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_DrawBySeventyFiveMoveRule_ParsesGameResultCorrectly()
     {
-        var serialized = PgnFromMovetext("1/2-1/2", "1/2-1/2", fen: "8/p7/4k3/8/8/4K3/8/8 w - - 150 76");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1/2-1/2", "1/2-1/2", fen: "8/p7/4k3/8/8/4K3/8/8 w - - 150 76");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.GameResult).IsEqualTo(GameResult.DrawBySeventyFiveMoveRule);
     }
@@ -432,8 +432,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_DrawByInsufficientMaterial_ParsesGameResultCorrectly()
     {
-        var serialized = PgnFromMovetext("* 1/2-1/2", fen: "8/8/3k4/4b3/8/4B3/5K2/8 w - - 0 1");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("* 1/2-1/2", fen: "8/8/3k4/4b3/8/4B3/5K2/8 w - - 0 1");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.GameResult).IsEqualTo(GameResult.DrawByInsufficientMaterial);
     }
@@ -441,8 +441,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_DrawByFivefoldRepetition_ParsesGameResultCorrectly()
     {
-        var serialized = PgnFromMovetext("1. Nf3 Nf6 2. Ng1 Ng8 3. Nf3 Nf6 4. Ng1 Ng8 5. Nf3 Nf6 6. Ng1 Ng8 7. Nf3 Nf6 8. Ng1 Ng8 1/2-1/2", "1/2-1/2");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. Nf3 Nf6 2. Ng1 Ng8 3. Nf3 Nf6 4. Ng1 Ng8 5. Nf3 Nf6 6. Ng1 Ng8 7. Nf3 Nf6 8. Ng1 Ng8 1/2-1/2", "1/2-1/2");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.GameResult).IsEqualTo(GameResult.DrawByFivefoldRepetition);
     }
@@ -451,8 +451,8 @@ public class PgnParserParseTest
     public async Task Parse_DrawByAgreement_ParsesWithoutError()
     {
         // Since DrawByAgreement is not implemented this result should be InProgress
-        var serialized = PgnFromMovetext("1. e4 e5 1/2-1/2", "1/2-1/2");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. e4 e5 1/2-1/2", "1/2-1/2");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.GameResult).IsEqualTo(GameResult.InProgress);
         await Assert.That(game.Board["e4"].Piece).IsTypeOf<Pawn>();
@@ -466,8 +466,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_CanCastleKingside_ParsesCastlingAvailability()
     {
-        var serialized = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+        var game = PgnParser.Parse(pgn);
         
         var makeMoveResult = game.MakeMove("e1", "h1");
         await Assert.That(makeMoveResult.MoveResult).IsEqualTo(MoveResult.Success);
@@ -484,8 +484,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_CanNotCastleKingside_ParsesCastlingAvailability()
     {
-        var serialized = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w Qkq - 0 1");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w Qkq - 0 1");
+        var game = PgnParser.Parse(pgn);
 
         var makeMoveResult = game.MakeMove("e1", "h1");
         await Assert.That(makeMoveResult.MoveResult).IsEqualTo(MoveResult.IllegalMove);
@@ -494,8 +494,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_HasCastledKingside_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. O-O *");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. O-O *");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["g1"].Piece).IsTypeOf<King>();
         await Assert.That(game.Board["g1"].Piece!.Color).IsEqualTo(Color.White);
@@ -508,8 +508,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_CanCastleQueenside_ParsesCastlingAvailability()
     {
-        var serialized = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+        var game = PgnParser.Parse(pgn);
 
         var makeMoveResult = game.MakeMove("e1", "b1");
         await Assert.That(makeMoveResult.MoveResult).IsEqualTo(MoveResult.Success);
@@ -526,8 +526,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_CanNotCastleQueenside_ParsesCastlingAvailability()
     {
-        var serialized = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w Kkq - 0 1");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w Kkq - 0 1");
+        var game = PgnParser.Parse(pgn);
 
         var makeMoveResult = game.MakeMove("e1", "b1");
         await Assert.That(makeMoveResult.MoveResult).IsEqualTo(MoveResult.IllegalMove);
@@ -536,9 +536,9 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_HasCastledQueenside_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("1. e4 d5 2. exd5 Qxd5 3. Nf3 Bg4 4. Be2 Nc6 5. d3 O-O-O *");
+        var pgn = PgnFromMovetext("1. e4 d5 2. exd5 Qxd5 3. Nf3 Bg4 4. Be2 Nc6 5. d3 O-O-O *");
 
-        var game = PgnParser.Parse(serialized);
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["c8"].Piece).IsTypeOf<King>();
         await Assert.That(game.Board["c8"].Piece!.Color).IsEqualTo(Color.Black);
@@ -555,8 +555,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_PawnPromoted_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("a8=Q+ *", fen: "4k3/P7/8/8/8/8/8/4K3 w - - 0 1");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("a8=Q+ *", fen: "4k3/P7/8/8/8/8/8/4K3 w - - 0 1");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["a8"].Piece).IsTypeOf<Queen>();
         await Assert.That(game.Board["a8"].Piece!.Color).IsEqualTo(Color.White);
@@ -569,8 +569,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_PawnPromotedWithCapture_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("1. a7xb8=R+ *", fen: "1n2k3/P7/8/8/8/8/8/4K3 w - - 0 1");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. a7xb8=R+ *", fen: "1n2k3/P7/8/8/8/8/8/4K3 w - - 0 1");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["b8"].Piece).IsTypeOf<Rook>();
         await Assert.That(game.Board["b8"].Piece!.Color).IsEqualTo(Color.White);
@@ -587,8 +587,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_DisambiguationByFile_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("1. Raa4 *", fen: "4k3/8/8/8/3R4/8/8/R3K3 w Q - 0 1");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. Raa4 *", fen: "4k3/8/8/8/3R4/8/8/R3K3 w Q - 0 1");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["a4"].Piece).IsTypeOf<Rook>();
         await Assert.That(game.Board["a4"].Piece!.Color).IsEqualTo(Color.White);
@@ -605,8 +605,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_DisambiguationByRank_ParsesMoves()
     {
-        var serialized = PgnFromMovetext("1. R7a5 *", fen: "4k3/R7/8/8/8/8/8/R3K3 w Q - 0 1");
-        var game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. R7a5 *", fen: "4k3/R7/8/8/8/8/8/R3K3 w Q - 0 1");
+        var game = PgnParser.Parse(pgn);
 
         await Assert.That(game.Board["a5"].Piece).IsTypeOf<Rook>();
         await Assert.That(game.Board["a5"].Piece!.Color).IsEqualTo(Color.White);
@@ -625,8 +625,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_WithVariation_EndsAtMainLineTip()
     {
-        string serialized = PgnFromMovetext("1. e4 (1. d4) 1... e5 *");
-        Game game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. e4 (1. d4) 1... e5 *");
+        Game game = PgnParser.Parse(pgn);
 
         await Assert.That(game.CurrentMoveIndex).IsEqualTo(2);
     }
@@ -634,8 +634,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_SingleVariation_ParsesMainLineAndVariation()
     {
-        var serialized = PgnFromMovetext("1. e4 (1. d4) *");
-        Game game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. e4 (1. d4) *");
+        Game game = PgnParser.Parse(pgn);
 
         await Assert.That(game.CurrentMoveIndex).IsEqualTo(1);
         await Assert.That(game.CurrentBranchLength).IsEqualTo(1);
@@ -654,8 +654,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_MultiMoveVariation_ParsesFullVariation()
     {
-        var serialized = PgnFromMovetext("1. e4 (1. d4 d5) *");
-        Game game = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. e4 (1. d4 d5) *");
+        Game game = PgnParser.Parse(pgn);
 
         await Assert.That(game.CurrentMoveIndex).IsEqualTo(1);
         await Assert.That(game.CurrentBranchLength).IsEqualTo(1);
@@ -678,8 +678,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_MultipleVariationsAtSamePoint_ParsesAllVariations()
     {
-        var serialized = PgnFromMovetext("1. e4 (1. d4) (1. c4) *");
-        Game result = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. e4 (1. d4) (1. c4) *");
+        Game result = PgnParser.Parse(pgn);
 
         await Assert.That(result.CurrentMoveIndex).IsEqualTo(1);
         await Assert.That(result.Turn).IsEqualTo(Color.Black);
@@ -697,8 +697,8 @@ public class PgnParserParseTest
     [Test]
     public async Task Parse_NestedVariation_ParsesAllVariations()
     {
-        var serialized = PgnFromMovetext("1. e4 (1. d4 d5 2. c4 (2. Nf3)) 1... e5 *");
-        Game result = PgnParser.Parse(serialized);
+        var pgn = PgnFromMovetext("1. e4 (1. d4 d5 2. c4 (2. Nf3)) 1... e5 *");
+        Game result = PgnParser.Parse(pgn);
 
         // 1. e4 e5 main line
         await Assert.That(result.CurrentMoveIndex).IsEqualTo(2);
@@ -730,4 +730,44 @@ public class PgnParserParseTest
     }
 
     #endregion
+
+    [Test]
+    public async Task Parse_FullGameWithTagsVariationsAndComments_ParsesGame()
+    {
+        var pgn = """
+[Event "Paris"]
+[Site "Paris FRA"]
+[Date "1858.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Paul Morphy"]
+[Black "Duke Karl / Count Isouard"]
+[ECO "C41"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "33"]
+
+1. e4 {Notes by Stockfish 8 v270317 (minimum 60s/ply)} e5 2. Nf3
+d6 3. d4 Bg4 {better is 3... Nf6 4. Nc3 exd4 5. Nxd4 Nc6 6. Bc4 Be7
+7. O-O O-O = +0.23 (37 ply)} 4. dxe5 {+/= +0.95 (34 ply)} Bxf3
+5. Qxf3 {5. gxf3 was played in Breyer vs R Binder, 1921 (1-0)}
+dxe5 6. Bc4 {6. Qb3 was played in V Neverov vs M Chahrour, 2009
+(1-0)} Nf6 7. Qb3 {7. Bg5 was played in M Spaeti vs J
+Soltermann, 2005 (1-0)} Qe7 8. Nc3 {8. Qxb7 was played in A
+Milovic vs D Mihajlova, 2008 (1-0)} c6 9. Bg5 b5 {? 9... Na6
+10. Bxa6 bxa6 11. Rd1 Qb4 12. Ke2 a5 13. Rd3 Be7 +/- +1.54 (41
+ply)} 10. Nxb5 {+- +2.72 (42 ply)} cxb5 {? 10... Qb4+ 11. Qxb4
+Bxb4+ 12. c3 cxb5 13. Bxb5+ Nbd7 14. cxb4 +- +2.79 (39 ply)}
+11. Bxb5+ {+- +7.42 (39 ply)} Nbd7 12. O-O-O Rd8 13. Rxd7 Rxd7
+14. Rd1 Qe6 15. Bxd7+ Nxd7 16. Qb8+ Nxb8 17. Rd8# 1-0
+""";
+
+        var game = PgnParser.Parse(pgn);
+
+        await Assert.That(game.FullMoveCount).IsEqualTo(17);
+        await Assert.That(game.HalfMoveCount).IsEqualTo(1);
+        await Assert.That(game.GameResult).IsEqualTo(GameResult.Checkmate);
+        await Assert.That(game.CastlingAvailability.CanBlackCastleKingside()).IsTrue();
+    }
 }
