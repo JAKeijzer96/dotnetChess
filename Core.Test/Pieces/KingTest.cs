@@ -12,7 +12,7 @@ public class KingTest
     public async Task King_WithColor_HasCorrectNameAndColor(Color color, char name)
     {
         var king = new King(color);
-        
+
         await Assert.That(king.Name).IsEqualTo(name);
         await Assert.That(king.Color).IsEqualTo(color);
     }

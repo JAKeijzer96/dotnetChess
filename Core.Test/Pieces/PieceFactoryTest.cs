@@ -27,7 +27,7 @@ public class PieceFactoryTest
         await Assert.That(result).IsOfType(expectedType);
         await Assert.That(result.Color).IsEqualTo(expectedColor);
     }
-    
+
     [Test]
     public async Task CreatePiece_WithIncorrectChar_ThrowsArgumentException()
     {

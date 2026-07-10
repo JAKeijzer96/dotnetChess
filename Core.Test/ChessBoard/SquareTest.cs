@@ -14,7 +14,7 @@ public class SquareTests
     [Arguments(6, 3)]
     public async Task Constructor_WithValidInput_CreatesSquare(int file, int rank)
     {
-        var square = new Square((File) file, (Rank) rank);
+        var square = new Square((File)file, (Rank)rank);
 
         await Assert.That(square.File).IsEqualTo((File)file);
         await Assert.That(square.Rank).IsEqualTo((Rank)rank);
@@ -57,7 +57,7 @@ public class SquareTests
     [Arguments(3, 7, "d8")]
     public async Task ToString_ReturnsExpectedValue(int file, int rank, string expected)
     {
-        var square = new Square((File) file, (Rank) rank);
+        var square = new Square((File)file, (Rank)rank);
 
         await Assert.That(square.ToString()).IsEqualTo(expected);
     }

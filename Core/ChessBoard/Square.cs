@@ -67,7 +67,7 @@ public class Square
         if (obj is null) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((Square) obj);
+        return Equals((Square)obj);
     }
 
     public override int GetHashCode()

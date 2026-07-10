@@ -60,7 +60,7 @@ public class CastlingAvailabilityTest
         var sut = new CastlingAvailability(castling);
 
         var piece = PieceFactory.CreatePiece(pieceChar);
-        var result = sut.AfterRegularMove(piece, new Square((File) file, (Rank) rank, piece));
+        var result = sut.AfterRegularMove(piece, new Square((File)file, (Rank)rank, piece));
 
         await Assert.That(result.ToString()).IsEqualTo(expectedCastlingValue);
     }

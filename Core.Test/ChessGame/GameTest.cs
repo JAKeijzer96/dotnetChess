@@ -23,7 +23,7 @@ public class GameTest
 
         await Assert.That(result.MoveResult).IsEqualTo(MoveResult.InvalidPiece);
     }
-    
+
     [Test]
     public async Task MakeMove_WhenPieceIsNull_ReturnsInvalidPiece()
     {
@@ -34,7 +34,7 @@ public class GameTest
 
         await Assert.That(result.MoveResult).IsEqualTo(MoveResult.InvalidPiece);
     }
-    
+
     [Test]
     public async Task MakeMove_WithInvalidMove_ReturnsIllegalMove()
     {
@@ -45,7 +45,7 @@ public class GameTest
 
         await Assert.That(result.MoveResult).IsEqualTo(MoveResult.IllegalMove);
     }
-    
+
     [Test]
     public async Task MakeMove_WithValidMove_ReturnsSuccess()
     {
@@ -66,7 +66,7 @@ public class GameTest
 
         await Assert.That(result.Turn).IsEqualTo(Color.Black);
     }
-    
+
     [Test]
     public async Task EndTurn_AfterBlackMoves_TurnIsWhite()
     {
@@ -78,7 +78,7 @@ public class GameTest
 
         await Assert.That(result.Turn).IsEqualTo(Color.White);
     }
-    
+
     [Test]
     public async Task EndTurn_AfterBlackMoves_FullMoveCountIncreases()
     {
@@ -102,7 +102,7 @@ public class GameTest
 
         await Assert.That(result.HalfMoveCount).IsEqualTo(0);
     }
-    
+
     [Test]
     public async Task UpdateHalfMoveCount_AfterCapture_ResetsHalfMoveCount()
     {
@@ -114,7 +114,7 @@ public class GameTest
 
         await Assert.That(result.HalfMoveCount).IsEqualTo(0);
     }
-    
+
     [Test]
     public async Task UpdateHalfMoveCount_AfterPieceMoveWithoutCapture_IncrementsHalfMoveCount()
     {
@@ -167,14 +167,14 @@ public class GameTest
 
         await Assert.That(result.Board["e4"].Piece).IsNull();
     }
-    
+
     [Test]
     public async Task MakeMove_WhenMoveIsEnPassantWithNonPawn_ReturnsIllegalMove()
     {
         var board = new Board("rnbqkb1r/ppp1pppp/8/8/3pPn2/8/PPPP1PPP/RNBQKBNR");
         var castlingAvailability = new CastlingAvailability("KQkq");
         var enPassantSquare = board["e3"];
-        var sut = new Game(board, Color.Black,  castlingAvailability, enPassantSquare, 0, 5);
+        var sut = new Game(board, Color.Black, castlingAvailability, enPassantSquare, 0, 5);
 
         var result = sut.MakeMove("f4", "e3");
 
@@ -195,10 +195,10 @@ public class GameTest
         var result = sut.MakeMove("a7", "a8", 'N').Game;
 
         var actual = result.Board["a8"].Piece!.Name;
-        
+
         await Assert.That(actual).IsEqualTo('N');
     }
-    
+
     [Test]
     public async Task MakeMove_WhenBlackPawnMovesToFirstRank_IsPromotedToGivenPiece()
     {
@@ -211,7 +211,7 @@ public class GameTest
         var actual = result.Board["g1"].Piece!.Name;
         await Assert.That(actual).IsEqualTo('b');
     }
-    
+
     [Test]
     [Arguments('\0')] // Default char value
     [Arguments('B')] // Opposite color
@@ -225,11 +225,11 @@ public class GameTest
 
         await Assert.That(result.MoveResult).IsEqualTo(MoveResult.InvalidPromotion);
     }
-    
+
     #endregion
 
     #region CastlingAvailability
-    
+
     [Test]
     [Arguments(0, "e1", "g1", "f1", "g1", "h1")]
     [Arguments(0, "e1", "b1", "d1", "c1", "a1")]
@@ -249,7 +249,7 @@ public class GameTest
         await Assert.That(result.Board[kingEndSquare].Piece).IsTypeOf<King>();
         await Assert.That(result.Board[rookStartSquare].Piece).IsNull();
     }
-    
+
     [Test]
     public async Task MakeMove_CastlingMove_UpdatesCastlingProperty()
     {

@@ -12,7 +12,7 @@ public class KnightTest
     public async Task Knight_WithColor_HasCorrectNameAndColor(Color color, char name)
     {
         var knight = new Knight(color);
-        
+
         await Assert.That(knight.Name).IsEqualTo(name);
         await Assert.That(knight.Color).IsEqualTo(color);
     }

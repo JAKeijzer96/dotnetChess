@@ -60,7 +60,7 @@ public abstract class Piece
         if (obj is null) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((Piece) obj);
+        return Equals((Piece)obj);
     }
 
     public override int GetHashCode()

@@ -94,7 +94,7 @@ public class Board
     {
         return _squares[file, rank];
     }
-    
+
     private Square GetSquare(string squareName)
     {
         ArgumentNullException.ThrowIfNull(squareName);
@@ -225,7 +225,7 @@ public class Board
 
         return stringBuilder.ToString();
     }
-    
+
     private static string[] ValidateAndSplitBoardFen(string boardFen)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(boardFen);

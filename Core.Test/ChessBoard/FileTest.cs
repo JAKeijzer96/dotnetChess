@@ -28,7 +28,7 @@ public class FileTest
     [Arguments(1)] // To the left
     public async Task DistanceTo_OtherFile_ReturnsExpectedDistance(int fileValue)
     {
-        var file = (File) fileValue;
+        var file = (File)fileValue;
 
         var actual = File.D.DistanceTo(file);
 
@@ -40,12 +40,12 @@ public class FileTest
     {
         void Act()
         {
-            #pragma warning disable S1854
+#pragma warning disable S1854
             var file = File.H;
             _ = ++file;
-            #pragma warning restore S1854
+#pragma warning restore S1854
         }
-        
+
         var exception = await Assert.That(Act).Throws<OutOfBoardException>();
         await Assert.That(exception!.Message).IsEqualTo("File 8 is out of board (must be between 0 and 7).");
     }
@@ -55,10 +55,10 @@ public class FileTest
     {
         void Act()
         {
-            #pragma warning disable S1854
+#pragma warning disable S1854
             var file = File.A;
             _ = --file;
-            #pragma warning restore S1854
+#pragma warning restore S1854
         }
 
         var exception = await Assert.That(Act).Throws<OutOfBoardException>();

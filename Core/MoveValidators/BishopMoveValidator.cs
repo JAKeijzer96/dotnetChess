@@ -12,7 +12,7 @@ public class BishopMoveValidator : MoveValidator
 
         int fileDirection = from.File < to.File ? Direction.Right : Direction.Left;
         int rankDirection = from.Rank < to.Rank ? Direction.Up : Direction.Down;
-        
+
         File file;
         Rank rank;
         for (file = from.File + fileDirection, rank = from.Rank + rankDirection;
@@ -31,4 +31,4 @@ public class BishopMoveValidator : MoveValidator
         return from.File.DistanceTo(to.File) == from.Rank.DistanceTo(to.Rank);
     }
 
-} 
+}

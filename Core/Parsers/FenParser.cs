@@ -31,7 +31,7 @@ public static partial class FenParser
         var enPassant = game.EnPassant is not null ? game.EnPassant.ToString() : "-";
         return $"{game.Board} {turn} {game.CastlingAvailability} {enPassant} {game.HalfMoveCount} {game.FullMoveCount}";
     }
-    
+
     private static string[] ValidateAndSplitFen(string fen)
     {
         ArgumentNullException.ThrowIfNull(fen);

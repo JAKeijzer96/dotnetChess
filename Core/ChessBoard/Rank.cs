@@ -12,7 +12,7 @@ public class Rank
     public static readonly Rank Sixth = new(5);
     public static readonly Rank Seventh = new(6);
     public static readonly Rank Eighth = new(7);
-    
+
     private int Value { get; }
 
     private Rank()

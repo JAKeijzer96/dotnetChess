@@ -164,7 +164,7 @@ public class FenParserTest
         var game = new Game();
 
         var actual = FenParser.Serialize(game);
-        
+
         await Assert.That(actual).IsEqualTo("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
 
@@ -176,7 +176,7 @@ public class FenParserTest
         var game = new Game(board, Color.Black, castlingAvailability, null, 1, 11);
 
         var actual = FenParser.Serialize(game);
-        
+
         await Assert.That(actual).IsEqualTo("r1b1k2r/ppp1bpp1/4pn1p/1B6/3q3B/2N5/PPP2PPP/R2Q1RK1 b kq - 1 11");
     }
 }

@@ -28,7 +28,7 @@ public class Game
     internal readonly ImmutableList<MoveNode> CurrentPath;
 
     internal readonly Game InitialGame;
-    
+
     private ImmutableList<MoveNode> CurrentContinuations => CurrentPath.IsEmpty ? RootContinuations : CurrentPath[^1].Continuations;
     public int CurrentMoveIndex => CurrentPath.Count;
     public int CurrentBranchLength => CountCurrentBranchLength();
@@ -64,7 +64,7 @@ public class Game
         InitialGame = initialGame ?? this;
         GameResult = EvaluateResult();
     }
-    
+
     public MakeMoveResult MakeMove(string from, string to, [Optional] char promotionPieceChar)
     {
         return MakeMove(Board[from], Board[to], promotionPieceChar);
@@ -177,7 +177,7 @@ public class Game
         return new Game(game.Board, game.Turn, game.CastlingAvailability, game.EnPassant,
                         game.HalfMoveCount, game.FullMoveCount, RootContinuations, targetPath, InitialGame);
     }
-    
+
     private ImmutableList<MoveNode> CollectPathToIndex(int targetIndex)
     {
         int pathNodesNeeded = Math.Min(targetIndex, CurrentPath.Count);
@@ -208,7 +208,7 @@ public class Game
      * cannot be mutated. Only the spine from the current leaf up to the root is recreated. All
      * unaffected branches are shared with the previous tree. Cost is O(depth) allocations
      * regardless of total tree size.
-     */ 
+     */
     private (ImmutableList<MoveNode> newRootContinuations, ImmutableList<MoveNode> newCurrentPath) AddNodeToTree(MoveNode newNode)
     {
         if (CurrentPath.IsEmpty)
@@ -282,7 +282,7 @@ public class Game
 
         return !WouldLeaveKingInCheck(from, to, isEnPassantMove, isCastlingMove, piece.Color);
     }
-    
+
     private bool IsEnPassantMove(Square from, Square to)
     {
         if (EnPassant is null)
@@ -483,7 +483,7 @@ public class Game
         Board clone = Board.Clone();
         Square cloneFrom = clone[from.File, from.Rank];
         Square cloneTo = clone[to.File, to.Rank];
-        
+
         if (isCastlingMove)
         {
             MoveCastlingPieces(clone, cloneFrom, cloneTo);
@@ -605,7 +605,7 @@ public class Game
             {
                 return false;
             }
-           
+
             Square whiteSquare = GetSquareWithPiece(whiteBishop)!;
             Square blackSquare = GetSquareWithPiece(blackBishop)!;
 
