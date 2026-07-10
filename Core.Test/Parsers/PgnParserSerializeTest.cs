@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Core.Test.Parsers;
 
-public class PgnParserTest
+public class PgnParserSerializeTest
 {
     private static string Movetext(Game game)
     {
@@ -548,6 +548,41 @@ public class PgnParserTest
         Game withSubVariation = withVariation.GoToPreviousMove().MakeMove("g1", "f3").Game;
 
         await Assert.That(Movetext(withSubVariation)).Contains("(1. d4 d5 2. c4 (2. Nf3))");
+    }
+
+    #endregion
+
+    #region FEN tag export
+
+    [Test]
+    public async Task Serialize_DefaultStartPosition_DoesNotContainFenTag()
+    {
+        string pgn = PgnParser.Serialize(new Game());
+
+        await Assert.That(pgn).DoesNotContain("[FEN");
+    }
+
+    [Test]
+    public async Task Serialize_GameFromCustomFen_ContainsFenTag()
+    {
+        var fen = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4";
+        Game game = FenParser.Parse(fen);
+
+        string pgn = PgnParser.Serialize(game);
+
+        await Assert.That(pgn).Contains($"[FEN \"{fen}\"]");
+    }
+
+    [Test]
+    public async Task Serialize_GameFromCustomFenWithMovesMade_ContainsOriginalFenTag()
+    {
+        var fen = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4";
+        Game game = FenParser.Parse(fen);
+        game = game.MakeMove("e1", "g1").Game;
+
+        string pgn = PgnParser.Serialize(game);
+
+        await Assert.That(pgn).Contains($"[FEN \"{fen}\"]");
     }
 
     #endregion
