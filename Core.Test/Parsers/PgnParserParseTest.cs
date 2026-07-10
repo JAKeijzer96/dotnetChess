@@ -14,10 +14,11 @@ public class PgnParserParseTest
 {
     private static string PgnFromMovetext(string moveText, string result = "*", string? fen = null)
     {
-        var baseTags = "[Event \"?\"]\r\n[Site \"?\"]\r\n[Date \"????.??.??\"]\r\n[Round \"?\"]\r\n[White \"?\"]\r\n[Black \"?\"]\r\n";
+        string newLine = Environment.NewLine;
+        var baseTags = $"[Event \"?\"{newLine}[Site \"?\"{newLine}[Date \"????.??.??\"{newLine}[Round \"?\"{newLine}[White \"?\"{newLine}[Black \"?\"{newLine}";
         var resultTag = $"[Result \"{result}\"]";
         var fenTag = $"[FEN \"{fen}\"]";
-        return baseTags + resultTag + (fen is not null ? $"\r\n{fenTag}" : "") + "\r\n\r\n" + moveText;
+        return baseTags + resultTag + (fen is not null ? $"{newLine}{fenTag}" : "") + $"{newLine}{newLine}" + moveText;
     }
 
     #region Error handling
