@@ -40,10 +40,8 @@ public class FileTest
     {
         void Act()
         {
-#pragma warning disable S1854
             var file = File.H;
-            _ = ++file;
-#pragma warning restore S1854
+            file++;
         }
 
         var exception = await Assert.That(Act).Throws<OutOfBoardException>();
@@ -55,10 +53,8 @@ public class FileTest
     {
         void Act()
         {
-#pragma warning disable S1854
             var file = File.A;
-            _ = --file;
-#pragma warning restore S1854
+            file--;
         }
 
         var exception = await Assert.That(Act).Throws<OutOfBoardException>();
