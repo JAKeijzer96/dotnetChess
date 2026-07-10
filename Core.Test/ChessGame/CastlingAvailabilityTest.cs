@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.ChessGame;
@@ -25,9 +25,9 @@ public class CastlingAvailabilityTest
     [Arguments("kqKQ")]
     [Arguments("KqQk")]
     [Arguments(null)]
-    public async Task CastlingAvailability_WithInvalidCastlingString_ThrowsFormatException(string castlingString)
+    public async Task CastlingAvailability_WithInvalidCastlingString_ThrowsFormatException(string? castlingString)
     {
-        void Act() => _ = new CastlingAvailability(castlingString);
+        void Act() => _ = new CastlingAvailability(castlingString!);
 
         var exception = await Assert.That(Act).Throws<FormatException>();
         await Assert.That(exception!.Message).IsEqualTo($"Invalid castling format: {castlingString}");
@@ -60,7 +60,7 @@ public class CastlingAvailabilityTest
         var sut = new CastlingAvailability(castling);
 
         var piece = PieceFactory.CreatePiece(pieceChar);
-        var result = sut.AfterRegularMove(piece, new Square((File) file, (Rank) rank, piece));
+        var result = sut.AfterRegularMove(piece, new Square((File)file, (Rank)rank, piece));
 
         await Assert.That(result.ToString()).IsEqualTo(expectedCastlingValue);
     }

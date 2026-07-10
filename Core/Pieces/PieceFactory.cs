@@ -1,10 +1,11 @@
-﻿using Core.Shared;
+using Core.Shared;
 
 namespace Core.Pieces;
 
 public static class PieceFactory
 {
-    public static Piece CreatePiece(char pieceChar) => pieceChar switch {
+    public static Piece CreatePiece(char pieceChar) => pieceChar switch
+    {
         'K' => new King(Color.White),
         'Q' => new Queen(Color.White),
         'R' => new Rook(Color.White),

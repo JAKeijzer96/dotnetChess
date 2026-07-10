@@ -1,4 +1,4 @@
-﻿using Core.ChessBoard;
+using Core.ChessBoard;
 using Core.MoveValidators;
 using Core.Shared;
 
@@ -57,10 +57,10 @@ public abstract class Piece
 
     public override bool Equals(object? obj)
     {
-        if (ReferenceEquals(null, obj)) return false;
+        if (obj is null) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((Piece) obj);
+        return Equals((Piece)obj);
     }
 
     public override int GetHashCode()

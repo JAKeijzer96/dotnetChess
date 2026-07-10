@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Core.Pieces;
 using Core.Shared;
 
@@ -12,7 +12,7 @@ public class PawnTest
     public async Task Pawn_WithColor_HasCorrectNameAndColor(Color color, char name)
     {
         var pawn = new Pawn(color);
-        
+
         await Assert.That(pawn.Name).IsEqualTo(name);
         await Assert.That(pawn.Color).IsEqualTo(color);
     }

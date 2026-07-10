@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Core.Pieces;
 using Core.Shared;
 
@@ -12,7 +12,7 @@ public class RookTest
     public async Task Rook_WithColor_HasCorrectNameAndColor(Color color, char name)
     {
         var rook = new Rook(color);
-        
+
         await Assert.That(rook.Name).IsEqualTo(name);
         await Assert.That(rook.Color).IsEqualTo(color);
     }

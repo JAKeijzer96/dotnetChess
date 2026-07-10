@@ -1,4 +1,4 @@
-﻿using Core.Exceptions;
+using Core.Exceptions;
 
 namespace Core.ChessBoard;
 
@@ -74,8 +74,12 @@ public class File
     public static bool operator <=(File file, File other) => file.Value <= other.Value;
 
     public static bool operator ==(File file, File other) => file.Value == other.Value;
-    
+
     public static bool operator !=(File file, File other) => file.Value != other.Value;
+
+    public override bool Equals(object? obj) => obj is File other && Value == other.Value;
+
+    public override int GetHashCode() => Value;
 
     public override string ToString() =>
         Value switch

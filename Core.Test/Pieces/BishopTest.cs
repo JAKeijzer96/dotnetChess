@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Core.Pieces;
 using Core.Shared;
 
@@ -12,7 +12,7 @@ public class BishopTest
     public async Task Bishop_WithColor_HasCorrectNameAndColor(Color color, char name)
     {
         var bishop = new Bishop(color);
-        
+
         await Assert.That(bishop.Name).IsEqualTo(name);
         await Assert.That(bishop.Color).IsEqualTo(color);
     }

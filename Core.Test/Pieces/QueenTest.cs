@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Core.Pieces;
 using Core.Shared;
 
@@ -12,7 +12,7 @@ public class QueenTest
     public async Task Queen_WithColor_HasCorrectNameAndColor(Color color, char name)
     {
         var queen = new Queen(color);
-        
+
         await Assert.That(queen.Name).IsEqualTo(name);
         await Assert.That(queen.Color).IsEqualTo(color);
     }

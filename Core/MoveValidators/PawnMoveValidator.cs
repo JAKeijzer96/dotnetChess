@@ -1,4 +1,4 @@
-﻿using Core.ChessBoard;
+using Core.ChessBoard;
 using Core.Pieces;
 
 namespace Core.MoveValidators;
@@ -9,7 +9,7 @@ public class PawnMoveValidator : MoveValidator
     {
         if (!IsValidDestinationSquare(board, from, to)) return false;
 
-        var pawn = (Pawn) from.Piece!;
+        var pawn = (Pawn)from.Piece!;
         var direction = pawn.IsWhite ? Direction.Up : Direction.Down;
         if (from.File == to.File)
         {
@@ -27,7 +27,7 @@ public class PawnMoveValidator : MoveValidator
 
             return false;
         }
-        
+
         if (from.File.DistanceTo(to.File) == 1 && from.Rank + direction == to.Rank)
         {
             // Already checked that if there is a piece on the target square, that it is of the opposite color

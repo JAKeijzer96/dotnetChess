@@ -25,6 +25,8 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore --configuration Release
+      - name: Format
+        run: dotnet format --verify-no-changes
 
   test:
     runs-on: ubuntu-latest

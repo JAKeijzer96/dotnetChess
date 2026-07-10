@@ -1,4 +1,4 @@
-﻿using Core.Exceptions;
+using Core.Exceptions;
 
 namespace Core.ChessBoard;
 
@@ -12,7 +12,7 @@ public class Rank
     public static readonly Rank Sixth = new(5);
     public static readonly Rank Seventh = new(6);
     public static readonly Rank Eighth = new(7);
-    
+
     private int Value { get; }
 
     private Rank()
@@ -74,8 +74,12 @@ public class Rank
     public static bool operator <=(Rank rank, Rank other) => rank.Value <= other.Value;
 
     public static bool operator ==(Rank rank, Rank other) => rank.Value == other.Value;
-    
+
     public static bool operator !=(Rank rank, Rank other) => rank.Value != other.Value;
+
+    public override bool Equals(object? obj) => obj is Rank other && Value == other.Value;
+
+    public override int GetHashCode() => Value;
 
     public override string ToString() =>
         Value switch

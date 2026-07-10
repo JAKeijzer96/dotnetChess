@@ -1,4 +1,4 @@
-﻿namespace Core.ChessBoard;
+namespace Core.ChessBoard;
 
 public class Direction
 {

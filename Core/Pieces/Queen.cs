@@ -1,4 +1,4 @@
-﻿using Core.MoveValidators;
+using Core.MoveValidators;
 using Core.Shared;
 
 namespace Core.Pieces;

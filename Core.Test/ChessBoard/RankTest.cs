@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.Exceptions;
 
@@ -28,7 +28,7 @@ public class RankTest
     [Arguments(1)] // Down
     public async Task DistanceTo_OtherRank_ReturnsExpectedDistance(int rankValue)
     {
-        var rank = (Rank) rankValue;
+        var rank = (Rank)rankValue;
 
         var actual = Rank.Fourth.DistanceTo(rank);
 
@@ -40,10 +40,8 @@ public class RankTest
     {
         void Act()
         {
-            #pragma warning disable S1854
             var rank = Rank.Eighth;
-            _ = ++rank;
-            #pragma warning restore S1854
+            rank++;
         }
 
         var exception = await Assert.That(Act).Throws<OutOfBoardException>();
@@ -55,10 +53,8 @@ public class RankTest
     {
         void Act()
         {
-            #pragma warning disable S1854
             var rank = Rank.First;
-            _ = --rank;
-            #pragma warning restore S1854
+            rank--;
         }
 
         var exception = await Assert.That(Act).Throws<OutOfBoardException>();

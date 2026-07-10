@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using Core.ChessBoard;
 using Core.Exceptions;
 using Core.Pieces;

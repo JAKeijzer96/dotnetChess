@@ -41,7 +41,7 @@ internal static class SanResolver
             "Q" => typeof(Queen),
             "R" => typeof(Rook),
             "K" => typeof(King),
-            _   => typeof(Pawn)
+            _ => typeof(Pawn)
         };
 
         Square destinationSquare;
@@ -53,7 +53,7 @@ internal static class SanResolver
         {
             throw new InvalidPgnException($"SAN '{san}' contains invalid destination square '{destinationSquareString}'.", ex);
         }
-        
+
         var candidates = game.GetLegalMoves(game.Turn)
             .Where(m => m.to.File == destinationSquare.File && m.to.Rank == destinationSquare.Rank)
             .Where(m => m.from.Piece?.GetType() == pieceType)

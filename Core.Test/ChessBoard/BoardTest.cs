@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Core.ChessBoard;
 using Core.Pieces;
@@ -18,7 +18,7 @@ public class BoardTest
         var exception = await Assert.That(Act).Throws<ArgumentException>();
         await Assert.That(exception!.Message).IsEqualTo("Constructor only accepts board part of FEN string");
     }
-    
+
     [Test]
     public async Task Indexer_WithValidFileAndRank_ReturnsSquare()
     {
@@ -54,7 +54,7 @@ public class BoardTest
         var exception = await Assert.That(Act).Throws<ArgumentNullException>();
         await Assert.That(exception!.Message).IsEqualTo("Value cannot be null. (Parameter 'squareName')");
     }
-    
+
     [Test]
     public async Task Indexer_StringWithLength3_ThrowsArgumentException()
     {
@@ -96,29 +96,29 @@ public class BoardTest
     public async Task MovePiece_MovesPieceToNewSquare()
     {
         var board = new Board();
-        
+
         board.MovePiece(board["g1"], board["f3"]);
-        
+
         await Assert.That(board["f3"].Piece!.Name).IsEqualTo('N');
     }
-    
+
     [Test]
     public async Task MovePiece_RemovesPieceFromOldSquare()
     {
         var board = new Board();
-        
+
         board.MovePiece(board["e2"], board["e4"]);
-        
+
         await Assert.That(board["e2"].Piece).IsNull();
     }
-    
+
     [Test]
     public async Task MovePiece_ToSquareOccupiedByOpponent_CapturesPiece()
     {
         var board = new Board("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR");
-        
+
         board.MovePiece(board["e4"], board["d5"]);
-        
+
         await Assert.That(board["d5"].Piece!.Name).IsEqualTo('P');
     }
 

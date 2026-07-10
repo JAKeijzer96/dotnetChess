@@ -366,7 +366,7 @@ public class PgnParserParseTest
     public async Task Parse_BasicMoves_EqualsSerializeOutput()
     {
         var pgn = PgnFromMovetext("1. e4 e5 2. Nf3 Nc6 *");
-        
+
         var game = PgnParser.Parse(pgn);
         string serializedFromParsed = PgnParser.Serialize(game);
 
@@ -469,10 +469,10 @@ public class PgnParserParseTest
     {
         var pgn = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
         var game = PgnParser.Parse(pgn);
-        
+
         var makeMoveResult = game.MakeMove("e1", "h1");
         await Assert.That(makeMoveResult.MoveResult).IsEqualTo(MoveResult.Success);
-        
+
         game = makeMoveResult.Game;
         await Assert.That(game.Board["g1"].Piece).IsTypeOf<King>();
         await Assert.That(game.Board["g1"].Piece!.Color).IsEqualTo(Color.White);
@@ -561,7 +561,7 @@ public class PgnParserParseTest
 
         await Assert.That(game.Board["a8"].Piece).IsTypeOf<Queen>();
         await Assert.That(game.Board["a8"].Piece!.Color).IsEqualTo(Color.White);
-        
+
         var gameBeforePromotion = game.GoToMove(0);
         await Assert.That(gameBeforePromotion.Board["a7"].Piece).IsTypeOf<Pawn>();
         await Assert.That(gameBeforePromotion.Board["a7"].Piece!.Color).IsEqualTo(Color.White);
@@ -644,7 +644,7 @@ public class PgnParserParseTest
         await Assert.That(game.Board["e4"].Piece).IsTypeOf<Pawn>();
         await Assert.That(game.Board["e4"].Piece!.Color).IsEqualTo(Color.White);
         await Assert.That(game.Board["e2"].Piece).IsNull();
-        
+
         Game variation = game.GoToPreviousMove().GoToVariation(1);
         await Assert.That(variation.Board["d4"].Piece).IsTypeOf<Pawn>();
         await Assert.That(variation.Board["d4"].Piece!.Color).IsEqualTo(Color.White);
@@ -663,7 +663,7 @@ public class PgnParserParseTest
         await Assert.That(game.Turn).IsEqualTo(Color.Black);
         await Assert.That(game.Board["e4"].Piece).IsTypeOf<Pawn>();
         await Assert.That(game.Board["e4"].Piece!.Color).IsEqualTo(Color.White);
-        
+
         // Variation: d4 then d5
         Game variationFirstMove = game.GoToPreviousMove().GoToVariation(1);
         await Assert.That(variationFirstMove.Board["d4"].Piece).IsTypeOf<Pawn>();
@@ -686,7 +686,7 @@ public class PgnParserParseTest
         await Assert.That(result.Turn).IsEqualTo(Color.Black);
         await Assert.That(result.Board["e4"].Piece).IsTypeOf<Pawn>();
         await Assert.That(result.Board["e4"].Piece!.Color).IsEqualTo(Color.White);
-        
+
         Game atRoot = result.GoToPreviousMove();
         await Assert.That(atRoot.GoToVariation(0).Board["e4"].Piece).IsTypeOf<Pawn>();
         await Assert.That(atRoot.GoToVariation(1).Board["d4"].Piece).IsTypeOf<Pawn>();
