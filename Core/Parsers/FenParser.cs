@@ -1,8 +1,10 @@
-﻿using System.Text.RegularExpressions;
-using Core.ChessBoard;
+﻿using Core.ChessBoard;
 using Core.ChessGame;
 using Core.Exceptions;
+using Core.Pieces;
 using Core.Shared;
+using System.Text.RegularExpressions;
+using File = Core.ChessBoard.File;
 
 namespace Core.Parsers;
 
@@ -17,6 +19,7 @@ public static partial class FenParser
         ParseBoard(splitFen[0]);
         Color turn = ParseTurn(splitFen[1]);
         CastlingAvailability castling = ParseCastling(splitFen[2]);
+        ValidateCastlingAgainstBoard(castling, _board);
         Square? enPassant = ParseEnPassant(splitFen[3]);
         int halfMoveCount = ParseHalfMoveCount(splitFen[4]);
         int fullMoveCount = ParseFullMoveCount(splitFen[5]);
@@ -59,6 +62,20 @@ public static partial class FenParser
     private static CastlingAvailability ParseCastling(string castlingFen)
     {
         return new CastlingAvailability(castlingFen);
+    }
+
+    public static void ValidateCastlingAgainstBoard(CastlingAvailability castlingAvailability, Board board)
+    {
+        if (castlingAvailability.CanNeitherSideCastle()) return;
+
+        if (castlingAvailability.CanWhiteCastleKingside() && board[File.H, Rank.First].Piece is not Rook { IsWhite: true })
+            throw new InvalidFenException("FEN castling flag 'K' requires a white rook on h1.");
+        if (castlingAvailability.CanWhiteCastleQueenside() && board[File.A, Rank.First].Piece is not Rook { IsWhite: true })
+            throw new InvalidFenException("FEN castling flag 'Q' requires a white rook on a1.");
+        if (castlingAvailability.CanBlackCastleKingside() && board[File.H, Rank.Eighth].Piece is not Rook { IsBlack: true })
+            throw new InvalidFenException("FEN castling flag 'k' requires a black rook on h8.");
+        if (castlingAvailability.CanBlackCastleQueenside() && board[File.A, Rank.Eighth].Piece is not Rook { IsBlack: true })
+            throw new InvalidFenException("FEN castling flag 'q' requires a black rook on a8.");
     }
 
     private static Square? ParseEnPassant(string enPassantFen)

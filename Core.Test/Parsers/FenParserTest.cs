@@ -36,7 +36,9 @@ public class FenParserTest
     {
         var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR R KQkq - 0 1";
 
-        var exception = await Assert.That(() => FenParser.Parse(fen)).Throws<InvalidFenException>();
+        void Act() => FenParser.Parse(fen);
+
+        var exception = await Assert.That(Act).Throws<InvalidFenException>();
         await Assert.That(exception!.Message).IsEqualTo("Invalid turn: R");
     }
 
@@ -46,6 +48,50 @@ public class FenParserTest
         var result = FenParser.Parse("rn2kb1N/p3p2p/1p4p1/2pn4/8/3P4/PPPKNq2/1RBQ2R1 b q - 1 14");
 
         await Assert.That(result.CastlingAvailability.ToString()).IsEqualTo("q");
+    }
+
+    [Test]
+    public async Task Parse_CastlingFlagKWithNoWhiteRookOnH1_ThrowsInvalidFenException()
+    {
+        var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNr w K - 0 1";
+
+        void Act() => FenParser.Parse(fen);
+
+        var exception = await Assert.That(Act).Throws<InvalidFenException>();
+        await Assert.That(exception!.Message).IsEqualTo("FEN castling flag 'K' requires a white rook on h1.");
+    }
+
+    [Test]
+    public async Task Parse_CastlingFlagQWithNoWhiteRookOnA1_ThrowsInvalidFenException()
+    {
+        var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/BNBQKBNR w Q - 0 1";
+
+        void Act() => FenParser.Parse(fen);
+
+        var exception = await Assert.That(Act).Throws<InvalidFenException>();
+        await Assert.That(exception!.Message).IsEqualTo("FEN castling flag 'Q' requires a white rook on a1.");
+    }
+
+    [Test]
+    public async Task Parse_CastlingFlagKWithNoBlackRookOnH8_ThrowsInvalidFenException()
+    {
+        var fen = "rnbqkbnb/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w k - 0 1";
+
+        void Act() => FenParser.Parse(fen);
+
+        var exception = await Assert.That(Act).Throws<InvalidFenException>();
+        await Assert.That(exception!.Message).IsEqualTo("FEN castling flag 'k' requires a black rook on h8.");
+    }
+
+    [Test]
+    public async Task Parse_CastlingFlagQWithNoBlackRookOnA8_ThrowsInvalidFenException()
+    {
+        var fen = "Rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w q - 0 1";
+
+        void Act() => FenParser.Parse(fen);
+
+        var exception = await Assert.That(Act).Throws<InvalidFenException>();
+        await Assert.That(exception!.Message).IsEqualTo("FEN castling flag 'q' requires a black rook on a8.");
     }
 
     [Test]
