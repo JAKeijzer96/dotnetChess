@@ -575,15 +575,9 @@ public class Game
         return GameResult.InProgress;
     }
 
-    private bool IsDrawBySeventyFiveMoveRule()
-    {
-        return HalfMoveCount >= 150;
-    }
+    private bool IsDrawBySeventyFiveMoveRule() => HalfMoveCount >= 150;
 
-    private bool IsFiftyMoveRule()
-    {
-        return HalfMoveCount >= 100;
-    }
+    private bool IsFiftyMoveRule() => HalfMoveCount >= 100;
 
     private bool IsThreefoldRepetition() => CountRepetitions() >= 3;
 
