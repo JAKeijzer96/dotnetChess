@@ -449,13 +449,12 @@ public class PgnParserParseTest
     }
 
     [Test]
-    public async Task Parse_DrawByAgreement_ParsesWithoutError()
+    public async Task Parse_DrawByAgreement_ParsesDraw()
     {
-        // Since DrawByAgreement is not implemented this result should be InProgress
         var pgn = PgnFromMovetext("1. e4 e5 1/2-1/2", "1/2-1/2");
         var game = PgnParser.Parse(pgn);
 
-        await Assert.That(game.GameResult).IsEqualTo(GameResult.InProgress);
+        await Assert.That(game.GameResult).IsEqualTo(GameResult.DrawByAgreement);
         await Assert.That(game.Board["e4"].Piece).IsTypeOf<Pawn>();
         await Assert.That(game.Board["e5"].Piece).IsTypeOf<Pawn>();
     }

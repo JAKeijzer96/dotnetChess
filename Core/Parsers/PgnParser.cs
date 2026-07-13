@@ -159,6 +159,8 @@ public static class PgnParser
                     }
                     if (resultTagValue is not null && token.Value != resultTagValue)
                         throw new InvalidPgnException($"Result tag '[Result \"{resultTagValue}\"]' does not match movetext result '{token.Value}'.");
+                    if (token.Value == "1/2-1/2" && game.GameResult == GameResult.InProgress)
+                        game = game.WithResult(GameResult.DrawByAgreement);
                     return game;
             }
         }
@@ -322,7 +324,10 @@ public static class PgnParser
         GameResult.Stalemate or
         GameResult.DrawBySeventyFiveMoveRule or
         GameResult.DrawByInsufficientMaterial or
-        GameResult.DrawByFivefoldRepetition => "1/2-1/2",
+        GameResult.DrawByFivefoldRepetition or
+        GameResult.DrawByThreefoldRepetition or
+        GameResult.DrawByFiftyMoveRule or
+        GameResult.DrawByAgreement => "1/2-1/2",
         _ => "*"
     };
 
