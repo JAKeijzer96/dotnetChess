@@ -580,6 +580,34 @@ public class PgnParserParseTest
         await Assert.That(gameBeforePromotion.Board["a7"].Piece!.Color).IsEqualTo(Color.White);
     }
 
+    [Test]
+    [Arguments("a8=Q", typeof(Queen))]
+    [Arguments("a8=R", typeof(Rook))]
+    [Arguments("a8=B", typeof(Bishop))]
+    [Arguments("a8=N", typeof(Knight))]
+    public async Task Parse_WhiteUnderpromotion_PlacesCorrectPiece(string san, Type expectedType)
+    {
+        var pgn = PgnFromMovetext($"1. {san} *", fen: "4k3/P7/8/8/8/8/8/4K3 w - - 0 1");
+        var game = PgnParser.Parse(pgn);
+
+        await Assert.That(game.Board["a8"].Piece).IsOfType(expectedType);
+        await Assert.That(game.Board["a8"].Piece!.Color).IsEqualTo(Color.White);
+    }
+
+    [Test]
+    [Arguments("a1=q", typeof(Queen))]
+    [Arguments("a1=r", typeof(Rook))]
+    [Arguments("a1=b", typeof(Bishop))]
+    [Arguments("a1=n", typeof(Knight))]
+    public async Task Parse_BlackUnderpromotion_PlacesCorrectPiece(string san, Type expectedType)
+    {
+        var pgn = PgnFromMovetext($"1... {san} *", fen: "4K3/8/8/8/8/8/p7/4k3 b - - 0 1");
+        var game = PgnParser.Parse(pgn);
+
+        await Assert.That(game.Board["a1"].Piece).IsOfType(expectedType);
+        await Assert.That(game.Board["a1"].Piece!.Color).IsEqualTo(Color.Black);
+    }
+
     #endregion
 
     #region Disambiguation

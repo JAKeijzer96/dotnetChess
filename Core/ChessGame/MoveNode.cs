@@ -3,7 +3,7 @@ using Core.Shared;
 
 namespace Core.ChessGame;
 
-public record MoveNode(Move Move, ImmutableList<MoveNode> Continuations)
+internal record MoveNode(Move Move, ImmutableList<MoveNode> Continuations)
 {
     public static MoveNode Create(Move move) => new(move, []);
 

@@ -74,6 +74,9 @@ namespace Core.Parsers;
 
 public static class PgnParser
 {
+    private static readonly IReadOnlySet<string> RequiredTags =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
+
     public static string Serialize(Game game)
     {
         var sb = new StringBuilder();
@@ -84,9 +87,6 @@ public static class PgnParser
 
         return sb.ToString();
     }
-
-    private static readonly IReadOnlySet<string> RequiredTags =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
 
     public static Game Parse(string pgn)
     {

@@ -3,7 +3,7 @@ using Core.Pieces;
 
 namespace Core.MoveValidators;
 
-public class PawnMoveValidator : MoveValidator
+internal class PawnMoveValidator : MoveValidator
 {
     public override bool IsValidMove(Board board, Square from, Square to)
     {

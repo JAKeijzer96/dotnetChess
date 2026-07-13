@@ -1,5 +1,8 @@
 using Core.ChessGame;
 using Core.Parsers;
+using Core.Pieces;
+using Core.Shared;
+using System;
 using System.Threading.Tasks;
 
 namespace Core.Test.Parsers;
@@ -194,6 +197,57 @@ public class PgnParserSerializeTest
         game = game.MakeMove("a7", "a8", 'Q').Game;
 
         await Assert.That(Movetext(game)).Contains("a8=Q+");
+    }
+
+    [Test]
+    [Arguments('Q', "a8=Q")]
+    [Arguments('R', "a8=R")]
+    [Arguments('B', "a8=B")]
+    [Arguments('N', "a8=N")]
+    public async Task Serialize_WhitePromotion_IncludesCorrectPieceLetter(char piece, string expected)
+    {
+        var game = FenParser.Parse("4k3/P7/8/8/8/8/8/4K3 w - - 0 1");
+        game = game.MakeMove("a7", "a8", piece).Game;
+
+        await Assert.That(Movetext(game)).Contains(expected);
+    }
+
+    [Test]
+    [Arguments('q', "a1=Q")]
+    [Arguments('r', "a1=R")]
+    [Arguments('b', "a1=B")]
+    [Arguments('n', "a1=N")]
+    public async Task Serialize_BlackPromotion_IncludesCorrectPieceLetter(char piece, string expected)
+    {
+        var game = FenParser.Parse("4K3/8/8/8/8/8/p7/4k3 b - - 0 1");
+        game = game.MakeMove("a2", "a1", piece).Game;
+
+        await Assert.That(Movetext(game)).Contains(expected);
+    }
+
+    [Test]
+    [Arguments('Q')]
+    [Arguments('R')]
+    [Arguments('B')]
+    [Arguments('N')]
+    public async Task Serialize_WhitePromotion_RoundTrip_ParsedPieceMatchesPromotedPiece(char piece)
+    {
+        var game = FenParser.Parse("4k3/P7/8/8/8/8/8/4K3 w - - 0 1");
+        game = game.MakeMove("a7", "a8", piece).Game;
+
+        string pgn = PgnParser.Serialize(game);
+        Game parsed = PgnParser.Parse(pgn);
+
+        Type expectedType = piece switch
+        {
+            'Q' => typeof(Queen),
+            'R' => typeof(Rook),
+            'B' => typeof(Bishop),
+            'N' => typeof(Knight),
+            _ => throw new InvalidOperationException()
+        };
+        await Assert.That(parsed.Board["a8"].Piece).IsOfType(expectedType);
+        await Assert.That(parsed.Board["a8"].Piece!.Color).IsEqualTo(Color.White);
     }
 
     #endregion

@@ -3,7 +3,7 @@ using File = Core.ChessBoard.File;
 
 namespace Core.MoveValidators;
 
-public class BishopMoveValidator : MoveValidator
+internal class BishopMoveValidator : MoveValidator
 {
     public override bool IsValidMove(Board board, Square from, Square to)
     {
