@@ -51,7 +51,7 @@ public class Game
         : this(board, turn, castlingAvailability, enPassant, halfMoveCount, fullMoveCount, [], [], null)
     { }
 
-    public Game(Board board, Color turn, CastlingAvailability castlingAvailability, Square? enPassant, int halfMoveCount, int fullMoveCount, ImmutableList<MoveNode> rootContinuations, ImmutableList<MoveNode> currentPath, Game? initialGame)
+    internal Game(Board board, Color turn, CastlingAvailability castlingAvailability, Square? enPassant, int halfMoveCount, int fullMoveCount, ImmutableList<MoveNode> rootContinuations, ImmutableList<MoveNode> currentPath, Game? initialGame)
     {
         Board = board;
         Turn = turn;
@@ -65,9 +65,33 @@ public class Game
         GameResult = EvaluateResult();
     }
 
+    internal Game WithResult(GameResult result) => new(this, result);
+
+    private Game(Game source, GameResult result)
+    {
+        Board = source.Board;
+        Turn = source.Turn;
+        CastlingAvailability = source.CastlingAvailability;
+        EnPassant = source.EnPassant;
+        HalfMoveCount = source.HalfMoveCount;
+        FullMoveCount = source.FullMoveCount;
+        RootContinuations = source.RootContinuations;
+        CurrentPath = source.CurrentPath;
+        InitialGame = source.InitialGame;
+        GameResult = result;
+    }
+
     public MakeMoveResult MakeMove(string from, string to, [Optional] char promotionPieceChar)
     {
         return MakeMove(Board[from], Board[to], promotionPieceChar);
+    }
+
+    public Game ClaimDraw()
+    {
+        if (GameResult != GameResult.InProgress) return this;
+        if (IsThreefoldRepetition()) return new Game(this, GameResult.DrawByThreefoldRepetition);
+        if (IsFiftyMoveRule()) return new Game(this, GameResult.DrawByFiftyMoveRule);
+        return new Game(this, GameResult.DrawByAgreement);
     }
 
     private MakeMoveResult MakeMove(Square from, Square to, [Optional] char promotionPieceChar)
@@ -551,22 +575,26 @@ public class Game
         return GameResult.InProgress;
     }
 
-    private bool IsDrawBySeventyFiveMoveRule()
-    {
-        return HalfMoveCount >= 150;
-    }
+    private bool IsDrawBySeventyFiveMoveRule() => HalfMoveCount >= 150;
 
-    private bool IsFivefoldRepetition()
+    private bool IsFiftyMoveRule() => HalfMoveCount >= 100;
+
+    private bool IsThreefoldRepetition() => CountRepetitions() >= 3;
+
+    private bool IsFivefoldRepetition() => CountRepetitions() >= 5;
+
+    private int CountRepetitions()
     {
         string currentPosition = GetPositionKey();
         int count = CurrentPath.Count(node => node.Move.PositionAfterMove == currentPosition);
 
+        var x = InitialGame.GetPositionKey();
         if (currentPosition == InitialGame.GetPositionKey())
         {
             count++;
         }
 
-        return count >= 5;
+        return count;
     }
 
     private bool IsInsufficientMaterial()

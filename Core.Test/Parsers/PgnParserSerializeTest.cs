@@ -73,6 +73,18 @@ public class PgnParserSerializeTest
         await Assert.That(pgn).Contains("[Result \"*\"]");
     }
 
+    [Test]
+    public async Task Serialize_DrawByAgreement_ResultTagIsHalf()
+    {
+        var game = new Game();
+        game = game.MakeMove("e2", "e4").Game;
+        game = game.ClaimDraw();
+
+        string pgn = PgnParser.Serialize(game);
+
+        await Assert.That(pgn).Contains("[Result \"1/2-1/2\"]");
+    }
+
     #endregion
 
     #region Pawn moves
@@ -280,6 +292,16 @@ public class PgnParserSerializeTest
         game = game.MakeMove("d8", "h4").Game;
 
         await Assert.That(Movetext(game)).EndsWith("0-1");
+    }
+
+    [Test]
+    public async Task Serialize_DrawByAgreement_MovetextEndsWithHalf()
+    {
+        var game = new Game();
+        game = game.MakeMove("e2", "e4").Game;
+        game = game.ClaimDraw();
+
+        await Assert.That(Movetext(game)).EndsWith("1/2-1/2");
     }
 
     #endregion
