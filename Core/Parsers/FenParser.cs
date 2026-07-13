@@ -62,7 +62,7 @@ public static partial class FenParser
         return new CastlingAvailability(castlingFen);
     }
 
-    public static void ValidateCastlingAgainstBoard(CastlingAvailability castlingAvailability, Board board)
+    private static void ValidateCastlingAgainstBoard(CastlingAvailability castlingAvailability, Board board)
     {
         if (castlingAvailability.CanNeitherSideCastle()) return;
 

@@ -9,9 +9,9 @@ namespace Core.ChessGame;
 
 public partial class CastlingAvailability
 {
-    private string _castlingAvailability;
+    private readonly string _castlingAvailability;
 
-    public CastlingAvailability(string castlingAvailability)
+    internal CastlingAvailability(string castlingAvailability)
     {
         ValidateCastlingAvailability(castlingAvailability);
 
@@ -24,7 +24,7 @@ public partial class CastlingAvailability
     public bool CanBlackCastleKingside() => _castlingAvailability.Contains('k');
     public bool CanBlackCastleQueenside() => _castlingAvailability.Contains('q');
 
-    public CastlingAvailability AfterCastlingMove(Color color)
+    internal CastlingAvailability AfterCastlingMove(Color color)
     {
         var newCastlingAvailability = color switch
         {
@@ -41,7 +41,7 @@ public partial class CastlingAvailability
         return new CastlingAvailability(newCastlingAvailability);
     }
 
-    public CastlingAvailability AfterRegularMove(Piece piece, Square from)
+    internal CastlingAvailability AfterRegularMove(Piece piece, Square from)
     {
         if (CanNeitherSideCastle())
         {

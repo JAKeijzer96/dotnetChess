@@ -2,7 +2,7 @@ using Core.ChessBoard;
 
 namespace Core.MoveValidators;
 
-public class KingMoveValidator : MoveValidator
+internal class KingMoveValidator : MoveValidator
 {
     public override bool IsValidMove(Board board, Square from, Square to)
     {

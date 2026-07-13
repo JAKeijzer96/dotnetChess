@@ -9,7 +9,7 @@ namespace Core.Parsers;
 // Resolves Standard Algebraic Notation (SAN) strings into move coordinates and promotion piece if applicable
 internal static class SanResolver
 {
-    internal static (string from, string to, char promotionPiece) Resolve(string san, Game game)
+    public static (string from, string to, char promotionPiece) Resolve(string san, Game game)
     {
         string stripped = san.TrimEnd('+', '#');
 

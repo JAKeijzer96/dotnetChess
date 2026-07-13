@@ -1,6 +1,6 @@
 namespace Core.ChessBoard;
 
-public class Direction
+internal class Direction
 {
     public const int Up = 1;
     public const int Down = -1;

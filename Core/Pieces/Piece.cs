@@ -14,7 +14,7 @@ public abstract class Piece
     public bool IsBlack => Color == Color.Black;
     public Color OpposingColor => Color == Color.White ? Color.Black : Color.White;
 
-    protected Piece(Color color, MoveValidator moveValidator)
+    internal Piece(Color color, MoveValidator moveValidator)
     {
         Color = color;
         _moveValidator = moveValidator;

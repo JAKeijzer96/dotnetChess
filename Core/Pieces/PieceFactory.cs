@@ -2,7 +2,7 @@ using Core.Shared;
 
 namespace Core.Pieces;
 
-public static class PieceFactory
+internal static class PieceFactory
 {
     public static Piece CreatePiece(char pieceChar) => pieceChar switch
     {

@@ -40,7 +40,7 @@ public class Board
         }
     }
 
-    public Board Clone() => new Board(_squares);
+    internal Board Clone() => new Board(_squares);
 
     private void SetupBoardFromBoardFen(string boardFen)
     {
@@ -109,13 +109,13 @@ public class Board
         return GetSquare(file, rank);
     }
 
-    public void MovePiece(Square from, Square to)
+    internal void MovePiece(Square from, Square to)
     {
         to.Piece = from.Piece;
         from.Piece = null;
     }
 
-    public Square? GetKingSquare(Color color)
+    internal Square? GetKingSquare(Color color)
     {
         for (File file = File.A; file <= File.H; file++)
         {
@@ -150,14 +150,14 @@ public class Board
         }
     }
 
-    public bool IsKingInCheck(Color color)
+    internal bool IsKingInCheck(Color color)
     {
         Square? kingSquare = GetKingSquare(color);
         if (kingSquare is null) return false;
         return IsSquareUnderAttack(kingSquare, kingSquare.Piece!.OpposingColor);
     }
 
-    public bool IsSquareUnderAttack(Square square, Color attacker)
+    internal bool IsSquareUnderAttack(Square square, Color attacker)
     {
         for (File file = File.A; file <= File.H; file++)
         {

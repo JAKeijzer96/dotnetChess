@@ -6,7 +6,7 @@ public class Square
 {
     public readonly File File;
     public readonly Rank Rank;
-    public Piece? Piece { get; set; }
+    public Piece? Piece { get; internal set; }
 
     public Square(File file, Rank rank, Piece? piece = null)
     {
@@ -15,15 +15,9 @@ public class Square
         Piece = piece;
     }
 
-    public bool IsOccupied()
-    {
-        return Piece is not null;
-    }
+    public bool IsOccupied() => Piece is not null;
 
-    public bool IsEmpty()
-    {
-        return Piece is null;
-    }
+    public bool IsEmpty() => Piece is null;
 
     public bool AttacksSquare(Board board, Square target)
     {
