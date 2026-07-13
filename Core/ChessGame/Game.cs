@@ -86,6 +86,20 @@ public class Game
         return MakeMove(Board[from], Board[to], promotionPieceChar);
     }
 
+    public MakeMoveResult MakeMove(string uci)
+    {
+        if (uci is not { Length: 4 or 5 })
+            return new MakeMoveResult(MoveResult.IllegalMove, this);
+
+        string from = uci[..2];
+        string to = uci[2..4];
+        char promotionPieceChar = uci.Length == 5
+            ? (Turn == Color.White ? char.ToUpper(uci[4]) : char.ToLower(uci[4]))
+            : default;
+
+        return MakeMove(Board[from], Board[to], promotionPieceChar);
+    }
+
     public Game ClaimDraw()
     {
         if (GameResult != GameResult.InProgress) return this;
@@ -588,7 +602,6 @@ public class Game
         string currentPosition = GetPositionKey();
         int count = CurrentPath.Count(node => node.Move.PositionAfterMove == currentPosition);
 
-        var x = InitialGame.GetPositionKey();
         if (currentPosition == InitialGame.GetPositionKey())
         {
             count++;

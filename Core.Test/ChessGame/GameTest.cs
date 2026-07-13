@@ -379,6 +379,109 @@ public class GameTest
 
     #endregion
 
+    #region MakeMove UCI
+
+    [Test]
+    public async Task MakeMove_Uci_ValidMove_ReturnsSuccess()
+    {
+        var game = new Game();
+
+        var result = game.MakeMove("e2e4").MoveResult;
+
+        await Assert.That(result).IsEqualTo(MoveResult.Success);
+    }
+
+    [Test]
+    public async Task MakeMove_Uci_ValidMove_UpdatesBoard()
+    {
+        var game = new Game();
+
+        game = game.MakeMove("e2e4").Game;
+
+        await Assert.That(game.Board["e4"].Piece).IsTypeOf<Pawn>();
+        await Assert.That(game.Board["e2"].Piece).IsNull();
+    }
+
+    [Test]
+    public async Task MakeMove_Uci_InvalidMove_ReturnsIllegalMove()
+    {
+        var game = new Game();
+
+        var result = game.MakeMove("e2b4").MoveResult;
+
+        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
+    }
+
+    [Test]
+    public async Task MakeMove_Uci_WrongLength_ReturnsIllegalMove()
+    {
+        var game = new Game();
+
+        var result = game.MakeMove("e2->e4").MoveResult;
+
+        await Assert.That(result).IsEqualTo(MoveResult.IllegalMove);
+    }
+
+    [Test]
+    [Arguments("a7a8q", typeof(Queen))]
+    [Arguments("a7a8r", typeof(Rook))]
+    [Arguments("a7a8b", typeof(Bishop))]
+    [Arguments("a7a8n", typeof(Knight))]
+    public async Task MakeMove_Uci_WhitePromotion_PlacesCorrectPiece(string uci, Type expectedType)
+    {
+        var game = FenParser.Parse("4k3/P7/8/8/8/8/8/4K3 w - - 0 1");
+
+        game = game.MakeMove(uci).Game;
+
+        await Assert.That(game.Board["a8"].Piece).IsOfType(expectedType);
+        await Assert.That(game.Board["a8"].Piece!.Color).IsEqualTo(Color.White);
+    }
+
+    [Test]
+    [Arguments("a2a1q", typeof(Queen))]
+    [Arguments("a2a1r", typeof(Rook))]
+    [Arguments("a2a1b", typeof(Bishop))]
+    [Arguments("a2a1n", typeof(Knight))]
+    public async Task MakeMove_Uci_BlackPromotion_PlacesCorrectPiece(string uci, Type expectedType)
+    {
+        var game = FenParser.Parse("4K3/8/8/8/8/8/p7/4k3 b - - 0 1");
+
+        game = game.MakeMove(uci).Game;
+
+        await Assert.That(game.Board["a1"].Piece).IsOfType(expectedType);
+        await Assert.That(game.Board["a1"].Piece!.Color).IsEqualTo(Color.Black);
+    }
+
+    [Test]
+    public async Task MakeMove_Uci_Castling_KingsideWhite()
+    {
+        var game = FenParser.Parse("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+
+        game = game.MakeMove("e1g1").Game;
+
+        await Assert.That(game.Board["g1"].Piece).IsTypeOf<King>();
+        await Assert.That(game.Board["f1"].Piece).IsTypeOf<Rook>();
+        await Assert.That(game.Board["e1"].Piece).IsNull();
+        await Assert.That(game.Board["h1"].Piece).IsNull();
+    }
+
+    [Test]
+    public async Task MakeMove_Uci_MultipleMoves_AlternatesTurns()
+    {
+        var game = new Game();
+
+        game = game.MakeMove("e2e4").Game;
+        game = game.MakeMove("e7e5").Game;
+        game = game.MakeMove("g1f3").Game;
+
+        await Assert.That(game.Turn).IsEqualTo(Color.Black);
+        await Assert.That(game.Board["f3"].Piece).IsTypeOf<Knight>();
+        await Assert.That(game.Board["e4"].Piece).IsTypeOf<Pawn>();
+        await Assert.That(game.Board["e5"].Piece).IsTypeOf<Pawn>();
+    }
+
+    #endregion
+
     #region GameResult
 
     [Test]
