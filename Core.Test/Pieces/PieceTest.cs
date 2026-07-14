@@ -96,7 +96,7 @@ public class PieceTest
         var piece2 = new object();
 
         var result = piece1.Equals(piece2);
-        
+
         await Assert.That(result).IsFalse();
     }
 }
