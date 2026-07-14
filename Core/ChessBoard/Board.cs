@@ -115,7 +115,7 @@ public class Board
         from.Piece = null;
     }
 
-    internal Square? GetKingSquare(Color color)
+    internal Square GetKingSquare(Color color)
     {
         for (File file = File.A; file <= File.H; file++)
         {
@@ -131,7 +131,7 @@ public class Board
             }
             if (file == File.H) break;
         }
-        return null;
+        throw new InvalidOperationException($"{color} King not found on the board");
     }
 
     public IEnumerable<Piece> GetAllPieces()
@@ -152,8 +152,7 @@ public class Board
 
     internal bool IsKingInCheck(Color color)
     {
-        Square? kingSquare = GetKingSquare(color);
-        if (kingSquare is null) return false;
+        Square kingSquare = GetKingSquare(color);
         return IsSquareUnderAttack(kingSquare, kingSquare.Piece!.OpposingColor);
     }
 
@@ -238,7 +237,7 @@ public class Board
         var fenRanks = boardFen.Split('/');
         if (fenRanks.Length != BoardSize)
         {
-            throw new InvalidFenException($"Invalid number of ranks in FEN: {boardFen}");
+            throw new ArgumentException($"Invalid number of ranks in FEN: {boardFen}");
         }
 
         return fenRanks;

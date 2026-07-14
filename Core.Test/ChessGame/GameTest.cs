@@ -316,7 +316,7 @@ public class GameTest
     {
         // White rook on e4 is pinned to white king on e1 by black rook on e8
         // Moving it along the e-file is still legal
-        var board = new Board("4r3/8/8/8/4R3/8/8/4K3");
+        var board = new Board("4r1k1/8/8/8/4R3/8/8/4K3");
         var castlingAvailability = new CastlingAvailability("-");
         var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
 
@@ -827,6 +827,69 @@ public class GameTest
         sut.MakeMove("a8", "b7");
         sut.MakeMove("h2", "h1");
         sut.MakeMove("b7", "a8"); // 5th occurence but with different castling rights
+
+        await Assert.That(sut.GameResult).IsEqualTo(GameResult.InProgress);
+    }
+
+    [Test]
+    public async Task Result_PositionDiffersByTurn_NotRepetition()
+    {
+        var board = new Board("7k/R7/7K/8/8/8/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, null, 0, 1);
+
+        // Repeat position 4 more times (5 total)
+        sut = sut.MakeMove("a7", "c7").Game;
+        sut = sut.MakeMove("h8", "g8").Game;
+        sut = sut.MakeMove("c7", "b7").Game;
+        sut = sut.MakeMove("g8", "h8").Game;
+        sut = sut.MakeMove("b7", "a7").Game; // 2nd occurence of position but with different turn
+
+        sut = sut.MakeMove("h8", "g8").Game;
+        sut = sut.MakeMove("h6", "g6").Game;
+        sut = sut.MakeMove("g8", "h8").Game;
+        sut = sut.MakeMove("g6", "h6").Game; // 3nd occurence (2nd of different turn)
+
+        sut = sut.MakeMove("h8", "g8").Game;
+        sut = sut.MakeMove("h6", "g6").Game;
+        sut = sut.MakeMove("g8", "h8").Game;
+        sut = sut.MakeMove("g6", "h6").Game; // 4th occurence (3rd of different turn)
+
+        sut = sut.MakeMove("h8", "g8").Game;
+        sut = sut.MakeMove("h6", "g6").Game;
+        sut = sut.MakeMove("g8", "h8").Game;
+        sut = sut.MakeMove("g6", "h6").Game; // 5th occurence (4th of different turn)
+
+        await Assert.That(sut.GameResult).IsEqualTo(GameResult.InProgress);
+    }
+
+    [Test]
+    public async Task Result_PositionDiffersByEnPassant_NotRepetition()
+    {
+        var board = new Board("3k4/8/3K4/6Pp/8/8/8/8");
+        var castlingAvailability = new CastlingAvailability("-");
+        var sut = new Game(board, Color.White, castlingAvailability, board["h6"], 0, 1);
+
+        // Repeat position 4 more times (5 total)
+        sut = sut.MakeMove("d6", "c6").Game;
+        sut = sut.MakeMove("d8", "c8").Game;
+        sut = sut.MakeMove("c6", "d6").Game;
+        sut = sut.MakeMove("c8", "d8").Game; // 2nd occurence of position but without EnPassant square
+
+        sut = sut.MakeMove("d6", "c6").Game;
+        sut = sut.MakeMove("d8", "c8").Game;
+        sut = sut.MakeMove("c6", "d6").Game;
+        sut = sut.MakeMove("c8", "d8").Game; // 3nd occurence (2nd without EnPassant)
+
+        sut = sut.MakeMove("d6", "c6").Game;
+        sut = sut.MakeMove("d8", "c8").Game;
+        sut = sut.MakeMove("c6", "d6").Game;
+        sut = sut.MakeMove("c8", "d8").Game; // 4th occurence (3rd without EnPassant)
+
+        sut = sut.MakeMove("d6", "c6").Game;
+        sut = sut.MakeMove("d8", "c8").Game;
+        sut = sut.MakeMove("c6", "d6").Game;
+        sut = sut.MakeMove("c8", "d8").Game; // 5th occurence (4th without EnPassant)
 
         await Assert.That(sut.GameResult).IsEqualTo(GameResult.InProgress);
     }

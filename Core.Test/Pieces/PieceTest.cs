@@ -78,4 +78,25 @@ public class PieceTest
         await Assert.That(result).IsTrue();
     }
 
+    [Test]
+    public async Task EqualsOperator_ComparingPieceToNull_ReturnsFalse()
+    {
+        Piece? piece1 = new King(Color.Black);
+        Piece? piece2 = null;
+
+        var result = piece1 == piece2;
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task Equals_ComparingToDifferentType_ReturnsFalse()
+    {
+        Piece piece1 = new King(Color.Black);
+        var piece2 = new object();
+
+        var result = piece1.Equals(piece2);
+
+        await Assert.That(result).IsFalse();
+    }
 }
