@@ -53,6 +53,43 @@ public class SquareTests
     }
 
     [Test]
+    public async Task AttacksSquare_FromSquareIsEmpty_ReturnsFalse()
+    {
+        var board = new Board();
+        var square = new Square(File.C, Rank.Third);
+        var targetSquare = new Square(File.D, Rank.Fourth);
+        await Assert.That(square.AttacksSquare(board, targetSquare)).IsFalse();
+    }
+
+    [Test]
+    public async Task AttacksSquare_SquareHasPieceThatDoesNotAttackTarget_ReturnsFalse()
+    {
+        var board = new Board();
+        var square = board["d2"];
+        var targetSquare = board["d7"];
+        await Assert.That(square.AttacksSquare(board, targetSquare)).IsFalse();
+    }
+
+    [Test]
+    public async Task AttacksSquare_SquareHasPieceThatAttacksTarget_ReturnsTrue()
+    {
+        var board = new Board();
+        board["d2"].Piece = null;
+        var square = board["d1"];
+        var targetSquare = board["d7"];
+        await Assert.That(square.AttacksSquare(board, targetSquare)).IsTrue();
+    }
+
+    [Test]
+    public async Task AttacksSquare_FromSquareEqualsToSquare_ReturnsFalse()
+    {
+        var board = new Board();
+        var square = board["e2"];
+        var targetSquare = board["e2"];
+        await Assert.That(square.AttacksSquare(board, targetSquare)).IsFalse();
+    }
+
+    [Test]
     [Arguments(0, 0, "a1")]
     [Arguments(3, 7, "d8")]
     public async Task ToString_ReturnsExpectedValue(int file, int rank, string expected)
@@ -140,5 +177,27 @@ public class SquareTests
         var result = square1 == square2;
 
         await Assert.That(result).IsTrue();
+    }
+
+    [Test]
+    public async Task EqualsOperator_ComparingSquareToNull_ReturnsFalse()
+    {
+        var square1 = new Square(File.A, Rank.First);
+        Square? square2 = null;
+
+        var result = square1 == square2;
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task Equals_ComparingToDifferentType_ReturnsFalse()
+    {
+        var square1 = new Square(File.A, Rank.First);
+        var square2 = new object();
+
+        var result = square1.Equals(square2);
+
+        await Assert.That(result).IsFalse();
     }
 }

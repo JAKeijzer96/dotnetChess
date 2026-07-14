@@ -20,6 +20,17 @@ public class BoardTest
     }
 
     [Test]
+    public async Task Board_WithInvalidBoardFen_ThrowsArgumentException()
+    {
+        var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/8";
+
+        void Act() => _ = new Board(fen);
+
+        var exception = await Assert.That(Act).Throws<ArgumentException>();
+        await Assert.That(exception!.Message).IsEqualTo("Invalid number of ranks in FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/8");
+    }
+
+    [Test]
     public async Task Indexer_WithValidFileAndRank_ReturnsSquare()
     {
         var board = new Board();
@@ -151,7 +162,6 @@ public class BoardTest
 
         var kingSquare = board.GetKingSquare(Color.White);
 
-        await Assert.That(kingSquare).IsNotNull();
         await Assert.That(kingSquare.File).IsEqualTo(File.E);
         await Assert.That(kingSquare.Rank).IsEqualTo(Rank.First);
     }
@@ -163,7 +173,6 @@ public class BoardTest
 
         var kingSquare = board.GetKingSquare(Color.Black);
 
-        await Assert.That(kingSquare).IsNotNull();
         await Assert.That(kingSquare.File).IsEqualTo(File.E);
         await Assert.That(kingSquare.Rank).IsEqualTo(Rank.Eighth);
     }
@@ -175,19 +184,19 @@ public class BoardTest
 
         var kingSquare = board.GetKingSquare(Color.White);
 
-        await Assert.That(kingSquare).IsNotNull();
         await Assert.That(kingSquare.File).IsEqualTo(File.D);
         await Assert.That(kingSquare.Rank).IsEqualTo(Rank.Fifth);
     }
 
     [Test]
-    public async Task GetKingSquare_WithMissingKing_ReturnsNull()
+    public async Task GetKingSquare_WithMissingKing_ThrowsInvalidOperationException()
     {
         var board = new Board("rnbq1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
-        var kingSquare = board.GetKingSquare(Color.Black);
+        void Act() => board.GetKingSquare(Color.Black);
 
-        await Assert.That(kingSquare).IsNull();
+        var exception = await Assert.That(Act).ThrowsExactly<InvalidOperationException>();
+        await Assert.That(exception!.Message).IsEqualTo("Black King not found on the board");
     }
 
     [Test]

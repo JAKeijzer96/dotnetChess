@@ -37,7 +37,7 @@ public class CastlingAvailabilityTest
     [Arguments("KQkq", Color.White, "kq")]
     [Arguments("Kkq", Color.Black, "K")]
     [Arguments("KQ", Color.White, "-")]
-    public async Task UpdateAfterCastlingMove_WhiteOrBlack_UpdatesCastlingAvailability(string castling, Color color,
+    public async Task AfterCastlingMove_WhiteOrBlack_UpdatesCastlingAvailability(string castling, Color color,
         string expected)
     {
         var sut = new CastlingAvailability(castling);
@@ -54,7 +54,7 @@ public class CastlingAvailabilityTest
     [Arguments("Qkq", 'k', 4, 7, "Q")] // Move black king
     [Arguments("q", 'r', 0, 7, "-")] // Move black a-file rook
     [Arguments("Kk", 'r', 7, 7, "K")] // Move black h-file rook
-    public async Task UpdateAfterRegularMove_MovingRookOrKing_UpdatesCastlingAvailability(string castling, char pieceChar,
+    public async Task AfterRegularMove_MovingRookOrKing_UpdatesCastlingAvailability(string castling, char pieceChar,
         int file, int rank, string expectedCastlingValue)
     {
         var sut = new CastlingAvailability(castling);

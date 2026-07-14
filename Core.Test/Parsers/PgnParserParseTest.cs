@@ -40,6 +40,28 @@ public class PgnParserParseTest
     }
 
     [Test]
+    public async Task Parse_IllegalMove_ThrowsInvalidPgnException()
+    {
+        var pgn = PgnFromMovetext("1. Qh5 *");
+
+        void Act() => PgnParser.Parse(pgn);
+
+        var exception = await Assert.That(Act).Throws<InvalidPgnException>();
+        await Assert.That(exception!.Message).IsEqualTo("SAN 'Qh5' is ambiguous or illegal: 0 candidate(s) found.");
+    }
+
+    [Test]
+    public async Task Parse_InvalidCastlingMove_ThrowsInvalidPgnException()
+    {
+        var pgn = PgnFromMovetext("1. e4 O-O *");
+
+        void Act() => PgnParser.Parse(pgn);
+
+        var exception = await Assert.That(Act).Throws<InvalidPgnException>();
+        await Assert.That(exception!.Message).IsEqualTo("SAN 'O-O' cannot be resolved: 0 candidate(s) found.");
+    }
+
+    [Test]
     public async Task Parse_UnmatchedCloseParen_ThrowsInvalidPgnException()
     {
         var pgn = PgnFromMovetext("1. e4 ) *");
