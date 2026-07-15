@@ -335,6 +335,9 @@ public class Game
             return false;
         }
 
+        var direction = piece.IsWhite ? Direction.Up : Direction.Down;
+        if (from.File.DistanceTo(to.File) != 1) return false;
+        if (from.Rank + direction != to.Rank) return false;
         return to.File == EnPassant.File && to.Rank == EnPassant.Rank;
     }
 
