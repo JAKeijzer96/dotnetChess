@@ -236,7 +236,7 @@ public class PgnParserSerializeTest
         game = game.MakeMove("a7", "a8", piece).Game;
 
         string pgn = PgnParser.Serialize(game);
-        Game parsed = PgnParser.Parse(pgn);
+        Game parsed = PgnParser.Parse(pgn).Game;
 
         Type expectedType = piece switch
         {
