@@ -74,8 +74,8 @@ namespace Core.Parsers;
 
 public static class PgnParser
 {
-    private static readonly IReadOnlySet<string> RequiredTags =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
+    private static readonly IReadOnlyList<string> SevenTagRoster =
+        ["Event", "Site", "Date", "Round", "White", "Black", "Result"];
 
     public static string Serialize(Game game)
     {
@@ -88,13 +88,25 @@ public static class PgnParser
         return sb.ToString();
     }
 
-    public static Game Parse(string pgn)
+    public static string Serialize(ParsedPgn parsedPgn)
+    {
+        var sb = new StringBuilder();
+
+        AppendTags(sb, parsedPgn.Game, parsedPgn.Tags);
+        sb.AppendLine();
+        AppendMovetext(sb, parsedPgn.Game);
+
+        return sb.ToString();
+    }
+
+    public static ParsedPgn Parse(string pgn)
     {
         ArgumentNullException.ThrowIfNull(pgn);
 
         var stack = new Stack<Game>();
         var game = new Game();
         var seenTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var tags = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         string? resultTagValue = null;
 
         foreach (PgnToken token in Tokenize(pgn))
@@ -103,21 +115,25 @@ public static class PgnParser
             {
                 case PgnTokenType.Tag:
                     string? tagName = ParseTagName(token.Value);
+                    string? tagValue = null;
                     if (tagName is not null)
+                    {
                         seenTags.Add(tagName);
-                    string? fen = TryParseFenTag(token.Value);
-                    if (fen is not null)
+                        tagValue = ParseTagValue(token.Value);
+                        if (tagValue is not null)
+                            tags[tagName] = tagValue;
+                    }
+                    if (tagName == "Result")
+                        resultTagValue = tagValue;
+                    if (tagName == "FEN")
                         try
                         {
-                            game = FenParser.Parse(fen);
+                            game = FenParser.Parse(tagValue!);
                         }
                         catch (Exception ex)
                         {
                             throw new InvalidPgnException("An error occured when parsing the FEN tag", ex);
                         }
-                    string? resultTag = TryParseResultTag(token.Value);
-                    if (resultTag is not null)
-                        resultTagValue = resultTag;
                     break;
 
                 case PgnTokenType.San:
@@ -153,15 +169,15 @@ public static class PgnParser
                     break;
 
                 case PgnTokenType.Result:
-                    foreach (string required in RequiredTags)
+                    foreach (string requiredTag in SevenTagRoster)
                     {
-                        if (!seenTags.Contains(required)) throw new InvalidPgnException($"Missing required tag: [{required}].");
+                        if (!seenTags.Contains(requiredTag)) throw new InvalidPgnException($"Missing required tag: [{requiredTag}].");
                     }
                     if (resultTagValue is not null && token.Value != resultTagValue)
                         throw new InvalidPgnException($"Result tag '[Result \"{resultTagValue}\"]' does not match movetext result '{token.Value}'.");
                     if (token.Value == "1/2-1/2" && game.GameResult == GameResult.InProgress)
                         game = game.WithResult(GameResult.DrawByAgreement);
-                    return game;
+                    return new ParsedPgn(game, tags);
             }
         }
 
@@ -181,6 +197,30 @@ public static class PgnParser
         string initialFen = FenParser.Serialize(game.InitialGame);
         if (initialFen != FenParser.Serialize(new Game()))
             sb.AppendLine($"[FEN \"{initialFen}\"]");
+    }
+
+    private static void AppendTags(StringBuilder sb, Game game, IReadOnlyDictionary<string, string> tags)
+    {
+        foreach (string name in SevenTagRoster)
+        {
+            if (name.Equals("Result", StringComparison.OrdinalIgnoreCase))
+                sb.AppendLine($"[Result \"{GameResultToken(game.GameResult, game.Turn)}\"]");
+            else if (tags.TryGetValue(name, out string? value))
+                sb.AppendLine($"[{name} \"{value}\"]");
+            else
+                sb.AppendLine($"[{name} \"?\"]");
+        }
+
+        string initialFen = FenParser.Serialize(game.InitialGame);
+        if (initialFen != FenParser.Serialize(new Game()))
+            sb.AppendLine($"[FEN \"{initialFen}\"]");
+
+        foreach ((string name, string value) in tags)
+        {
+            if (SevenTagRoster.Contains(name, StringComparer.OrdinalIgnoreCase)) continue;
+            if (name.Equals("FEN", StringComparison.OrdinalIgnoreCase)) continue;
+            sb.AppendLine($"[{name} \"{value}\"]");
+        }
     }
 
     private static void AppendMovetext(StringBuilder sb, Game game)
@@ -380,29 +420,19 @@ public static class PgnParser
 
     private static bool IsResultToken(string token) => token is "1-0" or "0-1" or "1/2-1/2" or "*";
 
-    private static string? TryParseFenTag(string tag)
-    {
-        if (!tag.StartsWith("[FEN ", StringComparison.OrdinalIgnoreCase)) return null;
-        int start = tag.IndexOf('"');
-        int end = tag.LastIndexOf('"');
-        if (start < 0 || end < start) return null;
-        return tag[(start + 1)..end];
-    }
-
-    private static string? TryParseResultTag(string tag)
-    {
-        if (!tag.StartsWith("[Result ", StringComparison.OrdinalIgnoreCase)) return null;
-        int start = tag.IndexOf('"');
-        int end = tag.LastIndexOf('"');
-        if (start < 0 || end < start) return null;
-        return tag[(start + 1)..end];
-    }
-
     private static string? ParseTagName(string tag)
     {
         if (!tag.StartsWith('[')) return null;
         int nameEnd = tag.IndexOf(' ');
         if (nameEnd < 0) return null;
         return tag[1..nameEnd];
+    }
+
+    private static string? ParseTagValue(string tag)
+    {
+        int start = tag.IndexOf('"');
+        int end = tag.LastIndexOf('"');
+        if (start < 0 || end <= start) return null;
+        return tag[(start + 1)..end];
     }
 }
