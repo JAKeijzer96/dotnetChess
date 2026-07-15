@@ -232,8 +232,8 @@ public class GameTest
 
     [Test]
     [Arguments(0, "e1", "g1", "f1", "g1", "h1")]
-    [Arguments(0, "e1", "b1", "d1", "c1", "a1")]
-    [Arguments(1, "e8", "h8", "f8", "g8", "h8")]
+    [Arguments(0, "e1", "c1", "d1", "c1", "a1")]
+    [Arguments(1, "e8", "g8", "f8", "g8", "h8")]
     [Arguments(1, "e8", "c8", "d8", "c8", "a8")]
     public async Task MakeMove_CastlingWhenValid_MovesKingAndRook(int turn, string kingSquare, string destinationSquare,
                                             string rookEndSquare, string kingEndSquare, string rookStartSquare)
@@ -257,7 +257,7 @@ public class GameTest
         var castlingAvailability = new CastlingAvailability("Kkq");
         var sut = new Game(board, Color.Black, castlingAvailability, null, 0, 1);
 
-        var result = sut.MakeMove("e8", "a8").Game;
+        var result = sut.MakeMove("e8", "c8").Game;
 
         await Assert.That(result.CastlingAvailability.ToString()).IsEqualTo("K");
     }

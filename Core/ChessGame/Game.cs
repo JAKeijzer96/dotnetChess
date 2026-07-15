@@ -350,9 +350,9 @@ public class Game
 
         var isWhiteKingMoveOnFirstRank = king.IsWhite && from.Rank == Rank.First && to.Rank == Rank.First;
         var isBlackKingMoveOnEighthRank = king.IsBlack && from.Rank == Rank.Eighth && to.Rank == Rank.Eighth;
-        var isFileDifferenceGreaterThanTwo = from.File.DistanceTo(to.File) >= 2;
+        var isFileDifferenceExactlyTwo = from.File.DistanceTo(to.File) == 2;
 
-        return isFileDifferenceGreaterThanTwo && (isWhiteKingMoveOnFirstRank || isBlackKingMoveOnEighthRank);
+        return isFileDifferenceExactlyTwo && (isWhiteKingMoveOnFirstRank || isBlackKingMoveOnEighthRank);
     }
 
     private bool IsCastlingMove(Square from, Square to)

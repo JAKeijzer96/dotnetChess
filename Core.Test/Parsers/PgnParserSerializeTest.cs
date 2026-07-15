@@ -143,7 +143,7 @@ public class PgnParserSerializeTest
     public async Task Serialize_KingsideCastling_IsOO()
     {
         var game = FenParser.Parse("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
-        game = game.MakeMove("e1", "h1").Game;
+        game = game.MakeMove("e1", "g1").Game;
 
         await Assert.That(Movetext(game)).Contains("O-O");
     }
@@ -152,7 +152,7 @@ public class PgnParserSerializeTest
     public async Task Serialize_QueensideCastling_IsOOO()
     {
         var game = FenParser.Parse("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
-        game = game.MakeMove("e1", "b1").Game;
+        game = game.MakeMove("e1", "c1").Game;
 
         await Assert.That(Movetext(game)).Contains("O-O-O");
     }
@@ -161,7 +161,7 @@ public class PgnParserSerializeTest
     public async Task Serialize_KingsideCastling_IsNotOOO()
     {
         var game = FenParser.Parse("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
-        game = game.MakeMove("e1", "h1").Game;
+        game = game.MakeMove("e1", "g1").Game;
 
         var movetext = Movetext(game);
         await Assert.That(movetext).Contains("O-O");
@@ -454,7 +454,7 @@ public class PgnParserSerializeTest
     {
         var game = FenParser.Parse("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
         game = game.MakeMove("h1", "h2").Game;
-        game = game.MakeMove("e8", "h8").Game;
+        game = game.MakeMove("e8", "g8").Game;
 
         await Assert.That(Movetext(game)).Contains("O-O");
     }
@@ -467,7 +467,7 @@ public class PgnParserSerializeTest
     public async Task Serialize_CastlingWithCheck_HasPlusSuffix()
     {
         var game = FenParser.Parse("4k2r/8/8/8/8/8/8/5K2 b k - 0 1");
-        game = game.MakeMove("e8", "h8").Game;
+        game = game.MakeMove("e8", "g8").Game;
 
         await Assert.That(Movetext(game)).Contains("O-O+");
     }

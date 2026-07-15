@@ -491,7 +491,7 @@ public class PgnParserParseTest
         var pgn = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
         Game game = PgnParser.Parse(pgn).Game;
 
-        var makeMoveResult = game.MakeMove("e1", "h1");
+        var makeMoveResult = game.MakeMove("e1", "g1");
         await Assert.That(makeMoveResult.MoveResult).IsEqualTo(MoveResult.Success);
 
         game = makeMoveResult.Game;
@@ -533,7 +533,7 @@ public class PgnParserParseTest
         var pgn = PgnFromMovetext("*", fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
         Game game = PgnParser.Parse(pgn).Game;
 
-        var makeMoveResult = game.MakeMove("e1", "b1");
+        var makeMoveResult = game.MakeMove("e1", "c1");
         await Assert.That(makeMoveResult.MoveResult).IsEqualTo(MoveResult.Success);
 
         game = makeMoveResult.Game;
