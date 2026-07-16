@@ -150,7 +150,7 @@ public class Game
 
         var enPassant = CalculateEnPassantSquare(Board, from, to);
         var board = ApplyMoveToBoard(from, to, isEnPassantMove, isCastlingMove, promotionPieceChar);
-        var castlingAvailability = UpdateCastlingAvailability(piece, from, isCastlingMove);
+        var castlingAvailability = UpdateCastlingAvailability(piece, from, to, isCastlingMove);
         var halfMoveCount = CalculateHalfMoveCount(piece, isPieceCaptured);
         var turn = CalculateNextTurn();
         var newFullMoveCount = CalculateNextFullMoveCount();
@@ -335,6 +335,9 @@ public class Game
             return false;
         }
 
+        var direction = piece.IsWhite ? Direction.Up : Direction.Down;
+        if (from.File.DistanceTo(to.File) != 1) return false;
+        if (from.Rank + direction != to.Rank) return false;
         return to.File == EnPassant.File && to.Rank == EnPassant.Rank;
     }
 
@@ -347,9 +350,9 @@ public class Game
 
         var isWhiteKingMoveOnFirstRank = king.IsWhite && from.Rank == Rank.First && to.Rank == Rank.First;
         var isBlackKingMoveOnEighthRank = king.IsBlack && from.Rank == Rank.Eighth && to.Rank == Rank.Eighth;
-        var isFileDifferenceGreaterThanTwo = from.File.DistanceTo(to.File) >= 2;
+        var isFileDifferenceExactlyTwo = from.File.DistanceTo(to.File) == 2;
 
-        return isFileDifferenceGreaterThanTwo && (isWhiteKingMoveOnFirstRank || isBlackKingMoveOnEighthRank);
+        return isFileDifferenceExactlyTwo && (isWhiteKingMoveOnFirstRank || isBlackKingMoveOnEighthRank);
     }
 
     private bool IsCastlingMove(Square from, Square to)
@@ -454,13 +457,13 @@ public class Game
         return board;
     }
 
-    private CastlingAvailability UpdateCastlingAvailability(Piece piece, Square from, bool isCastlingMove)
+    private CastlingAvailability UpdateCastlingAvailability(Piece piece, Square from, Square to, bool isCastlingMove)
     {
         if (isCastlingMove)
         {
             return CastlingAvailability.AfterCastlingMove(piece.Color);
         }
-        return CastlingAvailability.AfterRegularMove(piece, from);
+        return CastlingAvailability.AfterRegularMove(piece, from, to);
     }
 
     private int CalculateHalfMoveCount(Piece movedPiece, bool isPieceCaptured)
