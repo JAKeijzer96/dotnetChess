@@ -41,7 +41,7 @@ public partial class CastlingAvailability
         return new CastlingAvailability(newCastlingAvailability);
     }
 
-    internal CastlingAvailability AfterRegularMove(Piece piece, Square from)
+    internal CastlingAvailability AfterRegularMove(Piece piece, Square from, Square to)
     {
         if (CanNeitherSideCastle())
         {
@@ -56,7 +56,7 @@ public partial class CastlingAvailability
             {
                 newCastlingAvailability = newCastlingAvailability.Replace("K", "").Replace("Q", "");
             }
-            else if (CanBlackCastle())
+            else if (!pieceIsWhite && CanBlackCastle())
             {
                 newCastlingAvailability = newCastlingAvailability.Replace("k", "").Replace("q", "");
             }
@@ -69,6 +69,18 @@ public partial class CastlingAvailability
                 true when from.File == File.H => newCastlingAvailability.Replace("K", ""),
                 false when from.File == File.A => newCastlingAvailability.Replace("q", ""),
                 false when from.File == File.H => newCastlingAvailability.Replace("k", ""),
+                _ => newCastlingAvailability
+            };
+        }
+
+        if (to.Piece is Rook capturedRook)
+        {
+            newCastlingAvailability = capturedRook.IsWhite switch
+            {
+                true when to.File == File.A && to.Rank == Rank.First => newCastlingAvailability.Replace("Q", ""),
+                true when to.File == File.H && to.Rank == Rank.First => newCastlingAvailability.Replace("K", ""),
+                false when to.File == File.A && to.Rank == Rank.Eighth => newCastlingAvailability.Replace("q", ""),
+                false when to.File == File.H && to.Rank == Rank.Eighth => newCastlingAvailability.Replace("k", ""),
                 _ => newCastlingAvailability
             };
         }
@@ -87,7 +99,7 @@ public partial class CastlingAvailability
     }
 
     private bool CanWhiteCastle() => CanWhiteCastleKingside() || CanWhiteCastleQueenside();
-    private bool CanBlackCastle() => CanBlackCastleKingside() || CanWhiteCastleQueenside();
+    private bool CanBlackCastle() => CanBlackCastleKingside() || CanBlackCastleQueenside();
 
     private static void ValidateCastlingAvailability(string castling)
     {

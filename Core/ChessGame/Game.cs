@@ -150,7 +150,7 @@ public class Game
 
         var enPassant = CalculateEnPassantSquare(Board, from, to);
         var board = ApplyMoveToBoard(from, to, isEnPassantMove, isCastlingMove, promotionPieceChar);
-        var castlingAvailability = UpdateCastlingAvailability(piece, from, isCastlingMove);
+        var castlingAvailability = UpdateCastlingAvailability(piece, from, to, isCastlingMove);
         var halfMoveCount = CalculateHalfMoveCount(piece, isPieceCaptured);
         var turn = CalculateNextTurn();
         var newFullMoveCount = CalculateNextFullMoveCount();
@@ -457,13 +457,13 @@ public class Game
         return board;
     }
 
-    private CastlingAvailability UpdateCastlingAvailability(Piece piece, Square from, bool isCastlingMove)
+    private CastlingAvailability UpdateCastlingAvailability(Piece piece, Square from, Square to, bool isCastlingMove)
     {
         if (isCastlingMove)
         {
             return CastlingAvailability.AfterCastlingMove(piece.Color);
         }
-        return CastlingAvailability.AfterRegularMove(piece, from);
+        return CastlingAvailability.AfterRegularMove(piece, from, to);
     }
 
     private int CalculateHalfMoveCount(Piece movedPiece, bool isPieceCaptured)
