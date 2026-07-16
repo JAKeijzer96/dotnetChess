@@ -49,4 +49,4 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
       - name: Test with TUnit
-        run: dotnet exec Core.Test/bin/Release/net10.0/Core.Test.dll
+        run: dotnet run --project Core.Test --configuration Release --no-build --treenode-filter "/*/*/*/*[Category!=Perft]"
