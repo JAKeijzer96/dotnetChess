@@ -1,12 +1,11 @@
 using Core.ChessBoard;
 using Core.ChessGame;
 using Core.Parsers;
-using Core.Pieces;
 using Core.Shared;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Core.Test.ChessGame;
+namespace Core.Test.Perft;
 
 // See https://www.chessprogramming.org/Perft and https://www.chessprogramming.org/Perft_Results
 [Category("Perft")]
@@ -17,24 +16,10 @@ public class PerftTest
         if (depth == 0) return 1;
 
         long nodes = 0;
-        foreach ((Square from, Square to) in game.GetLegalMoves(game.Turn))
+        foreach ((Square from, Square to, char promotionPiece) in game.GetLegalMoves(game.Turn))
         {
-            if (from.Piece is Pawn && (to.Rank == Rank.Eighth || to.Rank == Rank.First))
-            {
-                char[] promos = game.Turn == Color.White
-                    ? ['Q', 'R', 'B', 'N']
-                    : ['q', 'r', 'b', 'n'];
-                foreach (char promo in promos)
-                {
-                    MakeMoveResult result = game.MakeMove(from.ToString(), to.ToString(), promo);
-                    nodes += Perft(result.Game, depth - 1);
-                }
-            }
-            else
-            {
-                MakeMoveResult result = game.MakeMove(from.ToString(), to.ToString());
-                nodes += Perft(result.Game, depth - 1);
-            }
+            MakeMoveResult result = game.MakeMove(from.ToString(), to.ToString(), promotionPiece);
+            nodes += Perft(result.Game, depth - 1);
         }
         return nodes;
     }
@@ -42,26 +27,13 @@ public class PerftTest
     private static Dictionary<string, long> Divide(Game game, int depth)
     {
         var result = new Dictionary<string, long>();
-        foreach ((Square from, Square to) in game.GetLegalMoves(game.Turn))
+        foreach ((Square from, Square to, char promotionPiece) in game.GetLegalMoves(game.Turn))
         {
-            if (from.Piece is Pawn && (to.Rank == Rank.Eighth || to.Rank == Rank.First))
-            {
-                char[] promos = game.Turn == Color.White
-                    ? ['Q', 'R', 'B', 'N']
-                    : ['q', 'r', 'b', 'n'];
-                foreach (char promo in promos)
-                {
-                    string key = $"{from}{to}{char.ToLower(promo)}";
-                    MakeMoveResult moveResult = game.MakeMove(from.ToString(), to.ToString(), promo);
-                    result[key] = Perft(moveResult.Game, depth - 1);
-                }
-            }
-            else
-            {
-                string key = $"{from}{to}";
-                MakeMoveResult moveResult = game.MakeMove(from.ToString(), to.ToString());
-                result[key] = Perft(moveResult.Game, depth - 1);
-            }
+            string key = promotionPiece == default
+                ? $"{from}{to}"
+                : $"{from}{to}{char.ToLower(promotionPiece)}";
+            MakeMoveResult moveResult = game.MakeMove(from.ToString(), to.ToString(), promotionPiece);
+            result[key] = Perft(moveResult.Game, depth - 1);
         }
         return result;
     }
